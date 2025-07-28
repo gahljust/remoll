@@ -13,7 +13,7 @@
 			<auxiliary auxtype="Color" auxvalue="magenta"/>
 			<auxiliary auxtype="SensDet" auxvalue="mainDetectorSD" />
 			<!--<auxiliary auxtype="DetNo" auxvalue="110452"/>-->
-            <auxiliary auxtype="DetNo" auxvalue="1050102"/>
+<auxiliary auxtype="DetNo" auxvalue="20610" />
 		</volume>
 	</structure>
  
