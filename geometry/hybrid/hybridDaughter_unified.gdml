@@ -19,9 +19,9 @@
         <position name="CENTER" unit="mm" x="0" y="0" z="0"/>
         <position name="boxDownstream_center" unit="mm" x="0" y="0" z="-7435-150/2-400/2+560/2"/>
         <constant name="dr"   value="3" />
-        <constant name="drcl" value="3" />
+        <constant name="drcl" value="6" />
         <constant name="dr6a" value="3" />
-        <constant name="dr6b" value="3" />
+        <constant name="dr6b" value="6" />
         <constant name="drbp" value="3" />
         
         <constant name="DELTAT" value ="1.0"/>
