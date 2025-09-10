@@ -52,27 +52,27 @@
     <constant name="COLL2_THICK_Cu" value ="50.0"/> 
     <constant name="posCOLL2z" value ="5925-UOFFSET"/>
 
-    <constant name="Col2_IR" value ="35"/>
+    <constant name="Col2_IR" value ="35.5"/>
     <constant name="Col2_OR" value ="101"/>
 
     <!-- Dimensions for Collimator 2   -->
-    <constant name="Col2_x0_lowR" value ="Col2_IR*sin(SEPTANT*pi/(4*180.))"/>
-    <constant name="Col2_y0_lowR" value ="Col2_IR*cos(SEPTANT*pi/(4*180.))"/>
+    <constant name="Col2_x0_lowR" value ="7.788"/>
+    <constant name="Col2_y0_lowR" value ="34.635"/>
 
-    <constant name="Col2_x0_highR" value ="Col2_OR*sin(SEPTANT*pi/(4*180.))"/>
-    <constant name="Col2_y0_highR" value ="Col2_OR*cos(SEPTANT*pi/(4*180))"/>
+    <constant name="Col2_x0_highR" value ="22.475"/>
+    <constant name="Col2_y0_highR" value ="98.468"/>
 
-    <constant name="Col2_x1_lowR" value ="8.202"/>
-    <constant name="Col2_y1_lowR" value ="sqrt(Col2_IR*Col2_IR-Col2_x1_lowR*Col2_x1_lowR)"/>
+    <constant name="Col2_x1_lowR" value ="8.225"/>
+    <constant name="Col2_y1_lowR" value ="34.534"/>
 
-    <constant name="Col2_x1_highR" value ="23.180"/>
-    <constant name="Col2_y1_highR" value ="sqrt(pow(Col2_OR+50*tan(1.5*pi/180.),2)-Col2_x1_highR*Col2_x1_highR)"/>
+    <constant name="Col2_x1_highR" value ="22.911"/>
+    <constant name="Col2_y1_highR" value ="99.711"/>
 
-    <constant name="Col2_x2_lowR" value ="8.616"/>
-    <constant name="Col2_y2_lowR" value ="sqrt(Col2_IR*Col2_IR-Col2_x2_lowR*Col2_x2_lowR)"/>
+    <constant name="Col2_x2_lowR" value ="8.661"/>
+    <constant name="Col2_y2_lowR" value ="34.427"/>
 
-    <constant name="Col2_x2_highR" value ="23.887"/>
-    <constant name="Col2_y2_highR" value ="sqrt(pow(Col2_OR+100*tan(1.5*pi/180.),2)-Col2_x2_highR*Col2_x2_highR)"/>
+    <constant name="Col2_x2_highR" value ="23.347"/>
+    <constant name="Col2_y2_highR" value ="100.954"/>
 
    <position name="Col2_accep_pos" unit="mm" x="0" y="0" z="25.0"/>
 
@@ -381,7 +381,7 @@
             v6x="-25" v6y="25" 
             v7x="-25" v7y="Col2_y2_lowR" 
             v8x="25" v8y="Col2_y2_lowR" 
-            dz="25.000" lunit="mm"/>
+            dz="55.000" lunit="mm"/>
 
     <cone aunit="deg" deltaphi="40" lunit="mm" name="Col2_lowerR_tube3" rmax1="Col2_IR" rmin1="30" rmax2="Col2_IR" rmin2="30" startphi="70" z="50"/>
 
@@ -393,7 +393,7 @@
             v6x="-45" v6y="85" 
             v7x="-45" v7y="Col2_y2_highR" 
             v8x="45" v8y="Col2_y2_highR" 
-            dz="25.000" lunit="mm"/>
+            dz="55.000" lunit="mm"/>
 
     <cone aunit="deg" deltaphi="40" lunit="mm" name="Col2_largeR_tube3" rmax1="Col2_OR+50*tan(1.5*pi/180.)" rmin1="95" rmax2="Col2_OR+100*tan(1.5*pi/180.)" rmin2="95" startphi="70" z="50"/>
 
