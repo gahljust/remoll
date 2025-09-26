@@ -56,16 +56,16 @@
        x="1" y="3429+2571" z="9512.3+9541.7"/>
        
   <box lunit="mm" name="PSbunkerOuterSideVP_solid"
-       x="11742.42" y="3429" z="1"/>
+       x="14551.94534" y="3429" z="1"/>
    
   <box lunit="mm" name="PSbunkerInnerFrontVP_solid"
      x="1" y="3429" z="10071.3"/>
   
   <box lunit="mm" name="PSbunkerInnerSideVP_solid"
-       x="10218.42" y="3429" z="1"/>
+       x="12927.94534+100" y="3429" z="1"/>
  
- <box lunit="mm" name="PSbunkerTopVP_solid"
-      x="11742.42" y="1" z="9512.3+9541.7"/>
+  <box lunit="mm" name="PSbunkerTopVP_solid"
+      x="14551.94534" y="1" z="9512.3+9541.7"/>
 
 
  <!-- RR bellows 4 and its flanges -->
@@ -1498,37 +1498,37 @@
 
     <physvol name="PSbunkerOuterFrontVP_phys">
       <volumeref ref="PSbunkerOuterFrontVP_log"/>
-      <position name="PSbunkerOuterFrontVP_pos" unit="mm" x="4123.944-1" y="-948.86+75+2571/2-786/2" z="279.5+19054/2"/>
+      <position name="PSbunkerOuterFrontVP_pos" unit="mm" x="4123.944+4" y="-948.86+75+2571/2-786/2" z="279.5+19054/2"/>
     </physvol>
     
     <physvol name="PSbunkerOuterSideLeftVP_phys">
       <volumeref ref="PSbunkerOuterSideLeftVP_log"/>
-      <position name="PSbunkerOuterSideLeftVP_pos" unit="mm" x="4123.944+5871.21" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-10071.354-5-1524-4"/>
+      <position name="PSbunkerOuterSideLeftVP_pos" unit="mm" x="4123.944+4+14551.94534/2" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-10071.354-5-1524-4"/>
     </physvol>
     
     <physvol name="PSbunkerOuterSideRightVP_phys">
       <volumeref ref="PSbunkerOuterSideRightVP_log"/>
-      <position name="PSbunkerOuterSideRightVP_pos" unit="mm" x="4123.944+5871.21" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50"/>
+      <position name="PSbunkerOuterSideRightVP_pos" unit="mm" x="4123.944+4+14551.94534/2" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50"/>
     </physvol>
     
     <physvol name="PSbunkerInnerFrontVP_phys">
       <volumeref ref="PSbunkerInnerFrontVP_log"/>
-      <position name="PSbunkerInnerFrontVP_pos" unit="mm" x="4123.944+1524+1" y="-948.86+75-786/2" z="10447.957-2000+3659.35/2"/>
+      <position name="PSbunkerInnerFrontVP_pos" unit="mm" x="4123.944+1524+5" y="-948.86+75-786/2" z="10447.957-2000+3659.35/2"/>
     </physvol>
     
     <physvol name="PSbunkerInnerSideLeftVP_phys">
       <volumeref ref="PSbunkerInnerSideLeftVP_log"/>
-      <position name="PSbunkerInnerSideLeftVP_pos" unit="mm" x="4123.944+5109.21+2+1524" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-10071.354-6"/>
+      <position name="PSbunkerInnerSideLeftVP_pos" unit="mm" x="4123.944+4+1524+12927.94534/2+100/2" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-10071.354-6"/>
     </physvol>
     
     <physvol name="PSbunkerInnerSideRightVP_phys">
       <volumeref ref="PSbunkerInnerSideRightVP_log"/>
-      <position name="PSbunkerInnerSideRightVP_pos" unit="mm" x="4123.944+5109.21+2+1524" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-11"/>
+      <position name="PSbunkerInnerSideRightVP_pos" unit="mm" x="4123.944+4+1524+12927.94534/2+100/2" y="-948.86+75-786/2" z="10447.957+13119.354/2-1869.44/2+1524/2+50-1524-11"/>
     </physvol>
     
     <physvol name="PSbunkerTopVP_phys">
       <volumeref ref="PSbunkerTopVP_log"/>
-      <position name="PSbunkerTopVP_pos" unit="mm" x="4123.944+5871.21+1" y="-948.86+75+3429/2+1-786/2" z="279.5+19054/2"/>
+      <position name="PSbunkerTopVP_pos" unit="mm" x="4123.944+4+14551.94534/2" y="-948.86+75+3429/2+10-786/2" z="279.5+19054/2"/>
     </physvol>
     
     <auxiliary auxtype="Alpha" auxvalue="0.1"/>
