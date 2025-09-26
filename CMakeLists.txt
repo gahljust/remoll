@@ -359,7 +359,7 @@ endforeach()
 # Download field maps subdirectory
 #
 set(REMOLL_LOCATION /group/halla/www/hallaweb/html/12GeV/Moller/downloads/remoll/)
-set(REMOLL_DOWNLOADS http://hallaweb.jlab.org/12GeV/Moller/downloads/remoll/)
+set(REMOLL_DOWNLOADS https://hallaweb.jlab.org/12GeV/Moller/downloads/remoll/)
 set(REMOLL_MAP_DIR ${PROJECT_SOURCE_DIR}/map_directory)
 if(EXISTS ${REMOLL_LOCATION})
   message(STATUS "Fieldmaps will be copied from directory...")
@@ -408,6 +408,8 @@ else()
   message(STATUS "Download additional fields with '-DADDITIONAL_FIELDS=ON'.")
   set(REMOLL_MAPS_EXTRA "")
 endif()
+# setting User-agent HTTP header
+set(_HTTP_HDR "User-Agent: Mozilla/5.0")
 foreach(MAP IN LISTS REMOLL_MAPS REMOLL_MAPS_EXTRA)
   set(REGEX "^(.*):(.*):(.*)$")
   # Hash 1: txt file, Hash 2: txt.gz file
@@ -419,6 +421,7 @@ foreach(MAP IN LISTS REMOLL_MAPS REMOLL_MAPS_EXTRA)
       ${REMOLL_DOWNLOADS}/${FILE}.gz
       ${REMOLL_MAP_DIR}/${FILE}.gz
       EXPECTED_MD5 ${HASH2}
+      HTTPHEADER ${_HTTP_HDR}
       )
     install(FILES
       ${REMOLL_MAP_DIR}/${FILE}.gz
@@ -429,6 +432,7 @@ foreach(MAP IN LISTS REMOLL_MAPS REMOLL_MAPS_EXTRA)
       ${REMOLL_DOWNLOADS}/${FILE}
       ${REMOLL_MAP_DIR}/${FILE}
       EXPECTED_MD5 ${HASH1}
+      HTTPHEADER ${_HTTP_HDR}
       )
     install(FILES
       ${REMOLL_MAP_DIR}/${FILE}
