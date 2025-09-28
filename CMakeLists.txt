@@ -374,6 +374,7 @@ endif()
 set(REMOLL_MAPS
 b8b30b803bae42f69135323ff40fe7db:99bf3fae83677c6c2f3e09a871682b2e:V2U.1a.50cm.parallel.txt
 e4a96c2f3136d0eb020d90e74a532a6d:246d48001dd71174b62e16ecf07adc4d:V2U.1a.50cm.parallel.real_asymmetric.txt
+9f97ba09601fc26676c1fd6ebd44731d:070b004ffd281ebceee0b6eaaa847edf:DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt
 )
 set(REMOLL_MAPS_EXTRA
 90b2096b971970abfeb70f896e7fa7c0:7a57aede9c2b98bba047d424edf38eb4:US_Asym_CP2B_pm_1_3.txt
