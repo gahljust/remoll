@@ -373,11 +373,12 @@ endif()
 # for i in *.txt ; do echo `md5sum $i|awk '{print$1}'`:`md5sum $i.gz|awk '{print$1}'`:$i ; done
 set(REMOLL_MAPS
 b8b30b803bae42f69135323ff40fe7db:99bf3fae83677c6c2f3e09a871682b2e:V2U.1a.50cm.parallel.txt
-e4a96c2f3136d0eb020d90e74a532a6d:246d48001dd71174b62e16ecf07adc4d:V2U.1a.50cm.parallel.real_asymmetric.txt
 9f97ba09601fc26676c1fd6ebd44731d:070b004ffd281ebceee0b6eaaa847edf:DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt
 )
 set(REMOLL_MAPS_EXTRA
+e4a96c2f3136d0eb020d90e74a532a6d:246d48001dd71174b62e16ecf07adc4d:V2U.1a.50cm.parallel.real_asymmetric.txt
 90b2096b971970abfeb70f896e7fa7c0:7a57aede9c2b98bba047d424edf38eb4:US_Asym_CP2B_pm_1_3.txt
+c062261310e041ddfddd692faba1a5d7:5a7a9ca389d29b12d61dfd7f9b67a3d8:DS_TM1-4_CoilA-G_ll_TM2-4_out3mm_asym_case_I.txt
 99196c749da1f2516772639df01c0c62:d5a890bddc8b6b6b1a3c4708cf0298d5:DS_TM1-4_CoilA-G_ll_TM2-4_out3mm_asym_case_II.txt
 03d70a984b51194b6b1d049862f6e56e:d550945c74c23a4515dfa0ee03d7d5d7:DS_Asym_CP2B_pm_1_3.txt
 )
