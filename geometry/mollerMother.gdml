@@ -294,16 +294,10 @@
       </physvol>
       
     <!-- Front Tracking Detectors -->
-    <!--    <physvol>
-      <file name="tracking/trackingDaughter.gdml"/>
+    <physvol>
+      <file name="tracking/GEMDetectors.gdml"/>
       <positionref ref="trackingDetectorVirtualPlaneFront1_pos"/>
-    </physvol>-->
-
-    <!-- Back Tracking Detectors -->
-    <!--   <physvol>
-      <file name="tracking/trackingDaughter.gdml"/>
-      <positionref ref="trackingDetectorVirtualPlaneBack1_pos"/>
-    </physvol>-->
+    </physvol>
 
 
       <!-- GEM Rotator -->
