@@ -45,7 +45,7 @@ struct mainquartz_local_info {
     double lthx;    // Local theta x
     double lthy;    // Local theta y
     double lazimuthal;  // Local azimuthal angle momentum direction with respect to the beamline
-	double lradial;  // Local polar angle momentum direction in xy plane. 
+	double lpolar;  // Local polar angle momentum direction in xy plane. 
 	bool is_wedge; // Is hit on wedge 
 	bool is_edge;  // Is hit on front face
     double detid;   // Detector ID
@@ -55,7 +55,7 @@ struct mainquartz_local_info {
 // you can change the parameters here to match your detector setup
 // Currently we have angleX, angleZ, height, thickness
 std::map <int,std::tuple<double,double,double,double,double>> maindetector_detid_map{
-	{150151, {-0.0000, -2.9976, 90.0000,70 ,8.5 }},
+	{150151, {0.0000, -2.9976, 90.0000,70 ,8.5 }},
 	{150153, {0.0000, -2.9976, 90.0000,70 ,8.5 }},
 	{150152, {0.0000, -2.9976, 90.0000,70 ,8.5 }},
 	{150140, {0.0000, -2.9971, 90.0000,60 ,10 }},
@@ -360,18 +360,21 @@ bool cut_front(RemollHit& hit,double height,double thickness){ //dx means the wi
  */
 TVector3 cal_newP(TVector3 point, double rotateX, double rotateY, double rotateZ){
 	TRotation rotation;
+	
+   
 
 	// Rotate around the X-axis
-	rotation.RotateX(rotateX * TMath::DegToRad());
+    rotation.RotateX(rotateX * TMath::DegToRad());
 
 	// Rotate around the Y-axis
-	rotation.RotateY(rotateY* TMath::DegToRad());
+	rotation.RotateY(rotateY * TMath::DegToRad());
 
-	// Rotate 3 degrees around the Z-axis
+	// Rotat around the Z-axis
 	rotation.RotateZ(rotateZ * TMath::DegToRad());
 
+
 	// Apply the rotation to the point
-	return rotation.Inverse() * point;
+	return rotation * point;
 }
 
 /**
@@ -407,12 +410,13 @@ mainquartz_local_info convert_labframe_to_local_thinquartz(RemollHit hit){
 	info.lpx = rotatedMomentum.X(); 
 	info.lpy = rotatedMomentum.Y();
 	info.lpz = rotatedMomentum.Z();
-	info.lthx = atan2(rotatedMomentum.Z(),rotatedMomentum.X())*180/M_PI;
-	info.lthy = atan2(rotatedMomentum.Z(),rotatedMomentum.Y())*180/M_PI;
-	info.lazimuthal = atan2(sqrt(rotatedMomentum.X()*rotatedMomentum.X()+rotatedMomentum.Y()*rotatedMomentum.Y()),rotatedMomentum.Z())*180/M_PI;
-	info.lradial = atan2(rotatedMomentum.Y()/rotatedMomentum.X(),rotatedMomentum.Z())*180/M_PI;
+	info.lthx = atan2(rotatedMomentum.Z(),rotatedMomentum.X())*180.0/M_PI;
+	info.lthy = atan2(rotatedMomentum.Z(),rotatedMomentum.Y())*180.0/M_PI;
+	info.lpolar = atan2(sqrt(rotatedMomentum.X()*rotatedMomentum.X()+rotatedMomentum.Y()*rotatedMomentum.Y()),rotatedMomentum.Z())*180.0/M_PI;
+	info.lazimuthal = atan2(rotatedMomentum.Y(),rotatedMomentum.X())*180.0/M_PI;
 	info.is_wedge = def_wedge(hit,height);
 	info.is_edge = is_edge;
 	info.detid = hit.det;
 	return info;
 }	
+
