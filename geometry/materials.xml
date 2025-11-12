@@ -240,10 +240,17 @@
     <D unit="g/cm3" value="1e-25"/>
     <atom unit="g/mole" value="1.01"/>
   </material>
-  <material Z="1" name="LiquidHydrogen" state="liquid">
+  <!-- <material Z="1" name="LiquidHydrogen" state="liquid">
     <T unit="K" value="20.27"/>
     <D unit="g/cm3" value="0.0708"/>
     <atom unit="g/mole" value="1.00794"/>
+  </material>-->
+
+  <material Z="1" name="LiquidHydrogen" state="liquid">
+    <T unit="K" value="20.00"/>
+    <P unit="bar" value="2.41317"/>
+    <D unit="g/cm3" value="0.071463"/>
+    <atom unit="g/mole" value="2.016"/> <!--molar mass of molecular hydrogen(H2)-->
   </material>
 
    <material Z="74" name="Tungsten" state="solid">

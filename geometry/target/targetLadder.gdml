@@ -51,7 +51,7 @@
     <auxiliary auxtype="Color" auxvalue="white"/>
   </volume>
   <volume name="targetLH2_LH2Volume_logical">
-    <materialref ref="G4_lH2"/>
+    <materialref ref="LiquidHydrogen"/>
     <solidref ref="TargetLH2_LH2Volume_solid"/>
     <auxiliary auxtype="TargetSamplingVolume" auxvalue="LH2"/>
     <auxiliary auxtype="Color" auxvalue="blue"/>
