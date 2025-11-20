@@ -23,9 +23,9 @@
 
 <!-- Virtual planes in the parallel world -->
 <position name="trackingDetectorVirtualPlaneFront1_pos" z="19724.7" unit="mm"/>
-<position name="trackingDetectorVirtualPlaneFront2_pos" z="19.5029+0.450" unit="m"/>
-<position name="trackingDetectorVirtualPlaneBack1_pos"  z="20.5162" unit="m"/>
-<position name="trackingDetectorVirtualPlaneBack2_pos"  z="20.5162+0.450" unit="m"/>
+<position name="trackingDetectorVirtualPlaneFront2_pos" z="19724.7+395.3" unit="mm"/>
+<position name="trackingDetectorVirtualPlaneBack1_pos"  z="19724.7 + 605.0" unit="mm"/>
+<position name="trackingDetectorVirtualPlaneBack2_pos"  z="19724.7 + 1000.3" unit="mm"/>
 
 <!-- Physical main detector array position -->
 <position name="detectorCenter" x="0.0" y="0.0" z="22000.00" unit="mm"/>
