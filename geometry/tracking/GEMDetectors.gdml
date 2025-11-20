@@ -337,7 +337,7 @@
             <loop for="j" from="0" to="6" step="1">
                 <physvol name="GEM_detector_sector_phys[k+1][j+1]">
                     <volumeref ref="GEM_detector_log[k*7 + j + 1]"/>
-                    <rotation z="(-j)*360./7 - 90 + 0*360./21" unit="deg"/>
+                    <rotation z="(-j)*360./7 - 90 + 0*360./28" unit="deg"/>
                     <positionref ref="GEM_trackingPlane_pos[k+1]" unit="m"/>
                 </physvol>
             </loop>
