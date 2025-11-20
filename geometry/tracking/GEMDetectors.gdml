@@ -4,20 +4,21 @@
             xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
 <define>
-    <!--Starts at 19.509 ends at 20.9662 -->
-    <position name="GEM_trackingPlane_pos_0" z="0.0" unit="m"/>
-    <position name="GEM_trackingPlane_pos_1" z="0.450" unit="m"/>
-    <position name="GEM_trackingPlane_pos_2" z="0.450 + 0.5633" unit="m"/>
-    <position name="GEM_trackingPlane_pos_3" z="2*0.450 + 0.5633" unit="m"/>
+    <!--Starts at 19724 ends at 20724 -->
+    <position name="GEM_trackingPlane_pos_0" z="0.0" unit="mm"/>
+    <position name="GEM_trackingPlane_pos_1" z="395.3" unit="mm"/>
+    <position name="GEM_trackingPlane_pos_2" z="605.0" unit="mm"/>
+    <position name="GEM_trackingPlane_pos_3" z="1000.3" unit="mm"/>
     <quantity name="GEM_rotation" value="360./7" unit="deg"/>
     <!-- One could change this to do half rotation of gems-->
-    <quantity name="GEM_rotation_offset" value="0*(360./21)" unit="deg"/>
+    <!-- note: doesn't work! have to change it during the loop itself-->
+    <!-- change this line: 0*360/21 to 1*360/21, etc.      <rotation z="(-j)*360./7 - 90 + 0*360./21" unit="deg"/>-->
     <variable name="j" value="0"/>
     <variable name="k" value="0"/>
 </define>
 
 <materials>
- <material name="ArCO2" state="gas">
+<material name="ArCO2" state="gas">
         <T unit="K" value="293.15"/>
         <D unit="g/cm3" value="0.0018"/>
         <fraction n="0.75" ref="G4_Ar"/>
@@ -26,41 +27,67 @@
 </materials>
 
 
+<!--
+    The gems at plane 1 and 2 are at different r than the gems at plane 3 and 4
+    so i made two separate xtru's for it 
+-->
+
 <solids>
-    <xtru name="GEM_detector_solid" lunit="mm">
-        <twoDimVertex x="-207" y="1120"/>
-        <twoDimVertex x="-223" y="1117"/>
-        <twoDimVertex x="-237" y="1109"/>
-        <twoDimVertex x="-247" y="1096"/>
-        <twoDimVertex x="-252" y="1081"/>
-        <twoDimVertex x="-160" y="680"/>
-        <twoDimVertex x="-154" y="664"/>
-        <twoDimVertex x="-145" y="651"/>
-        <twoDimVertex x="-132" y="641"/>
-        <twoDimVertex x="-117" y="635"/>
-        <twoDimVertex x="-60" y="637"/>
-        <twoDimVertex x="-20" y="640"/>
-        <twoDimVertex x="20" y="640"/>
-        <twoDimVertex x="60" y="637"/>
-        <twoDimVertex x="117" y="635"/>
-        <twoDimVertex x="132" y="641"/>
-        <twoDimVertex x="145" y="651"/>
-        <twoDimVertex x="154" y="664"/>
-        <twoDimVertex x="251" y="1065"/>
-        <twoDimVertex x="252" y="1081"/>
-        <twoDimVertex x="247" y="1096"/>
-        <twoDimVertex x="237" y="1109"/>
-        <twoDimVertex x="223" y="1117"/>
-        <twoDimVertex x="207" y="1120"/>
+    <xtru name="GEM_detector_solid_plane12" lunit="mm">
+        <twoDimVertex x="-207" y="1065"/>
+        <twoDimVertex x="-226" y="1061"/>
+        <twoDimVertex x="-242" y="1048"/>
+        <twoDimVertex x="-251" y="1030"/>
+        <twoDimVertex x="-160" y="625"/>
+        <twoDimVertex x="-152" y="605"/>
+        <twoDimVertex x="-139" y="591"/>
+        <twoDimVertex x="-121" y="581"/>
+        <twoDimVertex x="-50" y="583"/>
+        <twoDimVertex x="0" y="585"/>
+        <twoDimVertex x="50" y="583"/>
+        <twoDimVertex x="121" y="581"/>
+        <twoDimVertex x="139" y="591"/>
+        <twoDimVertex x="152" y="605"/>
+        <twoDimVertex x="251" y="1010"/>
+        <twoDimVertex x="251" y="1030"/>
+        <twoDimVertex x="242" y="1048"/>
+        <twoDimVertex x="226" y="1061"/>
+        <twoDimVertex x="207" y="1065"/>
+        <section zOrder="0" zPosition="0" xOffset="0" yOffset="0" scalingFactor="1"/>
+        <section zOrder="1" zPosition="3" xOffset="0" yOffset="0" scalingFactor="1"/>
+    </xtru>
+    <xtru name="GEM_detector_solid_plane34" lunit="mm">
+        <twoDimVertex x="-207" y="1096"/>
+        <twoDimVertex x="-226" y="1092"/>
+        <twoDimVertex x="-242" y="1079"/>
+        <twoDimVertex x="-251" y="1061"/>
+        <twoDimVertex x="-160" y="656"/>
+        <twoDimVertex x="-152" y="637"/>
+        <twoDimVertex x="-139" y="622"/>
+        <twoDimVertex x="-121" y="612"/>
+        <twoDimVertex x="-50" y="615"/>
+        <twoDimVertex x="0" y="616"/>
+        <twoDimVertex x="50" y="615"/>
+        <twoDimVertex x="121" y="612"/>
+        <twoDimVertex x="139" y="622"/>
+        <twoDimVertex x="152" y="637"/>
+        <twoDimVertex x="251" y="1042"/>
+        <twoDimVertex x="251" y="1061"/>
+        <twoDimVertex x="242" y="1079"/>
+        <twoDimVertex x="226" y="1092"/>
+        <twoDimVertex x="207" y="1096"/>
         <section zOrder="0" zPosition="0" xOffset="0" yOffset="0" scalingFactor="1"/>
         <section zOrder="1" zPosition="3" xOffset="0" yOffset="0" scalingFactor="1"/>
     </xtru>
     <polycone name="GEM_world_solid"
                         aunit="deg" startphi="0" deltaphi="360"
                         lunit="mm">
-        <zplane rmin="635" rmax="1150.0" z="0.0"/>
-        <zplane rmin="635" rmax="1150.0" z="1467.0"/>
+        <zplane rmin="584" rmax="1130.0" z="0.0"/>
+        <zplane rmin="584" rmax="1130.0" z="399.3"/>
+        <zplane rmin="611" rmax="1130.0" z="400.0"/>
+        <zplane rmin="611" rmax="1130.0" z="1010"/>
     </polycone>
+
 </solids>
 
 
@@ -81,7 +108,7 @@
 
     <volume name="GEM_detector_log_0">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="300"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -89,7 +116,7 @@
 
     <volume name="GEM_detector_log_1">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="301"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -97,7 +124,7 @@
 
     <volume name="GEM_detector_log_2">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="302"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -105,7 +132,7 @@
 
     <volume name="GEM_detector_log_3">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="303"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -113,7 +140,7 @@
 
     <volume name="GEM_detector_log_4">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="304"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -121,7 +148,7 @@
 
     <volume name="GEM_detector_log_5">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="305"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -129,7 +156,7 @@
 
     <volume name="GEM_detector_log_6">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="306"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -137,7 +164,7 @@
 
     <volume name="GEM_detector_log_7">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="307"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -145,7 +172,7 @@
 
     <volume name="GEM_detector_log_8">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="308"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -153,7 +180,7 @@
 
     <volume name="GEM_detector_log_9">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="309"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -161,7 +188,7 @@
 
     <volume name="GEM_detector_log_10">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="310"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -169,7 +196,7 @@
 
     <volume name="GEM_detector_log_11">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="311"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -177,7 +204,7 @@
 
     <volume name="GEM_detector_log_12">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="312"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -185,7 +212,7 @@
 
     <volume name="GEM_detector_log_13">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane12"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="313"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -193,7 +220,7 @@
 
     <volume name="GEM_detector_log_14">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="314"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -201,7 +228,7 @@
 
     <volume name="GEM_detector_log_15">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="315"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -209,7 +236,7 @@
 
     <volume name="GEM_detector_log_16">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="316"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -217,7 +244,7 @@
 
     <volume name="GEM_detector_log_17">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="317"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -225,7 +252,7 @@
 
     <volume name="GEM_detector_log_18">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="318"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -233,7 +260,7 @@
 
     <volume name="GEM_detector_log_19">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="319"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -241,7 +268,7 @@
 
     <volume name="GEM_detector_log_20">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="320"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -249,7 +276,7 @@
 
     <volume name="GEM_detector_log_21">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="321"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -257,7 +284,7 @@
 
     <volume name="GEM_detector_log_22">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="322"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -265,7 +292,7 @@
 
     <volume name="GEM_detector_log_23">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="323"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -273,7 +300,7 @@
 
     <volume name="GEM_detector_log_24">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="324"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -281,7 +308,7 @@
 
     <volume name="GEM_detector_log_25">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="325"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -289,7 +316,7 @@
 
     <volume name="GEM_detector_log_26">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="326"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -297,7 +324,7 @@
 
     <volume name="GEM_detector_log_27">
         <materialref ref="ArCO2"/>
-        <solidref ref="GEM_detector_solid"/>
+        <solidref ref="GEM_detector_solid_plane34"/>
         <auxiliary auxtype="SensDet" auxvalue="GEMSD" />
         <auxiliary auxtype="DetNo" auxvalue="327"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
@@ -306,11 +333,20 @@
     <volume name="GEM_world_log">
         <materialref ref="G4_AIR"/>
         <solidref ref="GEM_world_solid"/>
-        <loop for="k" from="0" to="3" step="1">
+        <loop for="k" from="0" to="1" step="1">
             <loop for="j" from="0" to="6" step="1">
                 <physvol name="GEM_detector_sector_phys[k+1][j+1]">
                     <volumeref ref="GEM_detector_log[k*7 + j + 1]"/>
-                    <rotation z="(-j)*360./7 + 90 + GEM_rotation_offset" unit="deg"/>
+                    <rotation z="(-j)*360./7 - 90 + 0*360./21" unit="deg"/>
+                    <positionref ref="GEM_trackingPlane_pos[k+1]" unit="m"/>
+                </physvol>
+            </loop>
+        </loop>
+        <loop for="k" from="2" to="3" step="1">
+            <loop for="j" from="0" to="6" step="1">
+                <physvol name="GEM_detector_sector_phys[k+1][j+1]">
+                    <volumeref ref="GEM_detector_log[k*7 + j + 1]"/>
+                    <rotation z="(-j)*360./7 - 90 + 0*360./28" unit="deg"/>
                     <positionref ref="GEM_trackingPlane_pos[k+1]" unit="m"/>
                 </physvol>
             </loop>
@@ -318,9 +354,6 @@
         <auxiliary auxtype="Alpha" auxvalue="0.0"/>
     </volume>
  </structure>
-
-
-    
 
 <setup name="Default" version="1.0">
     <world ref="GEM_world_log"/>
