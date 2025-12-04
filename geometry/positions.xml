@@ -22,10 +22,10 @@
 <position name="magnetPSbunker_pos" x="4123.944+13600/2+10/2+770/2+1000/2" y="-948.86+75-785/2+10/2" z="10447.957-2000"/>
 
 <!-- Virtual planes in the parallel world -->
-<position name="trackingDetectorVirtualPlaneFront1_pos" z="19.5029" unit="m"/>
-<position name="trackingDetectorVirtualPlaneFront2_pos" z="19.5029+0.450" unit="m"/>
-<position name="trackingDetectorVirtualPlaneBack1_pos"  z="20.5162" unit="m"/>
-<position name="trackingDetectorVirtualPlaneBack2_pos"  z="20.5162+0.450" unit="m"/>
+<position name="trackingDetectorVirtualPlaneFront1_pos" z="19724.7" unit="mm"/>
+<position name="trackingDetectorVirtualPlaneFront2_pos" z="19724.7+395.3" unit="mm"/>
+<position name="trackingDetectorVirtualPlaneBack1_pos"  z="19724.7 + 605.0" unit="mm"/>
+<position name="trackingDetectorVirtualPlaneBack2_pos"  z="19724.7 + 1000.3" unit="mm"/>
 
 <!-- Physical main detector array position -->
 <position name="detectorCenter" x="0.0" y="0.0" z="22000.00" unit="mm"/>
@@ -77,4 +77,3 @@
 <position name="showerMaxStackVirtualPlaneOpen_pos" x="-1100.00" z="23838.00" unit="mm"/>
 <position name="showerMaxStackVirtualPlaneClosed_pos" x="1100.00" z="23838.00" unit="mm"/>
 <position name="showerMaxStackVirtualPlaneTrans_pos" y="1104.00" z="23920.00" unit="mm"/>
-
