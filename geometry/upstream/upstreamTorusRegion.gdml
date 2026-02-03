@@ -212,9 +212,11 @@
   <cone name="outermost" aunit="deg" lunit="mm" rmin1="0" rmax1="180" rmin2="0" rmax2="180" z="h+h/2" startphi="0" deltaphi="360"/>
 
   <polycone name="taper_envelope" aunit="deg" startphi="0" deltaphi="360" lunit="mm" >
-    <zplane rmin="col2_ir" rmax="col2_or" z="-0.1" />
+    <!-- z="-1.0" is again -1 is arbitrary to make sure that nothign is left behind -->
+    <zplane rmin="col2_ir" rmax="col2_or" z="-1.0" />
     <zplane rmin="col2_ir" rmax="col2_or" z="h/2" />
-    <zplane rmin="col2_ir" rmax="col2_or + h*tan(radial_taper_deg)" z="h+h/2.0" />
+    <!-- 1.5h because I am making this arbitrarily longer because its just substraction envelope so ok -->
+    <zplane rmin="col2_ir" rmax="col2_or + 1.5*h*tan(radial_taper_deg)" z="1.5*h+h/2.0" />
   </polycone>
 
   <subtraction name="outer_part">
@@ -269,49 +271,49 @@
    <first ref="col2_real_0" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(0-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(0-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_2">
    <first ref="col2_real_1" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(1-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(1-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_3">
    <first ref="col2_real_2" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(2-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(2-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_4">
    <first ref="col2_real_3" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(3-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(3-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_5">
    <first ref="col2_real_4" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(4-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(4-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_6">
    <first ref="col2_real_5" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(5-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(5-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_7">
    <first ref="col2_real_6" />
    <second ref="tapered_open" />
    <position x="0" y="0" z="-(h+h/2)/2" />
-   <rotation unit="deg" x="0" y="0" z="(6-1)*360/7"/>
+   <rotation unit="deg" x="0" y="0" z="(6-0.25)*360/7"/>
  </subtraction>
 
 
