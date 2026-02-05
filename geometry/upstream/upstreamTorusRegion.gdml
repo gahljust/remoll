@@ -21,12 +21,10 @@
 
     <position name="posCOLL1" unit="mm" x="0" y="0" z="-1825+150"/>
 
-    <position name="posCOLL2_real" unit="mm" x="0" y="0" z="5925-UOFFSET-50-75-50+50+25"/>
     <constant name="col2_ir" value="35.5" />
     <constant name="col2_or" value="101" />
     <constant name="col2_cl" value="col2_or+75" />
     <constant name="radial_taper_deg" value="1.5*deg" />
-    <constant name="h" value="100" />
     <constant name="half_open" value="2*pi/28" />
     <constant name="az_taper" value="0.5*pi/180" />
 
@@ -209,20 +207,22 @@
 
     <!-- new col2 -->
 
-  <cone name="outermost" aunit="deg" lunit="mm" rmin1="0" rmax1="180" rmin2="0" rmax2="180" z="h+h/2" startphi="0" deltaphi="360"/>
+
+  <!-- outermost is shape 1 in the documentation DOCBD 1524-->
+  <cone name="outermost" aunit="deg" lunit="mm" rmin1="0" rmax1="180" rmin2="0" rmax2="180" z="150" startphi="0" deltaphi="360"/>
 
   <polycone name="taper_envelope" aunit="deg" startphi="0" deltaphi="360" lunit="mm" >
     <!-- z="-1.0" is again -1 is arbitrary to make sure that nothign is left behind -->
     <zplane rmin="col2_ir" rmax="col2_or" z="-1.0" />
-    <zplane rmin="col2_ir" rmax="col2_or" z="h/2" />
-    <!-- 1.5h because I am making this arbitrarily longer because its just substraction envelope so ok -->
-    <zplane rmin="col2_ir" rmax="col2_or + 1.5*h*tan(radial_taper_deg)" z="1.5*h+h/2.0" />
+    <zplane rmin="col2_ir" rmax="col2_or" z="50.0" />
+    <!-- 102 because I am making this arbitrarily(2mm) longer because its just substraction envelope so ok -->
+    <zplane rmin="col2_ir" rmax="col2_or + 102*tan(radial_taper_deg)" z="152" />
   </polycone>
 
   <subtraction name="outer_part">
     <first ref="outermost" />
     <second ref="taper_envelope"/>
-    <position unit="mm" x="0.0" y="0" z="-(h+h/2)/2" />
+    <position unit="mm" x="0.0" y="0" z="-75" />
   </subtraction>
 
 
@@ -232,7 +232,7 @@
       <twoDimVertex x="col2_cl*sin(half_open)" y="col2_cl*cos(half_open)"/>
       <twoDimVertex x="-col2_cl*sin(half_open)" y="col2_cl*cos(half_open)"/>
       <section zOrder="1" zPosition="0" xOffset="0" yOffset="0" scalingFactor="1"/>
-      <section zOrder="2" zPosition="h/2" xOffset="0" yOffset="0" scalingFactor="1"/>
+      <section zOrder="2" zPosition="50" xOffset="0" yOffset="0" scalingFactor="1"/>
    </xtru>
 
   <arb8 name="full_open" lunit="mm"
@@ -240,79 +240,75 @@
     v2x="0.00" v2y="0.0"
     v3x="col2_cl*sin(half_open)" v3y="col2_cl*cos(half_open)"
     v4x="-col2_cl*sin(half_open)" v4y="col2_cl*cos(half_open)"
-    v5x="-h*tan(az_taper)" v5y="0"
-    v6x="h*tan(az_taper)" v6y="0"
-    v7x="col2_cl*sin(half_open)+h*tan(az_taper)" v7y="col2_cl*cos(half_open)"
-    v8x="-col2_cl*sin(half_open)-h*tan(az_taper)" v8y="col2_cl*cos(half_open)" 
-    dz="h/2" />
+    v5x="-100*tan(az_taper)" v5y="0"
+    v6x="100*tan(az_taper)" v6y="0"
+    v7x="col2_cl*sin(half_open)+100*tan(az_taper)" v7y="col2_cl*cos(half_open)"
+    v8x="-col2_cl*sin(half_open)-100*tan(az_taper)" v8y="col2_cl*cos(half_open)" 
+    dz="50" />
 
   <union name="hole_shape" >
     <first ref="first_piece"/>
     <second ref="full_open"/>
-    <position x="0" y="0" z="h" />
+    <!-- Center of first is 25 and we want to keep center of second at 100 because second is 100=(2*dz) long -->
+    <position x="0" y="0" z="100" />
   </union>
 
   <subtraction name="tapered_open">
     <first ref="hole_shape" />
     <second ref="outer_part" />
-    <position x="0" y="0" z="(h+h/2)/2" />
+    <position x="0" y="0" z="75" />
   </subtraction>
 
-  <cone name="one_piece" aunit="deg" lunit="mm" rmin1="25.5" rmax1="150" rmin2="25.5" rmax2="150" z="h+h/2" startphi="90-360/14" deltaphi="360/7"/>
-  <cone name="col2_real_0" aunit="deg" lunit="mm" rmin1="25.5" rmax1="150" rmin2="25.5" rmax2="150" z="h+h/2" startphi="0" deltaphi="360"/>
-
- <subtraction name="col2_mat">
-   <first ref="one_piece" />
-   <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
- </subtraction>
+  <polycone aunit="deg" lunit="mm" name="col2_real_0" startphi="0" deltaphi="360">
+    <zplane rmin="27.5" rmax="150" z="0"/>
+	  <zplane rmin="27.5" rmax="150" z="50"/>
+	  <zplane rmin="25.4" rmax="150" z="50"/>
+    <zplane rmin="25.4" rmax="150" z="130"/>
+    <zplane rmin="24.0" rmax="150" z="130"/>
+    <zplane rmin="24.0" rmax="150" z="134"/>
+    <zplane rmin="22.0" rmax="150" z="134"/>
+    <zplane rmin="22.0" rmax="150" z="150"/>
+  </polycone>
 
  <subtraction name="col2_real_1">
    <first ref="col2_real_0" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(0-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_2">
    <first ref="col2_real_1" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(1-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_3">
    <first ref="col2_real_2" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(2-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_4">
    <first ref="col2_real_3" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(3-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_5">
    <first ref="col2_real_4" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(4-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_6">
    <first ref="col2_real_5" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(5-0.25)*360/7"/>
  </subtraction>
 
  <subtraction name="col2_real_7">
    <first ref="col2_real_6" />
    <second ref="tapered_open" />
-   <position x="0" y="0" z="-(h+h/2)/2" />
    <rotation unit="deg" x="0" y="0" z="(6-0.25)*360/7"/>
  </subtraction>
 
@@ -1231,7 +1227,7 @@
 
      <physvol>
         <volumeref ref="col2_real_7_log"/>
-        <positionref ref="posCOLL2_real"/>
+        <position unit="mm" x="0" y="0" z="-1250" />
       </physvol>
 
       <physvol name="USsieve">
