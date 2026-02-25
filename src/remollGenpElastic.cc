@@ -44,10 +44,10 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 
     auto it = targVols.begin();
     if( targVols.size() > 0 ){
-	while( (*it).first->GetLogicalVolume()->GetMaterial()->GetName() != "LiquidHydrogen" 
+	while( (*it).first->GetLogicalVolume()->GetMaterial()->GetName() != "G4_lH2"
 		&& it != targVols.end() ){ it++; }
 
-	if( (*it).first->GetLogicalVolume()->GetMaterial()->GetName() != "LiquidHydrogen" ){
+	if( (*it).first->GetLogicalVolume()->GetMaterial()->GetName() != "G4_lH2" ){
 	    G4cerr << __FILE__ << " line " << __LINE__ << ": WARNING could not find target" << G4endl;
 	    bypass_target = true;
 	}
