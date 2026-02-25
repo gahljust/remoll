@@ -23,9 +23,32 @@
 //     hrRate_*   : rate-weighted radial distributions, rate vs r [mm]
 //     *XY_*      : rate-weighted 2D x–y hit distributions [mm]
 //
-// Normalization:
-// - BEAM generator (rate=1): histograms scaled by 1/nTotEv.
-// - Physics mode (tree weights, 'rate'): histograms scaled by 1/nFiles.
+// Normalization & Units
+// This macro treats BEAM and PHYSICS generators differently:
+//
+// 1) PHYSICS generators (beamGenerator = 0):
+//    - Uses the TTree branch 'rate' as the per-event weight in Fill(..., rate).
+//    - Because each job/file is normalized as if it represents the full experiment,
+//      when you merge/sum M independent jobs you must AVERAGE the result:
+//          => final scaling = 1 / nFiles
+//    - Therefore, hrRate and XY histograms are in the same physical units as 'rate'
+//      (typically Hz at the beam current used in the simulation macro).
+//    - If those runs were done at 65 uA and you want Hz/uA, divide the final numbers by 65.
+//
+// 2) BEAM generator (beamGenerator = 1):
+//    - We set rate = 1 by design (no cross-section weighting at generator level).
+//    - Histograms are filled with unit weight per hit, then scaled by 1 / nTotEv.
+//    - Therefore, the BEAM outputs represent "counts per simulated primary electron":
+//          => units are 1/e (probability per incident electron), NOT Hz.
+//    - Conversion to rate at plotting stage:
+//          1 uA corresponds to I/e = 6.241509e12 electrons/second.
+//          So to convert BEAM histograms to Hz/uA:
+//              H_HzPeruA = H_(1/e) * 6.241509e12
+//
+// Summary:
+//   - Physics mode outputs: already "rate-like" (Hz at chosen beam current), averaged over jobs.
+//   - Beam mode outputs: probability per electron (1/e); multiply by (I/e) later to get Hz.
+// ------------------------------
 
 
 #include <iostream>
