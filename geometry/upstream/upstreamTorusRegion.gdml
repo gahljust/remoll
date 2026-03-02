@@ -259,6 +259,7 @@
     <position x="0" y="0" z="75" />
   </subtraction>
 
+  <!-- Coll 2 as a single piece with the IRs taken from last design -->
   <polycone aunit="deg" lunit="mm" name="col2_real_0" startphi="0" deltaphi="360">
     <zplane rmin="27.5" rmax="150" z="0"/>
 	  <zplane rmin="27.5" rmax="150" z="50"/>
