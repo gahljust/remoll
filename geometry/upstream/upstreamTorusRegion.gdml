@@ -1245,7 +1245,7 @@
         <rotationref ref="accep_rot2"/>
       </physvol>
       <physvol name="phy_lowerR_accep23">
-        <volumeref ref="logic_Col4_accep11"/>
+        <volumeref ref="logic_Col4_accep21"/>
         <rotationref ref="accep_rot3"/>
       </physvol>
       <physvol name="phy_Col4_accep2_3">

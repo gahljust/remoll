@@ -4,7 +4,18 @@
  
 	<solids>
 		<!--<box lunit="m" name="DetectorArray_solid" x="20.0" y="20.0" z="20.0"/>-->
-        <cone name="DetectorArray_solid" rmin1="700"  rmax1="2100" rmin2="700" rmax2="2100"  z="2500" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+                <!-- <cone name="DetectorArray_solid" rmin1="700"  rmax1="2100" rmin2="700" rmax2="2100"  z="2500" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>-->
+
+        <cone name="DetectorArray_raw" rmin1="700" rmax1="2100" rmin2="700" rmax2="2100" z="2500" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+
+         <!-- Big box to cut off negative-z side -->
+         <box name="DetectorArray_cutbox" x="5100" y="5100" z="1400" lunit="mm" />
+
+         <subtraction name="DetectorArray_solid">
+           <first  ref="DetectorArray_raw"/>
+           <second ref="DetectorArray_cutbox"/>
+           <position name="CutBox_pos" unit="mm" x="0" y="0" z="-1200"/>
+         </subtraction>
 
 	</solids>
  
