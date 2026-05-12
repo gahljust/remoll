@@ -8,7 +8,7 @@
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
 <define>
-  <constant name="detBox_r" value="1300+100/2"/>
+  <constant name="detBox_r" value="1300+100/2" />
 
   &matrices;
 </define>
@@ -130,8 +130,8 @@
 </structure>
 
 
-<setup name="largeAngleMonitorMother" version="1.0">
-    <world ref="largeAngleMonitorMother"/>
+<setup name="diffuseBeamMonitorMother" version="1.0">
+  <world ref="diffuseBeamMonitorMother"/>
 </setup>
 
 </gdml>
