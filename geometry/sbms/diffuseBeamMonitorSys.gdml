@@ -5,10 +5,7 @@
 	<!ENTITY materials SYSTEM "showerMaxMaterials.xml">
 ]>
 
-<gdml 
-
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
  <define>
   <constant name="detBox_r" value="1300+100/2"/>
@@ -18,7 +15,7 @@
 
 &materials;
 
- <solids>
+<solids>
   <cone lunit="mm" name="solid_DBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin1="detBox_r-25" rmax1="detBox_r+425" rmin2="detBox_r-25" rmax2="detBox_r+425" z="400"/>
   <cone name="solid_DBM_singleDet_bounding_box" lunit="mm" aunit="rad" startphi="-pi/14" deltaphi="2*pi/14" rmin1="0.99*detBox" rmax1="detBox+400" rmin2="0.99*detBox" rmax2="detBox+400" z="0.99*400"/>
 
@@ -39,13 +36,13 @@
     <property name="EFFICIENCY" ref="Cathode_EFFICIENCY_with_grease" />
     </opticalsurface>
 
- </solids>
+</solids>
 
 
 
 
 
- <structure>
+<structure>
 
   <volume name="logic_radiator_quartz_00" >
     <materialref ref="Quartz" />
