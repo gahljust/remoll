@@ -7,11 +7,11 @@
 
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
 
- <define>
+<define>
   <constant name="detBox_r" value="1300+100/2"/>
 
   &matrices;
- </define>
+</define>
 
 &materials;
 
@@ -26,16 +26,6 @@
 
   <tube name="solid_pmt_window" rmin="0" rmax="38.1" z="3.0" deltaphi="2*pi" startphi="0" aunit="rad" lunit="mm"/>
   <tube name="solid_pmt_cathode" rmin="0" rmax="38.1" z="3e-06" deltaphi="2*pi" startphi="0" aunit="rad" lunit="mm"/>
-
-  <!--Optical Properties-->
-  <opticalsurface name="quartz_surface" model="glisur" finish="ground" type="dielectric_dielectric" value="0.98">
-    </opticalsurface>
-
-  <opticalsurface name="cathode_surface" model="glisur" finish="polished" type="dielectric_metal" value="1.0">
-    <property name="REFLECTIVITY" ref="CathodeSurf_REFLECTIVITY" />
-    <property name="EFFICIENCY" ref="Cathode_EFFICIENCY_with_grease" />
-    </opticalsurface>
-
 </solids>
 
 

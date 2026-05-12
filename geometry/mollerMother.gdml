@@ -402,11 +402,11 @@
   <positionref ref="largeAngleMonitorDetectorCenter"/>
       </physvol>
     
-      <!-- Diffuse Beam Monitors
+      <!-- Diffuse Beam Monitors-->
       <physvol>
   <file name="sbms/diffuseBeamMonitorSys.gdml"/>
   <positionref ref="diffuseBeamMonitorDetectorCenter"/>
-      </physvol>-->
+      </physvol>
 
       <!-- Pion Detectors -->
       <!-- Note: disabled here and now inside the pion donut -->
