@@ -130,8 +130,8 @@
 </structure>
 
 
-<setup name="diffuseBeamMonitorMother" version="1.0" >
-  <world ref="diffuseBeamMonitorMother"/>
+<setup name="largeAngleMonitorMother" version="1.0">
+    <world ref="largeAngleMonitorMother"/>
 </setup>
 
 </gdml>
