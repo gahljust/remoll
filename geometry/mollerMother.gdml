@@ -396,6 +396,12 @@
 	<positionref ref="donutConcreteLeadFaceUS"/>
       </physvol>
 
+      <!-- Large Angle Monitors -->
+      <physvol>
+  <file name="sbms/largeAngleMonitorSys.gdml"/>
+  <positionref ref="largeAngleMonitorDetectorCenter"/>
+      </physvol>
+
       <!-- Pion Detectors -->
       <!-- Note: disabled here and now inside the pion donut -->
       <!--physvol>

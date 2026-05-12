@@ -1578,8 +1578,8 @@
         <materialref ref="Air"/>
         <solidref ref = "solidLAM_bounding_box_sub2"/>
         <auxiliary auxtype="Alpha" auxvalue="0.0"/>
-        <auxiliary auxtype="SensDet" auxvalue="largeAngleMonitorBoundingBox" />
-		<auxiliary auxtype="DetNo" auxvalue="80000"/>
+        <!--<auxiliary auxtype="SensDet" auxvalue="largeAngleMonitorBoundingBox" />
+		<auxiliary auxtype="DetNo" auxvalue="80000"/>-->
 
         <physvol name="LAM_singleDet_0">
             <volumeref ref="logic_LAM_singledet_0"/>
