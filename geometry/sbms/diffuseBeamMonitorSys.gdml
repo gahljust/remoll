@@ -129,6 +129,7 @@
     
 </structure>
 
+
 <setup name="diffuseBeamMonitorMother" version="1.0" >
   <world ref="diffuseBeamMonitorMother"/>
 </setup>
