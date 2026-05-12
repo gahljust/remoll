@@ -140,7 +140,7 @@
 </structure>
 
 <setup name="diffuseBeamMonitorMother" version="1.0" >
-  <world ref="diffuseBeamMonitorMother" />
+  <world ref="diffuseBeamMonitorMother"/>
 </setup>
 
 </gdml>                                                                            1,1           Top
