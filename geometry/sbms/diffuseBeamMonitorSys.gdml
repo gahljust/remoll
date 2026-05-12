@@ -10,7 +10,7 @@
 
 <define>
     <constant name="detBox_r" value="1300+100/2" />
-    
+
     &matrices;
 </define>
 
@@ -38,7 +38,7 @@
     <auxiliary auxtype="Color" auxvalue="green"/>
     <auxiliary auxtype="Alpha" auxvalue="0.3"/>
     <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
-		<auxiliary auxtype="DetNo" auxvalue="90001"/>
+	<auxiliary auxtype="DetNo" auxvalue="90001"/>
     </volume>
 
   <volume name="logic_pmt_cathode_00" >
