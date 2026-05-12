@@ -46,6 +46,9 @@
 <!-- Z position of Large Angle Monitor (LAM) front plane -->
 <position name="largeAngleMonitorDetectorCenter" z="19257.69 - 100" unit="mm"/>
 
+<!-- Z position of Diffuse Beam Monitor (DBM) front plane -->
+<position name="diffuseBeamMonitorDetectorCenter" z="21000" unit="mm"/>
+
 <!-- Z position of the US and DS face of the concrete and lead donut (400 mm thick) -->
 <position name="donutConcreteLeadFaceUS" z="24450.00" unit="mm"/>
 <position name="donutConcreteLeadFaceDS" z="24450.00+400.00" unit="mm"/>

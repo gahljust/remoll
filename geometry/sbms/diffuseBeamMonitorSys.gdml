@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE gdml [
+  <!ENTITY matrices SYSTEM "showerMaxMatrices.xml">
+	<!ENTITY materials SYSTEM "showerMaxMaterials.xml">
+]>
+
+<gdml 
+
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+
+ <define>
+  <constant name="detBox_r" value="1300+100/2"/>
+
+  &matrices;
+ </define>
+
+&materials;
+
+ <solids>
+  <cone lunit="mm" name="solid_DBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin1="detBox_r-25" rmax1="detBox_r+425" rmin2="detBox_r-25" rmax2="detBox_r+425" z="400"/>
+  <cone name="solid_DBM_singleDet_bounding_box" lunit="mm" aunit="rad" startphi="-pi/14" deltaphi="2*pi/14" rmin1="0.99*detBox" rmax1="detBox+400" rmin2="0.99*detBox" rmax2="detBox+400" z="0.99*400"/>
+
+
+  <box lunit="mm" name="solid_radiator_quartz" x="100" y="76" z="10"/>
+  <tube name="solid_tube" rmin="115" rmax="116" z="100" deltaphi="2*pi" startphi="0" aunit="rad" lunit="mm"/>
+
+
+  <tube name="solid_pmt_window" rmin="0" rmax="38.1" z="3.0" deltaphi="2*pi" startphi="0" aunit="rad" lunit="mm"/>
+  <tube name="solid_pmt_cathode" rmin="0" rmax="38.1" z="3e-06" deltaphi="2*pi" startphi="0" aunit="rad" lunit="mm"/>
+
+  <!--Optical Properties-->
+  <opticalsurface name="quartz_surface" model="glisur" finish="ground" type="dielectric_dielectric" value="0.98">
+    </opticalsurface>
+
+  <opticalsurface name="cathode_surface" model="glisur" finish="polished" type="dielectric_metal" value="1.0">
+    <property name="REFLECTIVITY" ref="CathodeSurf_REFLECTIVITY" />
+    <property name="EFFICIENCY" ref="Cathode_EFFICIENCY_with_grease" />
+    </opticalsurface>
+
+ </solids>
+
+
+
+
+
+ <structure>
+
+  <volume name="logic_radiator_quartz_00" >
+    <materialref ref="Quartz" />
+    <solidref ref="solid_radiator_quartz" />
+    <auxiliary auxtype="Color" auxvalue="green"/>
+    <auxiliary auxtype="Alpha" auxvalue="0.3"/>
+    <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
+		<auxiliary auxtype="DetNo" auxvalue="90001"/>
+    </volume>
+
+  <volume name="logic_pmt_cathode_00" >
+    <materialref ref="Cathode" />
+    <solidref ref="solid_pmt_cathode" />
+    <auxillary auxtype="Color" auxvalue="yellow"/>
+    <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorPMT_back"/>
+    <auxiliary auxtype="DetNo" auxvalue="90002"/>
+    </volume>
+
+  <volume name="logic_pmt_cathode_01" >
+    <materialref ref="Cathode" />
+    <solidref ref="solid_pmt_cathode" />
+    <auxillary auxtype="Color" auxvalue="yellow"/>
+    <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorPMT_front"/>
+    <auxiliary auxtype="DetNo" auxvalue="90003"/>
+    </volume>
+
+  <volume name="logic_pmt_window" >
+    <materialref ref="Quartz" />
+    <solidref ref="solid_pmt_window" />
+    </volume>
+
+  <volume name="logic_tube" >
+    <materialref ref="Nylon" />
+    <solidref ref="solid_tube" />
+    </volume>
+
+  <volume name="logic_DBM_singleDet_bounding_box_00" >
+    <materialref ref="Air" />
+    <solidref ref="solid_DBM_singleDet_bounding_box" />
+    <auxiliary auxtype="Alpha" auxvalue="0.0"/>
+
+    <physvol name="phys_radiator_quartz_00">
+      <volumeref ref="logic_radiator_quartz_00" />
+      <position name="radiator_quartz_pos" unit="mm" x="detBox_r" y="0" z="400/2" />
+      <rotation name="radiator_quartz_rot" unit="deg" x="0" y="0" z="0" />
+      </physvol>
+
+    <physvol name="phys_pmt_cathode_00">
+      <volumeref ref="logic_pmt_cathode_00" />
+      <position name="pmt_cathode_pos" unit="mm" x="detBox_r + 100 + 3.0 + 3e-06/2.0" y="0" z="400/2" />
+      <rotation name="pmt_cathode_rot" unit="deg" x="0" y="90" z="0" />
+      </physvol>
+
+    <physvol name="phys_pmt_cathode_01">
+      <volumeref ref="logic_pmt_cathode_01" />
+      <position name="pmt_cathode_pos" unit="mm" x="detBox_r + 100 + 3.0 + 3e-06/2.0" y="0" z="-400/2" />
+      <rotation name="pmt_cathode_rot" unit="deg" x="0" y="90" z="0" />
+      </physvol>
+
+    <physvol name="phys_tube">
+      <volumeref ref="logic_tube" />
+      <position name="pmt_tube" unit="mm" x="100/2" y="0" z="400/2" />
+      <rotation name="pmt_tube" unit="deg" x="90" y="0" z="0" />
+      </physvol>
+
+    <physvol name="phys_pmt_window_0">
+      <volumeref ref="logic_pmt_window" />
+      <position name="pmt_window_pos" unit="mm" x="detBox_r + 100 + 3.0/2.0" y="0" z="400/2" />
+      <rotation name="pmt_window_rot" unit="deg" x="0" y="90" z="0" />
+      </physvol>
+
+    <physvol name="phys_pmt_window_1">
+      <volumeref ref="logic_pmt_window" />
+      <position name="pmt_window_pos" unit="mm" x="detBox_r + 100 + 3.0/2.0" y="0" z="-400/2" />
+      <rotation name="pmt_window_rot" unit="deg" x="0" y="90" z="0" />
+      </physvol>
+
+  </volume>
+
+
+  <volume name="diffuseBeamMonitorMother" >
+    <materialref ref="Air" />
+    <solidref ref="solid_DBM_bounding_box" />
+    <auxiliary auxtype="Alpha" auxvalue="0.0"/>
+
+    <physvol name="DBM_singleDet_00">
+      <volumeref ref="logic_DBM_singleDet_bounding_box_00"/>
+      <position name="pos_DBM_singleDet_00" x="0" y="0" z="0"/>
+      <rotation name="rot_DBM_singleDet_00" unit="radian" x="0" y="0" z="0" />
+    </physvol>
+
+  </volume>
+
+    
+</structure>
+<setup name="diffuseBeamMonitorMother" version="1.0" >
+  <world ref="diffuseBeamMonitorMother" />
+  </setup>
+</gdml>                                                                            1,1           Top
