@@ -404,7 +404,7 @@
     
       <!-- Diffuse Beam Monitors-->
       <physvol>
-  <file name="sbms/diffuseBeamMonitorSys.gdml"/>
+  <file name="sbms/diffuseBeamMonitor.gdml"/>
   <positionref ref="diffuseBeamMonitorDetectorCenter"/>
       </physvol>
 
