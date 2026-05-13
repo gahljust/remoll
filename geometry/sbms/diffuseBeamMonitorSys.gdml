@@ -46,7 +46,7 @@
 		<auxiliary auxtype="DetNo" auxvalue="80000"/>-->
 
         <physvol name="solidDBM_singleDet_bounding_box_phys_0">
-            <volumeref ref="solidDBM_singleDet_bounding_box"/>
+            <volumeref ref="DBM_singleDet_bounding_box_logic"/>
             <position name="pos_DBM_singleDet_1" x="0" y="0" z="0"/>
             <rotation name="rot_DBM_singleDet_1" unit="radian" x="0" y="0" z="0" />
             <auxiliary auxtype="Alpha" auxvalue="1.0"/>
