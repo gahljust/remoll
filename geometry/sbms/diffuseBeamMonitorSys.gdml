@@ -20,7 +20,7 @@
 &materials;
 
 <solids>
-    <tube name="solidDBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="detBox_inner_radius" rmax="1315" z="150"/>
+    <tube name="solidDBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="150"/>
 
 
 </solids>
