@@ -33,6 +33,7 @@
         <materialref ref="Air"/>
         <solidref ref = "solidDBM_singleDet_boundingBox"/>
         <auxiliary auxtype="Alpha" auxvalue="0.1"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
     </volume>
 
 
@@ -49,7 +50,6 @@
             <volumeref ref="DBM_singleDet_boundingBox_logic"/>
             <position name="pos_DBM_singleDet_1" x="0" y="0" z="0"/>
             <rotation name="rot_DBM_singleDet_1" unit="radian" x="0" y="0" z="0" />
-            <auxiliary auxtype="Alpha" auxvalue="1.0"/>
         </physvol>
 
 
