@@ -21,7 +21,7 @@
 
 <solids>
     <tube name="solidDBM_boundingBox" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="0.99*detBox_inner_radius" rmax="1.01*detBox_outer_radius" z="1.01*150"/>
-    <tube name="solidDBM_singleDet_boundingBox" lunit="mm" aunit="rad" startphi="-pi/14" deltaphi="2*pi/14" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="150"/>
+    <tube name="solidDBM_singleDet_boundingBox" lunit="mm" aunit="rad" startphi="-pi/(14*2)" deltaphi="pi/14" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="150"/>
 
 
 </solids>
