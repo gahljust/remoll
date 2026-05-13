@@ -34,8 +34,17 @@
     <volume name="DBM_quartz_logic_0">
         <materialref ref="Quartz"/>
         <solidref ref = "solid_DBM_radiator_quartz"/>
-        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.5"/>
+        <auxiliary auxtype="Color" auxvalue="green"/>
     </volume>
+
+    <volume name="DBM_pmt_window_logic_0">
+        <materialref ref="Quartz"/>
+        <solidref ref = "solid_DBM_pmt_window"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="blue"/>
+    </volume>
+    
 
     <volume name="DBM_singleDet_boundingBox_logic_0">
         <materialref ref="Air"/>
@@ -44,8 +53,14 @@
 
         <physvol name="DBM_quartz_phys_0">
             <volumeref ref="DBM_quartz_logic_0" />
-            <position name="radiator_quartz_pos" unit="mm" x="detBox_inner_radius + 100/2" y="0" z="" />
-            <rotation name="radiator_quartz_rot" unit="deg" x="0" y="0" z="0" />
+            <position name="radiator_quartz_pos_0" unit="mm" x="detBox_inner_radius + 100/2" y="0" z="52.8" />
+            <rotation name="radiator_quartz_rot_0" unit="deg" x="0" y="0" z="0" />
+            </physvol>
+
+        <physvol name="DBM_pmt_window_phys_0">
+            <volumeref ref="DBM_pmt_window_logic_0" />
+            <position name="DBM_window_pos_0" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="52.8" />
+            <rotation name="DBM_window_rot_0" unit="deg" x="0" y="90" z="0" />
             </physvol>
 
     </volume>
