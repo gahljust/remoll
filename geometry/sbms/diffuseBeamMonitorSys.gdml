@@ -32,13 +32,6 @@
 
 <structure>
 
-    </volume name="DBM_radiator_quartz_logic">
-        <materialref ref="Quartz" />
-        <solidref ref="solid_DBM_radiator_quartz" />
-        <auxiliary auxtype="Alpha" auxvalue="0.5" />
-        <auxiliary auxtype="Color" auxvalue="Green" />
-    </volume>
-
 
     <volume name="DBM_singleDet_boundingBox_logic_0">
         <materialref ref="Air"/>
