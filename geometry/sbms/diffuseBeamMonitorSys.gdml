@@ -20,7 +20,8 @@
 &materials;
 
 <solids>
-    <tube name="solidDBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="150"/>
+    <tube name="solidDBM_bounding_box" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="0.99*detBox_inner_radius" rmax="1.01*detBox_outer_radius" z="1.01*150"/>
+    <tube name="solidDBM_singleDet_bounding_box" lunit="mm" aunit="rad" startphi="-pi/14" deltaphi="2*pi/14" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="150"/>
 
 
 </solids>
@@ -28,15 +29,30 @@
 
 <structure>
 
+    <volume name="DBM_singleDet_boundingBox_logic">
+        <materialref ref="Air"/>
+        <solidref ref = "solidDBM_singleDet_bounding_box"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.1"/>
+    </volume>
+
 
     <!--Mother Volume-->
 
     <volume name="diffuseBeamMonitorMother">
         <materialref ref="Air"/>
         <solidref ref = "solidDBM_bounding_box"/>
-        <auxiliary auxtype="Alpha" auxvalue="0.0"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.1"/>
         <!--<auxiliary auxtype="SensDet" auxvalue="largeAngleMonitorBoundingBox" />
 		<auxiliary auxtype="DetNo" auxvalue="80000"/>-->
+
+        <physvol name="solidDBM_singleDet_bounding_box_phys_0">
+            <volumeref ref="solidDBM_singleDet_bounding_box"/>
+            <position name="pos_DBM_singleDet_1" x="0" y="0" z="0"/>
+            <rotation name="rot_DBM_singleDet_1" unit="radian" x="0" y="0" z="0" />
+            <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        </physvol>
+
+
 
     </volume>
 
