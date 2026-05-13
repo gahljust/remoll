@@ -44,12 +44,6 @@
         <materialref ref="Air"/>
         <solidref ref = "solid_DBM_singleDet_boundingBox"/>
         <auxiliary auxtype="Alpha" auxvalue="0.0"/>
-
-        <physvol name="DBM_radiator_quartz_phys_0">
-            <volumeref ref="DBM_singleDet_boundingBox_logic_0" />
-            <position name="pos_DBM_singleDet_1" x="detBox_inner_radius + 100/2" y="0" z="150/4"/>
-            <rotation name="rot_DBM_singleDet_1" unit="radian" x="0" y="0" z="0" />
-        </physvol>
     </volume>
 
     <!--Mother Volume-->
