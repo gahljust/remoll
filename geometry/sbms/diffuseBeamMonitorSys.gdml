@@ -44,7 +44,7 @@
         <auxiliary auxtype="Alpha" auxvalue="0.3"/>
         <auxiliary auxtype="Color" auxvalue="green"/>
         <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
-		<auxiliary auxtype="DetNo" auxvalue="81001"/>
+		<auxiliary auxtype="DetNo" auxvalue="81000"/>
     </volume>
 
     <volume name="DBM_quartzpmt_cathode_logic_0">
@@ -53,7 +53,7 @@
         <auxiliary auxtype="Alpha" auxvalue="1.0"/>
         <auxiliary auxtype="Color" auxvalue="yellow"/>
         <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
-		<auxiliary auxtype="DetNo" auxvalue="82001"/>
+		<auxiliary auxtype="DetNo" auxvalue="82000"/>
     </volume>
 
     <volume name="DBM_barepmt_cathode_logic_0">
@@ -62,9 +62,89 @@
         <auxiliary auxtype="Alpha" auxvalue="1.0"/>
         <auxiliary auxtype="Color" auxvalue="yellow"/>
         <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="83000"/>
+    </volume>
+
+    <volume name="DBM_quartz_logic_2">
+        <materialref ref="Quartz"/>
+        <solidref ref = "solid_DBM_radiator_quartz"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.3"/>
+        <auxiliary auxtype="Color" auxvalue="green"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
+		<auxiliary auxtype="DetNo" auxvalue="81001"/>
+    </volume>
+
+    <volume name="DBM_quartzpmt_cathode_logic_2">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
 		<auxiliary auxtype="DetNo" auxvalue="82001"/>
     </volume>
 
+    <volume name="DBM_barepmt_cathode_logic_2">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="83001"/>
+    </volume>
+
+    <volume name="DBM_quartz_logic_2">
+        <materialref ref="Quartz"/>
+        <solidref ref = "solid_DBM_radiator_quartz"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.3"/>
+        <auxiliary auxtype="Color" auxvalue="green"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
+		<auxiliary auxtype="DetNo" auxvalue="81002"/>
+    </volume>
+
+    <volume name="DBM_quartzpmt_cathode_logic_2">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="82002"/>
+    </volume>
+
+    <volume name="DBM_barepmt_cathode_logic_2">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="83002"/>
+    </volume>
+
+    <volume name="DBM_quartz_logic_3">
+        <materialref ref="Quartz"/>
+        <solidref ref = "solid_DBM_radiator_quartz"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.3"/>
+        <auxiliary auxtype="Color" auxvalue="green"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartz" />
+		<auxiliary auxtype="DetNo" auxvalue="81003"/>
+    </volume>
+
+    <volume name="DBM_quartzpmt_cathode_logic_3">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="82003"/>
+    </volume>
+
+    <volume name="DBM_barepmt_cathode_logic_3">
+        <materialref ref="Cathode"/>
+        <solidref ref = "solid_DBM_pmt_cathode"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+        <auxiliary auxtype="Color" auxvalue="yellow"/>
+        <auxiliary auxtype="SensDet" auxvalue="diffuseBeamMonitorQuartzPMT" />
+		<auxiliary auxtype="DetNo" auxvalue="83003"/>
+    </volume>
 
 
 
@@ -155,6 +235,132 @@
 
     </volume>
 
+
+    <volume name="DBM_singleDet_boundingBox_logic_1">
+        <materialref ref="Air"/>
+        <solidref ref = "solid_DBM_singleDet_boundingBox"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.0"/>
+
+        <physvol name="DBM_quartz_phys_1">
+            <volumeref ref="DBM_quartz_logic_1" />
+            <position name="radiator_quartz_pos_1" unit="mm" x="detBox_inner_radius + 100/2" y="0" z="53.52" />
+            <rotation name="radiator_quartz_rot_1" unit="deg" x="0" y="0" z="0" />
+            </physvol>
+
+        <physvol name="DBM_quartzpmt_cathode_phys_1">
+            <volumeref ref="DBM_quartzpmt_cathode_logic_1" />
+            <position name="DBM_quartzCathode_pos_1" unit="mm" x="detBox_inner_radius + 100 + 3 + 3e-06/2" y="0" z="53.52" />
+            <rotation name="DBM_quartzCathode_rot_1" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+        
+        <physvol name="DBM_barepmt_cathode_phys_1">
+            <volumeref ref="DBM_barepmt_cathode_logic_1" />
+            <position name="DBM_bareCathode_pos_1" unit="mm" x="detBox_inner_radius + 100 + 3 + 3e-06/2" y="0" z="-53.52" />
+            <rotation name="DBM_bareCathode_rot_1" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="DBM_quartzpmt_window_phys">
+            <volumeref ref="DBM_pmt_window_logic" />
+            <position name="DBM_quartzWindow_pos" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="53.52" />
+            <rotation name="DBM_quartzWindow_rot" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="DBM_barepmt_window_phys">
+            <volumeref ref="DBM_pmt_window_logic" />
+            <position name="DBM_bareWindow_pos" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="-53.52" />
+            <rotation name="DBM_bareWindow_rot" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="barepmt_housing_phys">
+			<volumeref ref="logic_pmt_housing"/>
+			<position name="pos_barepmt_housing" x="detBox_inner_radius + 100 + 213/2" y="0" z="-53.52"/>
+			<rotation name="rot_barepmt_housing" unit="deg" x="0" y="90" z="0"/>
+		    </physvol>
+
+		<physvol name="barepmt_housing_lid_phys">
+			<volumeref ref="logic_pmt_housing_lid"/>
+			<position name="pos_barepmt_housing_lid" x="detBox_inner_radius + 100 + 213 + 3/2" y="0" z="-53.52"/>
+			<rotation name="rot_barepmt_housing_lid" unit="deg" x="0" y="90" z="0" />
+		    </physvol>
+
+        <physvol name="quartzpmt_housing_phys">
+			<volumeref ref="logic_pmt_housing"/>
+			<position name="pos_quartzpmt_housing" x="detBox_inner_radius + 100 + 213/2" y="0" z="53.52"/>
+			<rotation name="rot_quartzpmt_housing" unit="deg" x="0" y="90" z="0"/>
+		    </physvol>
+
+		<physvol name="quartzpmt_housing_lid_phys">
+			<volumeref ref="logic_pmt_housing_lid"/>
+			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 100 + 213 + 3/2" y="0" z="53.52"/>
+			<rotation name="rot_quartzpmt_housing_lid" unit="deg" x="0" y="90" z="0" />
+		    </physvol>
+
+    </volume>
+
+
+    <volume name="DBM_singleDet_boundingBox_logic_2">
+        <materialref ref="Air"/>
+        <solidref ref = "solid_DBM_singleDet_boundingBox"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.0"/>
+
+        <physvol name="DBM_quartz_phys_2">
+            <volumeref ref="DBM_quartz_logic_2" />
+            <position name="radiator_quartz_pos_2" unit="mm" x="detBox_inner_radius + 100/2" y="0" z="53.52" />
+            <rotation name="radiator_quartz_rot_2" unit="deg" x="0" y="0" z="0" />
+            </physvol>
+
+        <physvol name="DBM_quartzpmt_cathode_phys_2">
+            <volumeref ref="DBM_quartzpmt_cathode_logic_2" />
+            <position name="DBM_quartzCathode_pos_2" unit="mm" x="detBox_inner_radius + 100 + 3 + 3e-06/2" y="0" z="53.52" />
+            <rotation name="DBM_quartzCathode_rot_2" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+        
+        <physvol name="DBM_barepmt_cathode_phys_2">
+            <volumeref ref="DBM_barepmt_cathode_logic_2" />
+            <position name="DBM_bareCathode_pos_2" unit="mm" x="detBox_inner_radius + 100 + 3 + 3e-06/2" y="0" z="-53.52" />
+            <rotation name="DBM_bareCathode_rot_2" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="DBM_quartzpmt_window_phys">
+            <volumeref ref="DBM_pmt_window_logic" />
+            <position name="DBM_quartzWindow_pos" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="53.52" />
+            <rotation name="DBM_quartzWindow_rot" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="DBM_barepmt_window_phys">
+            <volumeref ref="DBM_pmt_window_logic" />
+            <position name="DBM_bareWindow_pos" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="-53.52" />
+            <rotation name="DBM_bareWindow_rot" unit="deg" x="0" y="90" z="0" />
+            </physvol>
+
+        <physvol name="barepmt_housing_phys">
+			<volumeref ref="logic_pmt_housing"/>
+			<position name="pos_barepmt_housing" x="detBox_inner_radius + 100 + 213/2" y="0" z="-53.52"/>
+			<rotation name="rot_barepmt_housing" unit="deg" x="0" y="90" z="0"/>
+		    </physvol>
+
+		<physvol name="barepmt_housing_lid_phys">
+			<volumeref ref="logic_pmt_housing_lid"/>
+			<position name="pos_barepmt_housing_lid" x="detBox_inner_radius + 100 + 213 + 3/2" y="0" z="-53.52"/>
+			<rotation name="rot_barepmt_housing_lid" unit="deg" x="0" y="90" z="0" />
+		    </physvol>
+
+        <physvol name="quartzpmt_housing_phys">
+			<volumeref ref="logic_pmt_housing"/>
+			<position name="pos_quartzpmt_housing" x="detBox_inner_radius + 100 + 213/2" y="0" z="53.52"/>
+			<rotation name="rot_quartzpmt_housing" unit="deg" x="0" y="90" z="0"/>
+		    </physvol>
+
+		<physvol name="quartzpmt_housing_lid_phys">
+			<volumeref ref="logic_pmt_housing_lid"/>
+			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 100 + 213 + 3/2" y="0" z="53.52"/>
+			<rotation name="rot_quartzpmt_housing_lid" unit="deg" x="0" y="90" z="0" />
+		    </physvol>
+
+    </volume>
+
+
+
     <!--Mother Volume-->
 
     <volume name="diffuseBeamMonitorMother">
@@ -166,8 +372,20 @@
 
         <physvol name="DBM_singleDet_boundingBox_phys_0">
             <volumeref ref="DBM_singleDet_boundingBox_logic_0"/>
-            <position name="pos_DBM_singleDet_1" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_1" unit="radian" x="0" y="0" z="0" />
+            <position name="pos_DBM_singleDet_2" x="0" y="0" z="0"/>
+            <rotation name="rot_DBM_singleDet_2" unit="radian" x="0" y="0" z="0" />
+        </physvol>
+
+        <physvol name="DBM_singleDet_boundingBox_phys_1">
+            <volumeref ref="DBM_singleDet_boundingBox_logic_1"/>
+            <position name="pos_DBM_singleDet_2" x="0" y="0" z="0"/>
+            <rotation name="rot_DBM_singleDet_2" unit="radian" x="0" y="0" z="2*pi/14" />
+        </physvol>
+
+        <physvol name="DBM_singleDet_boundingBox_phys_2">
+            <volumeref ref="DBM_singleDet_boundingBox_logic_2"/>
+            <position name="pos_DBM_singleDet_2" x="0" y="0" z="0"/>
+            <rotation name="rot_DBM_singleDet_2" unit="radian" x="0" y="0" z="4*pi/14" />
         </physvol>
 
 
