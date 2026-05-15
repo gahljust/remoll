@@ -33,14 +33,14 @@
 	<cone name="solid_pmt_housing_lid" rmin1="0"  rmax1="46.0" rmin2="0" rmax2="46.0"  z="3.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
 
     <!--Light Tight Housing-->
-    <box name="solid_DBM_plastic_box" lunit="mm" x="80" y="105" z="205"/>
+    <box name="solid_DBM_plastic_box" lunit="mm" x="95" y="105" z="205"/>
     <tube name="solid_DBM_sub_tube" lunit="mm" rmin="0" rmax="39" z="101" deltaphi="2*pi" startphi="0" aunit="rad" />
 
     <subtraction name="solid_DBM_plastic_box_sub" >
         <first ref="solid_DBM_plastic_box"/>
         <second ref="solid_DBM_sub_tube"/>
         <position name="solid_DBM_plastic_box_sub_pos" unit="mm" x="0" y="5.5" z="53.52" />
-        <rotation name="solid_DBM_plastic_box_sub_rot" unit="deg" x="0" y="0" z="0" />
+        <rotation name="solid_DBM_plastic_box_sub_rot" unit="deg" x="90" y="0" z="0" />
     </subtraction>
 
 </solids>
