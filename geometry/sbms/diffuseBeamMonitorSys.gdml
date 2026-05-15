@@ -1448,74 +1448,74 @@
         <physvol name="DBM_singleDet_boundingBox_phys_3">
             <volumeref ref="DBM_singleDet_boundingBox_logic_3"/>
             <position name="pos_DBM_singleDet_3" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_3" unit="radian" x="0" y="0" z="4*pi/14" />
+            <rotation name="rot_DBM_singleDet_3" unit="radian" x="0" y="0" z="6*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_4">
             <volumeref ref="DBM_singleDet_boundingBox_logic_4"/>
             <position name="pos_DBM_singleDet_4" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_4" unit="radian" x="0" y="0" z="6*pi/14" />
+            <rotation name="rot_DBM_singleDet_4" unit="radian" x="0" y="0" z="8*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_5">
             <volumeref ref="DBM_singleDet_boundingBox_logic_5"/>
             <position name="pos_DBM_singleDet_5" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_5" unit="radian" x="0" y="0" z="8*pi/14" />
+            <rotation name="rot_DBM_singleDet_5" unit="radian" x="0" y="0" z="10*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_6">
             <volumeref ref="DBM_singleDet_boundingBox_logic_6"/>
             <position name="pos_DBM_singleDet_6" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_6" unit="radian" x="0" y="0" z="10*pi/14" />
+            <rotation name="rot_DBM_singleDet_6" unit="radian" x="0" y="0" z="12*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_7">
             <volumeref ref="DBM_singleDet_boundingBox_logic_7"/>
             <position name="pos_DBM_singleDet_7" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_7" unit="radian" x="0" y="0" z="12*pi/14" />
+            <rotation name="rot_DBM_singleDet_7" unit="radian" x="0" y="0" z="14*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_8">
             <volumeref ref="DBM_singleDet_boundingBox_logic_8"/>
             <position name="pos_DBM_singleDet_8" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_8" unit="radian" x="0" y="0" z="14*pi/14" />
+            <rotation name="rot_DBM_singleDet_8" unit="radian" x="0" y="0" z="16*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_9">
             <volumeref ref="DBM_singleDet_boundingBox_logic_9"/>
             <position name="pos_DBM_singleDet_9" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_9" unit="radian" x="0" y="0" z="16*pi/14" />
+            <rotation name="rot_DBM_singleDet_9" unit="radian" x="0" y="0" z="18*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_10">
             <volumeref ref="DBM_singleDet_boundingBox_logic_10"/>
             <position name="pos_DBM_singleDet_10" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_10" unit="radian" x="0" y="0" z="18*pi/14" />
+            <rotation name="rot_DBM_singleDet_10" unit="radian" x="0" y="0" z="20*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_11">
             <volumeref ref="DBM_singleDet_boundingBox_logic_11"/>
             <position name="pos_DBM_singleDet_11" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_11" unit="radian" x="0" y="0" z="20*pi/14" />
+            <rotation name="rot_DBM_singleDet_11" unit="radian" x="0" y="0" z="22*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_12">
             <volumeref ref="DBM_singleDet_boundingBox_logic_12"/>
             <position name="pos_DBM_singleDet_12" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_12" unit="radian" x="0" y="0" z="22*pi/14" />
+            <rotation name="rot_DBM_singleDet_12" unit="radian" x="0" y="0" z="24*pi/14" />
         </physvol>
 
         <physvol name="DBM_singleDet_boundingBox_phys_13">
             <volumeref ref="DBM_singleDet_boundingBox_logic_13"/>
             <position name="pos_DBM_singleDet_13" x="0" y="0" z="0"/>
-            <rotation name="rot_DBM_singleDet_13" unit="radian" x="0" y="0" z="24*pi/14" />
+            <rotation name="rot_DBM_singleDet_13" unit="radian" x="0" y="0" z="26*pi/14" />
         </physvol>
 
-        <physvol name="DBM_singleDet_boundingBox_phys_14">
+        <!--<physvol name="DBM_singleDet_boundingBox_phys_14">
             <volumeref ref="DBM_singleDet_boundingBox_logic_14"/>
             <position name="pos_DBM_singleDet_14" x="0" y="0" z="0"/>
             <rotation name="rot_DBM_singleDet_14" unit="radian" x="0" y="0" z="26*pi/14" />
-        </physvol>
+        </physvol>-->
 
 
 
