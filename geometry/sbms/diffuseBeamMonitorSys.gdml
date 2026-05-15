@@ -30,7 +30,7 @@
 
     <!--PMT Housing-->
     <cone name="solid_pmt_housing" rmin1="42"  rmax1="45.0" rmin2="42" rmax2="45.0"  z="213.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
-	<cone name="solid_pmt_housing_lid" rmin1="0"  rmax1="48.0" rmin2="0" rmax2="48.0"  z="3.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+	<cone name="solid_pmt_housing_lid" rmin1="0"  rmax1="46.0" rmin2="0" rmax2="46.0"  z="3.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
 
 </solids>
 
