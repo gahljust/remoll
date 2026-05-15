@@ -65,7 +65,7 @@
 		<auxiliary auxtype="DetNo" auxvalue="83000"/>
     </volume>
 
-    <volume name="DBM_quartz_logic_2">
+    <volume name="DBM_quartz_logic_1">
         <materialref ref="Quartz"/>
         <solidref ref = "solid_DBM_radiator_quartz"/>
         <auxiliary auxtype="Alpha" auxvalue="0.3"/>
@@ -74,7 +74,7 @@
 		<auxiliary auxtype="DetNo" auxvalue="81001"/>
     </volume>
 
-    <volume name="DBM_quartzpmt_cathode_logic_2">
+    <volume name="DBM_quartzpmt_cathode_logic_1">
         <materialref ref="Cathode"/>
         <solidref ref = "solid_DBM_pmt_cathode"/>
         <auxiliary auxtype="Alpha" auxvalue="1.0"/>
@@ -83,7 +83,7 @@
 		<auxiliary auxtype="DetNo" auxvalue="82001"/>
     </volume>
 
-    <volume name="DBM_barepmt_cathode_logic_2">
+    <volume name="DBM_barepmt_cathode_logic_1">
         <materialref ref="Cathode"/>
         <solidref ref = "solid_DBM_pmt_cathode"/>
         <auxiliary auxtype="Alpha" auxvalue="1.0"/>
