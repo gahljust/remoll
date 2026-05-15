@@ -118,13 +118,13 @@
             </physvol>
 
         <physvol name="DBM_quartzpmt_window_phys">
-            <volumeref ref="DBM_pmt_window_logic_0" />
+            <volumeref ref="DBM_pmt_window_logic" />
             <position name="DBM_quartzWindow_pos_0" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="53.52" />
             <rotation name="DBM_quartzWindow_rot_0" unit="deg" x="0" y="90" z="0" />
             </physvol>
 
         <physvol name="DBM_barepmt_window_phys">
-            <volumeref ref="DBM_pmt_window_logic_0" />
+            <volumeref ref="DBM_pmt_window_logic" />
             <position name="DBM_bareWindow_pos_0" unit="mm" x="detBox_inner_radius + 100 + 3/2" y="0" z="-53.52" />
             <rotation name="DBM_bareWindow_rot_0" unit="deg" x="0" y="90" z="0" />
             </physvol>
