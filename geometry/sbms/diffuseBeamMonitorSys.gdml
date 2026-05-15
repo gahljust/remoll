@@ -9,8 +9,8 @@
 
 
 <define>
-    <constant name="detBox_inner_radius" value="1500"/>
-    <constant name="detBox_outer_radius" value="1900"/>
+    <constant name="detBox_inner_radius" value="1400"/> <!--Radial location of LAM radiator from Moller-doc-948-v1-->
+    <constant name="detBox_outer_radius" value="2000"/>
 
 
 
