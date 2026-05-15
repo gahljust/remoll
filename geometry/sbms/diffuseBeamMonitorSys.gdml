@@ -611,7 +611,7 @@
 
         <physvol name="DBM_plastic_box_sub_phys">
 			<volumeref ref="logic_DBM_plastic_box_sub"/>
-			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 105/2" y="0" z="0"/>
+			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 105/2 - 5" y="0" z="0"/>
 			<rotation name="rot_quartzpmt_housing_lid" unit="deg" x="0" y="0" z="90" />
 		    </physvol>
 
