@@ -20,8 +20,8 @@
 &materials;
 
 <solids>
-    <tube name="solid_DBM_boundingBox" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="0.99*detBox_inner_radius" rmax="1.01*detBox_outer_radius" z="1.01*210"/>
-    <tube name="solid_DBM_singleDet_boundingBox" lunit="mm" aunit="rad" startphi="-pi/(14*2)" deltaphi="pi/14" rmin="detBox_inner_radius" rmax="detBox_outer_radius" z="210"/>
+    <tube name="solid_DBM_boundingBox" lunit="mm" aunit="rad" startphi="0" deltaphi="2*pi" rmin="0.99*(detBox_inner_radius - 10)" rmax="1.01*detBox_outer_radius" z="1.01*210"/>
+    <tube name="solid_DBM_singleDet_boundingBox" lunit="mm" aunit="rad" startphi="-pi/(14*2)" deltaphi="pi/14" rmin="detBox_inner_radius - 10" rmax="detBox_outer_radius" z="210"/>
 
     <!--Radiator and PMT-->
     <box lunit="mm" name="solid_DBM_radiator_quartz" x="100" y="76" z="10"/>
@@ -31,6 +31,17 @@
     <!--PMT Housing-->
     <cone name="solid_pmt_housing" rmin1="42"  rmax1="45.0" rmin2="42" rmax2="45.0"  z="213.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
 	<cone name="solid_pmt_housing_lid" rmin1="0"  rmax1="46.0" rmin2="0" rmax2="46.0"  z="3.0" startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+
+    <!--Light Tight Housing-->
+    <box name="solid_DBM_plastic_box" lunit="mm" x="80" y="105" z="205"/>
+    <tube name="solid_DBM_sub_tube" lunit="mm" rmin="0" rmax="39" z="101" deltaphi="2*pi" startphi="0" aunit="rad" />
+
+    <subtraction name="solid_DBM_plastic_box_sub" >
+        <first ref="solid_DBM_plastic_box"/>
+        <second ref="solid_DBM_sub_tube"/>
+        <position name="solid_DBM_plastic_box_sub_pos" unit="mm" x="0" y="5.5" z="53.52" />
+        <rotation name="solid_DBM_plastic_box_sub_rot" unit="deg" x="0" y="90" z="0" />
+    </subtraction>
 
 </solids>
 
@@ -466,8 +477,14 @@
 		<solidref ref="solid_pmt_housing_lid"/>
 		<auxiliary auxtype="Color" auxvalue="grey"/>
         <auxiliary auxtype="Alpha" auxvalue="0.5"/>
-	    </volume>
+	</volume>
 
+    <volume name="logic_DBM_plastic_box_sub">
+		<materialref ref="Nylon"/>
+		<solidref ref="solid_DBM_plastic_box_sub"/>
+		<auxiliary auxtype="Color" auxvalue="red"/>
+        <auxiliary auxtype="Alpha" auxvalue="1.0"/>
+	</volume>
 
 
     <!--Individual Detectors-->
@@ -591,6 +608,13 @@
 			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 100 + 213 + 3/2" y="0" z="53.52"/>
 			<rotation name="rot_quartzpmt_housing_lid" unit="deg" x="0" y="90" z="0" />
 		    </physvol>
+
+        <physvol name="DBM_plastic_box_sub_phys">
+			<volumeref ref="logic_DBM_plastic_box_sub"/>
+			<position name="pos_quartzpmt_housing_lid" x="detBox_inner_radius + 105/2" y="0" z="0"/>
+			<rotation name="rot_quartzpmt_housing_lid" unit="deg" x="0" y="90" z="0" />
+		    </physvol>
+
 
     </volume>
 
@@ -1399,7 +1423,7 @@
     <volume name="diffuseBeamMonitorMother">
         <materialref ref="Air"/>
         <solidref ref = "solid_DBM_boundingBox"/>
-        <auxiliary auxtype="Alpha" auxvalue="0.1"/>
+        <auxiliary auxtype="Alpha" auxvalue="0.0"/>
         <!--<auxiliary auxtype="SensDet" auxvalue="largeAngleMonitorBoundingBox" />
 		<auxiliary auxtype="DetNo" auxvalue="80000"/>-->
 
