@@ -12,6 +12,59 @@
   <!-- ShowerMax stack planes sit just upstream of the stack region. -->
   <constant name="showerMaxStackFrontPlaneZLow" value="23920.00-41-72.10799999999999/2-0.5/2-0.1"/>
   <constant name="showerMaxStackFrontPlaneZHigh" value="23920.00+41-72.10799999999999/2-0.5/2-0.1"/>
+
+  <quantity name="sieve_system_inner_radius" type="length" value="26.5" unit="mm"/>
+  <quantity name="sieve_system_outer_radius" type="length" value="98" unit="mm"/>
+  <quantity name="sieve_hole_diameter" type="length" value="5" unit="mm"/>
+
+  <quantity name="sieve_hole71_radial_position" type="length" value="44" unit="mm"/>
+  <quantity name="sieve_hole71_angular_offset_phi" type="angle" value="0 + 360/14 - 360/7" unit="deg"/>
+  <quantity name="sieve_hole72_radial_position" type="length" value="68" unit="mm"/>
+  <quantity name="sieve_hole72_angular_offset_phi" type="angle" value="8 + 360/14 - 360/7" unit="deg"/>
+  <quantity name="sieve_hole73_radial_position" type="length" value="84.5" unit="mm"/>
+  <quantity name="sieve_hole73_angular_offset_phi" type="angle" value="-8 + 360/14 - 360/7" unit="deg"/>
+
+  <quantity name="sieve_hole61_radial_position" type="length" value="39" unit="mm"/>
+  <quantity name="sieve_hole61_angular_offset_phi" type="angle" value="0 - (360/7)*2 + 360/14" unit="deg"/>
+  <quantity name="sieve_hole62_radial_position" type="length" value="60" unit="mm"/>
+  <quantity name="sieve_hole62_angular_offset_phi" type="angle" value="8 - (360/7)*2 + 360/14" unit="deg"/>
+  <quantity name="sieve_hole63_radial_position" type="length" value="75" unit="mm"/>
+  <quantity name="sieve_hole63_angular_offset_phi" type="angle" value="-8 - (360/7)*2 + 360/14" unit="deg"/>
+
+  <quantity name="sieve_hole51_radial_position" type="length" value="56" unit="mm"/>
+  <quantity name="sieve_hole51_angular_offset_phi" type="angle" value="-8 + 360/14 -  (360/7)*3" unit="deg"/>
+  <quantity name="sieve_hole52_radial_position" type="length" value="56" unit="mm"/>
+  <quantity name="sieve_hole52_angular_offset_phi" type="angle" value="8 + 360/14 -  (360/7)*3" unit="deg"/>
+  <quantity name="sieve_hole53_radial_position" type="length" value="80" unit="mm"/>
+  <quantity name="sieve_hole53_angular_offset_phi" type="angle" value="0 + 360/14 -  (360/7)*3" unit="deg"/>
+
+  <quantity name="sieve_hole41_radial_position" type="length" value="50" unit="mm"/>
+  <quantity name="sieve_hole41_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*4" unit="deg"/>
+  <quantity name="sieve_hole42_radial_position" type="length" value="60" unit="mm"/>
+  <quantity name="sieve_hole42_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*4" unit="deg"/>
+  <quantity name="sieve_hole43_radial_position" type="length" value="70" unit="mm"/>
+  <quantity name="sieve_hole43_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*4" unit="deg"/>
+
+  <quantity name="sieve_hole31_radial_position" type="length" value="39" unit="mm"/>
+  <quantity name="sieve_hole31_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*5" unit="deg"/>
+  <quantity name="sieve_hole32_radial_position" type="length" value="63" unit="mm"/>
+  <quantity name="sieve_hole32_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*5" unit="deg"/>
+  <quantity name="sieve_hole33_radial_position" type="length" value="80" unit="mm"/>
+  <quantity name="sieve_hole33_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*5" unit="deg"/>
+
+  <quantity name="sieve_hole21_radial_position" type="length" value="50" unit="mm"/>
+  <quantity name="sieve_hole21_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*6" unit="deg"/>
+  <quantity name="sieve_hole22_radial_position" type="length" value="56" unit="mm"/>
+  <quantity name="sieve_hole22_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*6" unit="deg"/>
+  <quantity name="sieve_hole23_radial_position" type="length" value="75" unit="mm"/>
+  <quantity name="sieve_hole23_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*6" unit="deg"/>
+
+  <quantity name="sieve_hole11_radial_position" type="length" value="35" unit="mm"/>
+  <quantity name="sieve_hole11_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*7" unit="deg"/>
+  <quantity name="sieve_hole12_radial_position" type="length" value="58" unit="mm"/>
+  <quantity name="sieve_hole12_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*7" unit="deg"/>
+  <quantity name="sieve_hole13_radial_position" type="length" value="84.5" unit="mm"/>
+  <quantity name="sieve_hole13_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*7" unit="deg"/>
 </define>
 
 <materials>
@@ -44,6 +97,16 @@
     name="smallVirtualPlane_solid"
     startphi="0" deltaphi="360" aunit="deg"
     rmax="1000" rmin="0" z="1" lunit="mm"/>
+
+  <tube
+    name="sieveVirtualPlane_annulus_solid"
+    startphi="0" deltaphi="360" aunit="deg"
+    rmin="sieve_system_inner_radius" rmax="sieve_system_outer_radius" z="0.01" lunit="mm"/>
+
+  <tube
+    name="sieveHoleVirtualPlane_solid"
+    startphi="0" deltaphi="360" aunit="deg"
+    rmin="0" rmax="sieve_hole_diameter/2" z="0.01" lunit="mm"/>
 
   <box lunit="mm" name="RasterPS_solid" x="800" y="2500" z="800"/>
 
@@ -105,11 +168,6 @@
         </polycone>
 
 
-
-  <tube
-    name="sieveVirtualPlane_annulus_solid"
-    startphi="0" deltaphi="360" aunit="deg"
-    rmin="26.5" rmax="98" z="0.1" lunit="mm"/>
 
   <box name="Showermax_stack_VirtualPlane_solid" lunit="mm" x="181.61" y="314.69" z="0.5"/>
 
@@ -214,20 +272,158 @@
     <auxiliary auxtype="DetNo" auxvalue="5690"/>
   </volume>
 
-  <!-- Old sieve virtual plane was a full disk at the physical sieve mid-plane.
-  <volume name="sieveVirtualPlane_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="smallVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="270"/>
-  </volume>
-  -->
-
   <volume name="sieveVirtualPlane_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="sieveVirtualPlane_annulus_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
     <auxiliary auxtype="DetNo" auxvalue="270"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane01_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27011"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane02_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27012"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane03_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27013"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane04_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27014"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane05_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27015"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane06_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27016"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane07_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27017"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane08_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27018"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane09_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27019"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane10_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27020"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane11_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27021"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane12_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27022"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane13_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27023"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane14_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27024"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane15_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27025"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane16_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27026"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane17_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27027"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane18_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27028"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane19_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27029"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane20_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27030"/>
+  </volume>
+
+  <volume name="sieveHoleVirtualPlane21_log">
+    <materialref ref="G4_Galactic"/>
+    <solidref ref="sieveHoleVirtualPlane_solid"/>
+    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+    <auxiliary auxtype="DetNo" auxvalue="27031"/>
   </volume>
 
   <volume name="Col2Ent_log">
@@ -1205,17 +1401,115 @@
       <volumeref ref="collar0ExitVirtualPlane_log"/>
       <position name="collar0DSVirtualPlane_pos" unit="mm" z="-990"/>
     </physvol>
-        
-    <!-- Old sieve virtual plane placement used the sieve center z.
-    <physvol name="sieveVirtualPlane_phys">
-      <volumeref ref="sieveVirtualPlane_log"/>
-      <position ref="sieveVirtualPlane_pos" unit="mm" z="250"/>
-    </physvol>
-    -->
 
     <physvol name="sieveVirtualPlane_phys">
       <volumeref ref="sieveVirtualPlane_log"/>
       <position name="sieveVirtualPlane_downstream_pos" unit="mm" z="300.1"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane01_phys">
+      <volumeref ref="sieveHoleVirtualPlane01_log"/>
+      <position name="sieveHoleVirtualPlane01_pos" unit="mm" x="sieve_hole11_radial_position*cos(sieve_hole11_angular_offset_phi)" y="sieve_hole11_radial_position*sin(sieve_hole11_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane02_phys">
+      <volumeref ref="sieveHoleVirtualPlane02_log"/>
+      <position name="sieveHoleVirtualPlane02_pos" unit="mm" x="sieve_hole12_radial_position*cos(sieve_hole12_angular_offset_phi)" y="sieve_hole12_radial_position*sin(sieve_hole12_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane03_phys">
+      <volumeref ref="sieveHoleVirtualPlane03_log"/>
+      <position name="sieveHoleVirtualPlane03_pos" unit="mm" x="sieve_hole13_radial_position*cos(sieve_hole13_angular_offset_phi)" y="sieve_hole13_radial_position*sin(sieve_hole13_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane04_phys">
+      <volumeref ref="sieveHoleVirtualPlane04_log"/>
+      <position name="sieveHoleVirtualPlane04_pos" unit="mm" x="sieve_hole21_radial_position*cos(sieve_hole21_angular_offset_phi)" y="sieve_hole21_radial_position*sin(sieve_hole21_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane05_phys">
+      <volumeref ref="sieveHoleVirtualPlane05_log"/>
+      <position name="sieveHoleVirtualPlane05_pos" unit="mm" x="sieve_hole22_radial_position*cos(sieve_hole22_angular_offset_phi)" y="sieve_hole22_radial_position*sin(sieve_hole22_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane06_phys">
+      <volumeref ref="sieveHoleVirtualPlane06_log"/>
+      <position name="sieveHoleVirtualPlane06_pos" unit="mm" x="sieve_hole23_radial_position*cos(sieve_hole23_angular_offset_phi)" y="sieve_hole23_radial_position*sin(sieve_hole23_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane07_phys">
+      <volumeref ref="sieveHoleVirtualPlane07_log"/>
+      <position name="sieveHoleVirtualPlane07_pos" unit="mm" x="sieve_hole31_radial_position*cos(sieve_hole31_angular_offset_phi)" y="sieve_hole31_radial_position*sin(sieve_hole31_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane08_phys">
+      <volumeref ref="sieveHoleVirtualPlane08_log"/>
+      <position name="sieveHoleVirtualPlane08_pos" unit="mm" x="sieve_hole32_radial_position*cos(sieve_hole32_angular_offset_phi)" y="sieve_hole32_radial_position*sin(sieve_hole32_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane09_phys">
+      <volumeref ref="sieveHoleVirtualPlane09_log"/>
+      <position name="sieveHoleVirtualPlane09_pos" unit="mm" x="sieve_hole33_radial_position*cos(sieve_hole33_angular_offset_phi)" y="sieve_hole33_radial_position*sin(sieve_hole33_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane10_phys">
+      <volumeref ref="sieveHoleVirtualPlane10_log"/>
+      <position name="sieveHoleVirtualPlane10_pos" unit="mm" x="sieve_hole41_radial_position*cos(sieve_hole41_angular_offset_phi)" y="sieve_hole41_radial_position*sin(sieve_hole41_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane11_phys">
+      <volumeref ref="sieveHoleVirtualPlane11_log"/>
+      <position name="sieveHoleVirtualPlane11_pos" unit="mm" x="sieve_hole42_radial_position*cos(sieve_hole42_angular_offset_phi)" y="sieve_hole42_radial_position*sin(sieve_hole42_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane12_phys">
+      <volumeref ref="sieveHoleVirtualPlane12_log"/>
+      <position name="sieveHoleVirtualPlane12_pos" unit="mm" x="sieve_hole43_radial_position*cos(sieve_hole43_angular_offset_phi)" y="sieve_hole43_radial_position*sin(sieve_hole43_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane13_phys">
+      <volumeref ref="sieveHoleVirtualPlane13_log"/>
+      <position name="sieveHoleVirtualPlane13_pos" unit="mm" x="sieve_hole51_radial_position*cos(sieve_hole51_angular_offset_phi)" y="sieve_hole51_radial_position*sin(sieve_hole51_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane14_phys">
+      <volumeref ref="sieveHoleVirtualPlane14_log"/>
+      <position name="sieveHoleVirtualPlane14_pos" unit="mm" x="sieve_hole52_radial_position*cos(sieve_hole52_angular_offset_phi)" y="sieve_hole52_radial_position*sin(sieve_hole52_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane15_phys">
+      <volumeref ref="sieveHoleVirtualPlane15_log"/>
+      <position name="sieveHoleVirtualPlane15_pos" unit="mm" x="sieve_hole53_radial_position*cos(sieve_hole53_angular_offset_phi)" y="sieve_hole53_radial_position*sin(sieve_hole53_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane16_phys">
+      <volumeref ref="sieveHoleVirtualPlane16_log"/>
+      <position name="sieveHoleVirtualPlane16_pos" unit="mm" x="sieve_hole61_radial_position*cos(sieve_hole61_angular_offset_phi)" y="sieve_hole61_radial_position*sin(sieve_hole61_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane17_phys">
+      <volumeref ref="sieveHoleVirtualPlane17_log"/>
+      <position name="sieveHoleVirtualPlane17_pos" unit="mm" x="sieve_hole62_radial_position*cos(sieve_hole62_angular_offset_phi)" y="sieve_hole62_radial_position*sin(sieve_hole62_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane18_phys">
+      <volumeref ref="sieveHoleVirtualPlane18_log"/>
+      <position name="sieveHoleVirtualPlane18_pos" unit="mm" x="sieve_hole63_radial_position*cos(sieve_hole63_angular_offset_phi)" y="sieve_hole63_radial_position*sin(sieve_hole63_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane19_phys">
+      <volumeref ref="sieveHoleVirtualPlane19_log"/>
+      <position name="sieveHoleVirtualPlane19_pos" unit="mm" x="sieve_hole71_radial_position*cos(sieve_hole71_angular_offset_phi)" y="sieve_hole71_radial_position*sin(sieve_hole71_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane20_phys">
+      <volumeref ref="sieveHoleVirtualPlane20_log"/>
+      <position name="sieveHoleVirtualPlane20_pos" unit="mm" x="sieve_hole72_radial_position*cos(sieve_hole72_angular_offset_phi)" y="sieve_hole72_radial_position*sin(sieve_hole72_angular_offset_phi)" z="300.05"/>
+    </physvol>
+
+    <physvol name="sieveHoleVirtualPlane21_phys">
+      <volumeref ref="sieveHoleVirtualPlane21_log"/>
+      <position name="sieveHoleVirtualPlane21_pos" unit="mm" x="sieve_hole73_radial_position*cos(sieve_hole73_angular_offset_phi)" y="sieve_hole73_radial_position*sin(sieve_hole73_angular_offset_phi)" z="300.05"/>
     </physvol>
 
     <physvol name="Col2Ent_phys">

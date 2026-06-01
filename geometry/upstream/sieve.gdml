@@ -122,7 +122,7 @@
     <auxiliary auxtype="DetType" auxvalue="boundaryhits"/>
     <auxiliary auxtype="DetType" auxvalue="lowenergyneutral"/>
   </volume>
-  
+
   <volume name="sieve_system_logic">
     <materialref ref="G4_W"/>
     <solidref ref="sieve_system_solid"/>
@@ -303,8 +303,6 @@
         />
     </physvol>
 
-
-   
   </volume>
 </structure>
 
