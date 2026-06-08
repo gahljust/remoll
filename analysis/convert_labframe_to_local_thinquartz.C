@@ -4,7 +4,7 @@
     
     - The main function is `convert_labframe_to_local_thinquartz`, which takes a single hit
       and returns a `mainquartz_local_info` struct with local coordinates, rotated momentum,
-      local angles, wdege information, and detector ID.
+      local angles, and detector ID.
     - Several helper functions are provided for coordinate and cut calculations.
     - The detector geometry parameters are stored in `maindetector_detid_map`.
 	---Important Note---
@@ -414,4 +414,3 @@ mainquartz_local_info convert_labframe_to_local_thinquartz(RemollHit hit){
 	info.detid = hit.det;
 	return info;
 }	
-
