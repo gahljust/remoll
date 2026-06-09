@@ -169,7 +169,7 @@
 
 
 
-  <box name="Showermax_stack_VirtualPlane_solid" lunit="mm" x="181.61" y="314.69" z="0.5"/>
+  <box name="Showermax_stack_VirtualPlane_solid" lunit="mm" x="160.0" y="265.0" z="0.5"/>
 
 </solids>
 
