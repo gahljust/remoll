@@ -55,6 +55,10 @@ class remollGenericDetectorHit : public G4VHit {
 	G4int    fTrID, fPID, fmTrID;
 	// Process generator type
 	G4int    fGen;
+        // Track creation metadata
+        G4int    fCreatorPhysicalVolumeID;
+        G4int    fCreatorProcessID;
+        G4int    fCreatorMaterialID;
         // Energy deposited
         G4double fEdep;
 
@@ -67,6 +71,9 @@ class remollGenericDetectorHit : public G4VHit {
         hit.mtrid= fmTrID;
         hit.pid  = fPID;
         hit.gen  = fGen;
+        hit.creator_physvol_id = fCreatorPhysicalVolumeID;
+        hit.creator_process_id = fCreatorProcessID;
+        hit.creator_material_id = fCreatorMaterialID;
         hit.t  = fTime;
         hit.x  = f3X.x();
         hit.y  = f3X.y();

@@ -7,6 +7,10 @@
 #include "G4Version.hh"
 #include "G4TrackingManager.hh"
 #include "G4OpticalPhoton.hh"
+#include "G4LogicalVolume.hh"
+#include "G4Material.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VProcess.hh"
 
 remollTrackingAction::remollTrackingAction()
 {
@@ -30,6 +34,26 @@ void remollTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     #else
     const_cast<G4Track*>(aTrack)->SetUserInformation(new remollUserTrackInformation());
     #endif
+    usertrackinfo = aTrack->GetUserInformation();
+  }
+
+  remollUserTrackInformation* remollusertrackinfo =
+      dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
+  if (remollusertrackinfo != nullptr) {
+    const G4VPhysicalVolume* volume = aTrack->GetVolume();
+    if (volume != nullptr) {
+      remollusertrackinfo->SetCreatorPhysicalVolumeID(volume->GetInstanceID());
+
+      const G4LogicalVolume* logical = volume->GetLogicalVolume();
+      if (logical != nullptr && logical->GetMaterial() != nullptr) {
+        remollusertrackinfo->SetCreatorMaterialID(logical->GetMaterial()->GetIndex());
+      }
+    }
+
+    const G4VProcess* creator = aTrack->GetCreatorProcess();
+    if (creator != nullptr) {
+      remollusertrackinfo->SetCreatorProcessID(creator->GetProcessSubType());
+    }
   }
 
   // Track primary electron only

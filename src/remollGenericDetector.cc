@@ -311,6 +311,18 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
 
     hit->fGen   = (long int) track->GetCreatorProcess();
 
+    G4VUserTrackInformation* usertrackinfo = track->GetUserInformation();
+    remollUserTrackInformation* remollusertrackinfo =
+        dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
+    if (remollusertrackinfo != nullptr) {
+      hit->fCreatorPhysicalVolumeID =
+          remollusertrackinfo->GetCreatorPhysicalVolumeID();
+      hit->fCreatorProcessID =
+          remollusertrackinfo->GetCreatorProcessID();
+      hit->fCreatorMaterialID =
+          remollusertrackinfo->GetCreatorMaterialID();
+    }
+
     hit->fEdep  = step->GetTotalEnergyDeposit();
 
     return true;

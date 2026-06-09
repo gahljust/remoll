@@ -70,6 +70,9 @@ struct remollGenericDetectorHit_t {
   int pid;
   int gen;
   int mtrid;
+  int creator_physvol_id;
+  int creator_process_id;
+  int creator_material_id;
   double t;
   double x, y, z;
   double xl, yl, zl;

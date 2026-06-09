@@ -88,6 +88,7 @@ foreach(file ${headers})
     list(APPEND needsdict ${file})
   endif()
 endforeach()
+list(APPEND needsdict ${PROJECT_SOURCE_DIR}/include/remolltypes.hh)
 build_root_dictionary(
   ${PROJECT_NAME}
   ${needsdict}
@@ -448,4 +449,3 @@ if(NOT TARGET uninstall)
   add_custom_target(uninstall
       COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
-
