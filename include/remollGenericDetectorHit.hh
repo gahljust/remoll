@@ -8,6 +8,8 @@
 
 #include "remolltypes.hh"
 
+#include <cstring>
+
 class remollGenericDetectorHit : public G4VHit {
     public:
 	remollGenericDetectorHit(G4int, G4int);
@@ -59,6 +61,9 @@ class remollGenericDetectorHit : public G4VHit {
         G4int    fCreatorPhysicalVolumeID;
         G4int    fCreatorProcessID;
         G4int    fCreatorMaterialID;
+        std::string fCreatorPhysicalVolumeName;
+        std::string fCreatorProcessName;
+        std::string fCreatorMaterialName;
         // Energy deposited
         G4double fEdep;
 
@@ -74,6 +79,15 @@ class remollGenericDetectorHit : public G4VHit {
         hit.creator_physvol_id = fCreatorPhysicalVolumeID;
         hit.creator_process_id = fCreatorProcessID;
         hit.creator_material_id = fCreatorMaterialID;
+        std::strncpy(hit.creator_physvol_name, fCreatorPhysicalVolumeName.c_str(),
+                     __RUNSTR_LEN - 1);
+        hit.creator_physvol_name[__RUNSTR_LEN - 1] = '\0';
+        std::strncpy(hit.creator_process_name, fCreatorProcessName.c_str(),
+                     __RUNSTR_LEN - 1);
+        hit.creator_process_name[__RUNSTR_LEN - 1] = '\0';
+        std::strncpy(hit.creator_material_name, fCreatorMaterialName.c_str(),
+                     __RUNSTR_LEN - 1);
+        hit.creator_material_name[__RUNSTR_LEN - 1] = '\0';
         hit.t  = fTime;
         hit.x  = f3X.x();
         hit.y  = f3X.y();

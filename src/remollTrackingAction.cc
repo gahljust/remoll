@@ -43,16 +43,19 @@ void remollTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
     const G4VPhysicalVolume* volume = aTrack->GetVolume();
     if (volume != nullptr) {
       remollusertrackinfo->SetCreatorPhysicalVolumeID(volume->GetInstanceID());
+      remollusertrackinfo->SetCreatorPhysicalVolumeName(volume->GetName());
 
       const G4LogicalVolume* logical = volume->GetLogicalVolume();
       if (logical != nullptr && logical->GetMaterial() != nullptr) {
         remollusertrackinfo->SetCreatorMaterialID(logical->GetMaterial()->GetIndex());
+        remollusertrackinfo->SetCreatorMaterialName(logical->GetMaterial()->GetName());
       }
     }
 
     const G4VProcess* creator = aTrack->GetCreatorProcess();
     if (creator != nullptr) {
       remollusertrackinfo->SetCreatorProcessID(creator->GetProcessSubType());
+      remollusertrackinfo->SetCreatorProcessName(creator->GetProcessName());
     }
   }
 

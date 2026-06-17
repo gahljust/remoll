@@ -321,6 +321,12 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
           remollusertrackinfo->GetCreatorProcessID();
       hit->fCreatorMaterialID =
           remollusertrackinfo->GetCreatorMaterialID();
+      hit->fCreatorPhysicalVolumeName =
+          remollusertrackinfo->GetCreatorPhysicalVolumeName();
+      hit->fCreatorProcessName =
+          remollusertrackinfo->GetCreatorProcessName();
+      hit->fCreatorMaterialName =
+          remollusertrackinfo->GetCreatorMaterialName();
     }
 
     hit->fEdep  = step->GetTotalEnergyDeposit();
@@ -338,5 +344,3 @@ void remollGenericDetector::EndOfEvent(G4HCofThisEvent* HCE)
     HCE->AddHitsCollection(fHCID, fHitColl);
     HCE->AddHitsCollection(fSCID, fSumColl);
 }
-
-
