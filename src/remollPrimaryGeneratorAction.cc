@@ -37,7 +37,7 @@
 #include <memory>
 
 remollPrimaryGeneratorAction::remollPrimaryGeneratorAction()
-  : fEventGen(0),fPriGen(0),fParticleGun(0),fEvent(0),fRateCopy(0),fEffCrossSection(0)
+  : fEventGen(0),fPriGen(0),fParticleGun(0),fEvent(0),fRateCopy(0),fGeneratorOnly(false),fEffCrossSection(0)
 {
     static bool has_been_warned = false;
     if (! has_been_warned) {
@@ -82,6 +82,7 @@ remollPrimaryGeneratorAction::remollPrimaryGeneratorAction()
     fEvGenMessenger.DeclareMethod("set",&remollPrimaryGeneratorAction::SetGenerator,"Select physics generator");
     fEvGenMessenger.DeclarePropertyWithUnit("sigma","picobarn",fEffCrossSection,"Set effective cross section");
     fEvGenMessenger.DeclareProperty("copyRate",fRateCopy,"ExtGen: copy rate from previous sim");
+    fEvGenMessenger.DeclareProperty("generatorOnly",fGeneratorOnly,"Generate and write ev/bm/part/rate branches without Geant4 tracking");
 }
 
 remollPrimaryGeneratorAction::~remollPrimaryGeneratorAction()
@@ -172,7 +173,7 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
       // Create new primary event
       fEvent = fEventGen->GenerateEvent();
-      for (unsigned int pidx = 0; pidx < fEvent->fPartType.size(); pidx++) {
+      for (unsigned int pidx = 0; !fGeneratorOnly && pidx < fEvent->fPartType.size(); pidx++) {
 
         double p = fEvent->fPartRealMom[pidx].mag();
         double m = fEvent->fPartType[pidx]->GetPDGMass();

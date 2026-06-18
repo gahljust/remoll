@@ -46,6 +46,7 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     remollEvent *fEvent;
 
     G4int fRateCopy;
+    G4bool fGeneratorOnly;
     G4GenericMessenger fEvGenMessenger{this,"/remoll/evgen/","Remoll event generator properties"};
 
 
@@ -53,5 +54,4 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 };
 
 #endif
-
 

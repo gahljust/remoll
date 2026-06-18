@@ -76,6 +76,11 @@ void remollIO::InitializeTree()
     }
 
     fFile = new TFile(fFilename, "RECREATE");
+    if (fFile == nullptr || fFile->IsZombie() || !fFile->IsOpen()) {
+        G4cerr << "ERROR: " << __FILE__ << " line " << __LINE__
+               << ": Could not open output file " << fFilename << G4endl;
+        exit(1);
+    }
 
     fTree = new TTree("T", "Geant4 Moller Simulation");
 

@@ -51,39 +51,41 @@ void remollEventAction::EndOfEventAction(const G4Event* aEvent)
 
   // Traverse all hit collections, sort by output type
   G4HCofThisEvent *HCE = aEvent->GetHCofThisEvent();
-  auto n = HCE->GetCapacity();
-  for (decltype(n) hcidx = 0; hcidx < n; hcidx++) {
-    G4VHitsCollection* thiscol = HCE->GetHC(hcidx);
-    if (thiscol != nullptr){ // This is NULL if nothing is stored
+  if (HCE != nullptr) {
+    auto n = HCE->GetCapacity();
+    for (decltype(n) hcidx = 0; hcidx < n; hcidx++) {
+      G4VHitsCollection* thiscol = HCE->GetHC(hcidx);
+      if (thiscol != nullptr){ // This is NULL if nothing is stored
 
-      // Dynamic cast to test types, process however see fit and feed to IO
+        // Dynamic cast to test types, process however see fit and feed to IO
 
-      ////  Generic Detector Hits ///////////////////////////////////
-      if (remollGenericDetectorHitCollection *thiscast =
-          dynamic_cast<remollGenericDetectorHitCollection*>(thiscol)) {
-        for (unsigned int hidx = 0; hidx < thiscast->GetSize(); hidx++) {
+        ////  Generic Detector Hits ///////////////////////////////////
+        if (remollGenericDetectorHitCollection *thiscast =
+            dynamic_cast<remollGenericDetectorHitCollection*>(thiscol)) {
+          for (unsigned int hidx = 0; hidx < thiscast->GetSize(); hidx++) {
 
-	  remollGenericDetectorHit *currentHit =
-	    (remollGenericDetectorHit *) thiscast->GetHit(hidx);
+            remollGenericDetectorHit *currentHit =
+              (remollGenericDetectorHit *) thiscast->GetHit(hidx);
 
-	  ////  store GEM hits for track reconstruction
-	  if(currentHit->fDetID >= 501 && currentHit->fDetID <= 504){
-	    track.AddHit(currentHit);
-	  }
-	  // non-GEM hits
-	  else io->AddGenericDetectorHit(currentHit);
+            ////  store GEM hits for track reconstruction
+            if(currentHit->fDetID >= 501 && currentHit->fDetID <= 504){
+              track.AddHit(currentHit);
+            }
+            // non-GEM hits
+            else io->AddGenericDetectorHit(currentHit);
+          }
         }
-      }
 
-      ////  Generic Detector Sum ////////////////////////////////////
-      if (remollGenericDetectorSumCollection *thiscast =
-          dynamic_cast<remollGenericDetectorSumCollection*>(thiscol)) {
-        for (unsigned int hidx = 0; hidx < thiscast->GetSize(); hidx++) {
-          io->AddGenericDetectorSum((remollGenericDetectorSum *)
-                                    thiscast->GetHit(hidx));
+        ////  Generic Detector Sum ////////////////////////////////////
+        if (remollGenericDetectorSumCollection *thiscast =
+            dynamic_cast<remollGenericDetectorSumCollection*>(thiscol)) {
+          for (unsigned int hidx = 0; hidx < thiscast->GetSize(); hidx++) {
+            io->AddGenericDetectorSum((remollGenericDetectorSum *)
+                                      thiscast->GetHit(hidx));
+          }
         }
-      }
 
+      }
     }
   }
 
