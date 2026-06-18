@@ -224,6 +224,29 @@ Later, when detector response is available, the intended weight becomes:
 w = rate x ShowerMax response
 ```
 
+## Plain Rate vs Rate*Energy (read this before interpreting summaries)
+
+Some macros and summaries carry a second weight, `rate * energy` (for example the
+"Total selected `rate * energy`" line in `current/neff_phase_space/showermax_scan_summary_1M.md`).
+This was never the official ShowerMax signal. It is an early stand-in for the future
+PE-signal step, where the real weight will be `rate * Response(pid, energy, det, position, direction)`.
+Energy alone is not that response.
+
+The reason both weights appear without a clear label is historical: the energy weighting
+was added in earlier exploratory work and was not explained to the agents documenting it,
+so the two got mixed in the notes and summaries.
+
+Current convention:
+
+- Use plain `rate` for everything we are doing now (hit-rate maps, displays, precision pilots).
+  `rate` is physical, easy to explain, and is what we report.
+- Treat `rate * energy` as a placeholder for the not-yet-built PE/signal step. Do not present
+  it as the ShowerMax signal, and do not mix it into rate-only deliverables.
+- Only use the energy-weighted form when Justin explicitly asks for the PE-precursor study.
+
+This is why the current next step (per-scan `sview.C`-style displays) uses plain `rate` in kHz
+and a primary cut (`mtrid==0`), with no energy weighting.
+
 ## How We Used Rate For ShowerMax
 
 For each production process `i`, the virtual-plane hit-rate proxy is:
@@ -266,32 +289,29 @@ This is why `rate` is essential: it puts separately generated samples, such as M
 
 Equal generated event counts do not mean equal physical contribution.
 
-## Important Warning About `calculate_rate_neff.C`
+## Important Warning About Old Compatibility Neff Macros
 
-The earlier compatibility macro:
-
-- `_local_additions_archive/showermax-gem-analysis/scripts/calculate_rate_neff.C`
-
-was written to mimic `simple_showermax_xy.C` behavior. That compatibility calculation adds rate once per selected ShowerMax hit times every accepted `part.p` entry:
+An earlier compatibility-style Neff macro (in the now-archived
+`_local_additions_archive/old/` snapshots, previously under
+`showermax-gem-analysis/scripts/calculate_rate_neff.C`) was written to mimic the old
+`simple_showermax_xy.C` behavior. That compatibility calculation added rate once per
+selected ShowerMax hit times every accepted `part.p` entry:
 
 ```text
 selected_sum_rate = sum_events rate_event x N_selected_hits_event x N_good_part_entries_event
 ```
 
-Relevant code:
+That was useful for reproducing the old `simple_showermax_xy.C` Neff/Akin number, but it
+is NOT the clean official ShowerMax physical hit-rate definition. Do not multiply rate by
+unrelated `part.p` entries unless deliberately reproducing that old number.
 
-- `_local_additions_archive/showermax-gem-analysis/scripts/calculate_rate_neff.C:185-194`
-- `_local_additions_archive/plane_analysis/simple_showermax_xy.C:100-138`
-
-That was useful for reproducing the old `simple_showermax_xy.C` Neff/Akin number, but it is not the clean official ShowerMax physical hit-rate definition.
-
-For official production precision studies, use one `rate` weight per selected virtual-plane hit, as implemented in:
-
-- `_local_additions_archive/showermax-gem-analysis/scripts/calculate_production_precision.C`
-
-Relevant code:
-
-- `_local_additions_archive/showermax-gem-analysis/scripts/calculate_production_precision.C:176-200`
+For official production precision studies, use **one `rate` weight per selected
+virtual-plane hit**. The current implementation of this clean convention lives under
+`_local_additions_archive/current/` (the acceptance-tree maker
+`make_showermax_acceptance_tree.C` plus the scan summary macro
+`analysis_help/analyze_showermax_scan_summary.C`). The old `showermax-gem-analysis/scripts/`
+and `plane_analysis/` macro paths no longer exist; check `current/` (or its `old/` snapshot)
+for the equivalent.
 
 ## Process Names Used
 

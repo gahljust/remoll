@@ -34,9 +34,17 @@ Doxygen
 *.root
 *.out
 *.pdf
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.ipynb
+*.csv
 *.log
 *.dot
 *.lst
+*.json
 
 #ignore kdev files
 *.kdev4
