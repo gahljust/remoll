@@ -257,22 +257,10 @@ void NormalizeRate(remollEvent* event, const remollBeamTarget& beam_target,
   }
 }
 
-int ParticlePid(const remollEvent* event, size_t index)
-{
-  if (index >= event->fPartType.size() || event->fPartType[index] == nullptr) return 0;
-  return event->fPartType[index]->GetPDGEncoding();
-}
-
 G4ThreeVector ParticleMom(const remollEvent* event, size_t index)
 {
   if (index >= event->fPartMom.size()) return G4ThreeVector();
   return event->fPartMom[index];
-}
-
-G4ThreeVector ParticleRealMom(const remollEvent* event, size_t index)
-{
-  if (index >= event->fPartRealMom.size()) return G4ThreeVector();
-  return event->fPartRealMom[index];
 }
 
 } // namespace
@@ -361,75 +349,28 @@ int main(int argc, char** argv)
   TTree tree("T", "remoll generator-only scan");
 
   ULong64_t entry = 0;
-  Int_t npart = 0;
-  Int_t pid0 = 0, pid1 = 0;
-  Double_t rate = 0, xs = 0, A = 0, Am = 0, Q2 = 0, W2 = 0, xbj = 0;
-  Double_t thcom = 0, thcom_deg = 0;
-  Double_t beamp = 0, beamp_GeV = 0, beamE = 0, beamE_GeV = 0, sampledE = 0, sampledE_GeV = 0;
-  Double_t vx = 0, vy = 0, vz = 0;
-  Double_t bmx = 0, bmy = 0, bmz = 0, bmth = 0, bmph = 0;
-  Double_t radlen = 0, travelled = 0, eff_mat_len = 0;
-  Double_t p0 = 0, p0_GeV = 0, th0 = 0, ph0 = 0, px0 = 0, py0 = 0, pz0 = 0;
-  Double_t rp0 = 0, rth0 = 0, rph0 = 0, rpx0 = 0, rpy0 = 0, rpz0 = 0;
-  Double_t p1 = 0, p1_GeV = 0, th1 = 0, ph1 = 0, px1 = 0, py1 = 0, pz1 = 0;
-  Double_t rp1 = 0, rth1 = 0, rph1 = 0, rpx1 = 0, rpy1 = 0, rpz1 = 0;
+  Float_t xs = 0, rate = 0, beamp_GeV = 0, thcom_deg = 0;
+  Float_t Q2 = 0, W2 = 0, A = 0;
+  Float_t vx = 0, vy = 0, vz = 0;
+  Float_t p0_GeV = 0, th0 = 0, ph0 = 0;
+  Float_t radlen = 0, travelled = 0;
 
   tree.Branch("entry", &entry, "entry/l");
-  tree.Branch("npart", &npart, "npart/I");
-  tree.Branch("pid0", &pid0, "pid0/I");
-  tree.Branch("pid1", &pid1, "pid1/I");
-  tree.Branch("rate", &rate, "rate/D");
-  tree.Branch("xs", &xs, "xs/D");
-  tree.Branch("A", &A, "A/D");
-  tree.Branch("Am", &Am, "Am/D");
-  tree.Branch("Q2", &Q2, "Q2/D");
-  tree.Branch("W2", &W2, "W2/D");
-  tree.Branch("xbj", &xbj, "xbj/D");
-  tree.Branch("thcom", &thcom, "thcom/D");
-  tree.Branch("thcom_deg", &thcom_deg, "thcom_deg/D");
-  tree.Branch("beamp", &beamp, "beamp/D");
-  tree.Branch("beamp_GeV", &beamp_GeV, "beamp_GeV/D");
-  tree.Branch("beamE", &beamE, "beamE/D");
-  tree.Branch("beamE_GeV", &beamE_GeV, "beamE_GeV/D");
-  tree.Branch("sampledE", &sampledE, "sampledE/D");
-  tree.Branch("sampledE_GeV", &sampledE_GeV, "sampledE_GeV/D");
-  tree.Branch("vx", &vx, "vx/D");
-  tree.Branch("vy", &vy, "vy/D");
-  tree.Branch("vz", &vz, "vz/D");
-  tree.Branch("bmx", &bmx, "bmx/D");
-  tree.Branch("bmy", &bmy, "bmy/D");
-  tree.Branch("bmz", &bmz, "bmz/D");
-  tree.Branch("bmth", &bmth, "bmth/D");
-  tree.Branch("bmph", &bmph, "bmph/D");
-  tree.Branch("radlen", &radlen, "radlen/D");
-  tree.Branch("travelled", &travelled, "travelled/D");
-  tree.Branch("eff_mat_len", &eff_mat_len, "eff_mat_len/D");
-  tree.Branch("p0", &p0, "p0/D");
-  tree.Branch("p0_GeV", &p0_GeV, "p0_GeV/D");
-  tree.Branch("th0", &th0, "th0/D");
-  tree.Branch("ph0", &ph0, "ph0/D");
-  tree.Branch("px0", &px0, "px0/D");
-  tree.Branch("py0", &py0, "py0/D");
-  tree.Branch("pz0", &pz0, "pz0/D");
-  tree.Branch("rp0", &rp0, "rp0/D");
-  tree.Branch("rth0", &rth0, "rth0/D");
-  tree.Branch("rph0", &rph0, "rph0/D");
-  tree.Branch("rpx0", &rpx0, "rpx0/D");
-  tree.Branch("rpy0", &rpy0, "rpy0/D");
-  tree.Branch("rpz0", &rpz0, "rpz0/D");
-  tree.Branch("p1", &p1, "p1/D");
-  tree.Branch("p1_GeV", &p1_GeV, "p1_GeV/D");
-  tree.Branch("th1", &th1, "th1/D");
-  tree.Branch("ph1", &ph1, "ph1/D");
-  tree.Branch("px1", &px1, "px1/D");
-  tree.Branch("py1", &py1, "py1/D");
-  tree.Branch("pz1", &pz1, "pz1/D");
-  tree.Branch("rp1", &rp1, "rp1/D");
-  tree.Branch("rth1", &rth1, "rth1/D");
-  tree.Branch("rph1", &rph1, "rph1/D");
-  tree.Branch("rpx1", &rpx1, "rpx1/D");
-  tree.Branch("rpy1", &rpy1, "rpy1/D");
-  tree.Branch("rpz1", &rpz1, "rpz1/D");
+  tree.Branch("xs", &xs, "xs/F");
+  tree.Branch("rate", &rate, "rate/F");
+  tree.Branch("beamp_GeV", &beamp_GeV, "beamp_GeV/F");
+  tree.Branch("thcom_deg", &thcom_deg, "thcom_deg/F");
+  tree.Branch("Q2", &Q2, "Q2/F");
+  tree.Branch("W2", &W2, "W2/F");
+  tree.Branch("A", &A, "A/F");
+  tree.Branch("vx", &vx, "vx/F");
+  tree.Branch("vy", &vy, "vy/F");
+  tree.Branch("vz", &vz, "vz/F");
+  tree.Branch("p0_GeV", &p0_GeV, "p0_GeV/F");
+  tree.Branch("th0", &th0, "th0/F");
+  tree.Branch("ph0", &ph0, "ph0/F");
+  tree.Branch("radlen", &radlen, "radlen/F");
+  tree.Branch("travelled", &travelled, "travelled/F");
 
   const unsigned long long progress_step =
       config.progress_points == 0 ? 0 :
@@ -444,73 +385,25 @@ int main(int argc, char** argv)
     NormalizeRate(remoll_event.get(), beam_target, *generator, config.n_events);
     const remollBeamTarget* event_beam_target = remoll_event->GetBeamTarget();
 
-    npart = static_cast<Int_t>(remoll_event->fPartType.size());
-    pid0 = ParticlePid(remoll_event.get(), 0);
-    pid1 = ParticlePid(remoll_event.get(), 1);
+    rate = static_cast<Float_t>(remoll_event->fRate * second);
+    xs = static_cast<Float_t>(remoll_event->fEffXs / microbarn);
+    beamp_GeV = static_cast<Float_t>(remoll_event->fBeamMomentum.mag() / GeV);
+    thcom_deg = static_cast<Float_t>(remoll_event->fThCoM / deg);
+    Q2 = static_cast<Float_t>(remoll_event->fQ2);
+    W2 = static_cast<Float_t>(remoll_event->fW2);
+    A = static_cast<Float_t>(remoll_event->fAsym / ppb);
 
-    rate = remoll_event->fRate * second;
-    xs = remoll_event->fEffXs / microbarn;
-    A = remoll_event->fAsym / ppb;
-    Am = remoll_event->fmAsym / ppb;
-    Q2 = remoll_event->fQ2;
-    W2 = remoll_event->fW2;
-    xbj = remoll_event->fXbj;
-    thcom = remoll_event->fThCoM;
-    thcom_deg = remoll_event->fThCoM / deg;
+    vx = static_cast<Float_t>(remoll_event->fVertexPos.x());
+    vy = static_cast<Float_t>(remoll_event->fVertexPos.y());
+    vz = static_cast<Float_t>(remoll_event->fVertexPos.z());
 
-    beamp = remoll_event->fBeamMomentum.mag();
-    beamp_GeV = beamp / GeV;
-    beamE = remoll_event->fBeamE;
-    beamE_GeV = beamE / GeV;
-    sampledE = event_beam_target != nullptr ? event_beam_target->fSampledEnergy : 0;
-    sampledE_GeV = sampledE / GeV;
-
-    vx = remoll_event->fVertexPos.x();
-    vy = remoll_event->fVertexPos.y();
-    vz = remoll_event->fVertexPos.z();
-    bmx = remoll_event->fBeamMomentum.x();
-    bmy = remoll_event->fBeamMomentum.y();
-    bmz = remoll_event->fBeamMomentum.z();
-    bmth = remoll_event->fBeamMomentum.theta();
-    bmph = remoll_event->fBeamMomentum.phi();
-
-    radlen = event_beam_target != nullptr ? event_beam_target->fRadiationLength : 0;
-    travelled = event_beam_target != nullptr ? event_beam_target->fTravelledLength : 0;
-    eff_mat_len = event_beam_target != nullptr ? event_beam_target->fEffectiveMaterialLength : 0;
+    radlen = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fRadiationLength : 0);
+    travelled = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fTravelledLength : 0);
 
     const auto mom0 = ParticleMom(remoll_event.get(), 0);
-    p0 = mom0.mag();
-    p0_GeV = p0 / GeV;
-    th0 = mom0.theta();
-    ph0 = mom0.phi();
-    px0 = mom0.x();
-    py0 = mom0.y();
-    pz0 = mom0.z();
-
-    const auto real_mom0 = ParticleRealMom(remoll_event.get(), 0);
-    rp0 = real_mom0.mag();
-    rth0 = real_mom0.theta();
-    rph0 = real_mom0.phi();
-    rpx0 = real_mom0.x();
-    rpy0 = real_mom0.y();
-    rpz0 = real_mom0.z();
-
-    const auto mom1 = ParticleMom(remoll_event.get(), 1);
-    p1 = mom1.mag();
-    p1_GeV = p1 / GeV;
-    th1 = mom1.theta();
-    ph1 = mom1.phi();
-    px1 = mom1.x();
-    py1 = mom1.y();
-    pz1 = mom1.z();
-
-    const auto real_mom1 = ParticleRealMom(remoll_event.get(), 1);
-    rp1 = real_mom1.mag();
-    rth1 = real_mom1.theta();
-    rph1 = real_mom1.phi();
-    rpx1 = real_mom1.x();
-    rpy1 = real_mom1.y();
-    rpz1 = real_mom1.z();
+    p0_GeV = static_cast<Float_t>(mom0.mag() / GeV);
+    th0 = static_cast<Float_t>(mom0.theta());
+    ph0 = static_cast<Float_t>(mom0.phi());
 
     tree.Fill();
   }
