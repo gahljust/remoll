@@ -1,9 +1,12 @@
 #include "remollVEventGen.hh"
 
 #include <cassert>
+#include <algorithm>
+#include <cmath>
 
 #include "G4ParticleGun.hh"
 #include "G4RotationMatrix.hh"
+#include "Randomize.hh"
 
 #include "remollBeamTarget.hh"
 #include "remollVertex.hh"
@@ -22,6 +25,9 @@ G4double remollVEventGen::fE_max = 11.0*GeV;
 
 remollVEventGen::remollVEventGen(const G4String name)
 : fName(name),
+  fThCoMBiasMode("physical"),
+  fThCoMBiasMin(-1.0),
+  fThCoMBiasMax(-1.0),
   fBeamPol("0"),
   fNumberOfParticles(1),fParticleGun(0),
   fBeamTarg(0),
@@ -45,12 +51,55 @@ remollVEventGen::remollVEventGen(const G4String name)
         &remollVEventGen::PrintEventGen,
         "Print the event generator limits");
 
+    fThCoMBiasMessenger.DeclareProperty("mode",fThCoMBiasMode,"Thrown-angle bias mode: physical or uniform");
+    fThCoMBiasMessenger.DeclarePropertyWithUnit("min","deg",fThCoMBiasMin,"Minimum biased thrown angle");
+    fThCoMBiasMessenger.DeclarePropertyWithUnit("max","deg",fThCoMBiasMax,"Maximum biased thrown angle");
+
     fSamplingType = kActiveTargetVolume;
     fApplyMultScatt = false;
 }
 
 remollVEventGen::~remollVEventGen()
 {
+}
+
+G4double remollVEventGen::SampleThCoMWithBias(G4double& bias_weight)
+{
+    return SampleThetaWithBias(fThCoM_min, fThCoM_max, bias_weight);
+}
+
+G4bool remollVEventGen::HasThetaBias() const
+{
+    return !(fThCoMBiasMode == "physical" || fThCoMBiasMode == "none");
+}
+
+G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_limit, G4double& bias_weight)
+{
+    bias_weight = 1.0;
+
+    if (fThCoMBiasMode == "physical" || fThCoMBiasMode == "none") {
+        return acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+    }
+
+    if (fThCoMBiasMode == "uniform") {
+        G4double min_th = fThCoMBiasMin >= 0.0 ? std::max(fThCoMBiasMin, min_limit) : min_limit;
+        G4double max_th = fThCoMBiasMax >= 0.0 ? std::min(fThCoMBiasMax, max_limit) : max_limit;
+
+        if (max_th <= min_th) {
+            G4cerr << "ERROR: invalid /remoll/bias/thcom uniform range: "
+                   << min_th/deg << " to " << max_th/deg << " deg" << G4endl;
+            exit(1);
+        }
+
+        G4double th = G4RandFlat::shoot(min_th, max_th);
+        G4double physical_pdf = sin(th)/(cos(min_limit) - cos(max_limit));
+        G4double sample_pdf = 1.0/(max_th - min_th);
+        bias_weight = physical_pdf/sample_pdf;
+        return th;
+    }
+
+    G4cerr << "ERROR: unknown /remoll/bias/thcom/mode " << fThCoMBiasMode << G4endl;
+    exit(1);
 }
 
 void remollVEventGen::PrintEventGen()
@@ -85,6 +134,10 @@ remollEvent* remollVEventGen::GenerateEvent()
     // Create and initialize values for event
     remollEvent *thisev = new remollEvent();
     thisev->SetBeamTarget(fBeamTarg);
+    thisev->fBeamBiasWeight = fBeamTarg->fBeamBiasWeight;
+    thisev->fBeamBiasPhysicalPdf = fBeamTarg->fBeamBiasPhysicalPdf;
+    thisev->fBeamBiasSamplePdf = fBeamTarg->fBeamBiasSamplePdf;
+    thisev->fBiasWeight = thisev->fBeamBiasWeight;
 
     thisev->fVertexPos    = fBeamTarg->fVer;
     if( fApplyMultScatt ) {
@@ -145,4 +198,3 @@ void remollVEventGen::PolishEvent(remollEvent *ev) {
 
     ev->fmAsym = ev->fAsym*fBeamTarg->fBeamPolarization;
 }
-

@@ -40,12 +40,16 @@ G4bool remollBeamTarget::fUpdateNeeded = true;
 
 remollBeamTarget::remollBeamTarget()
 : fBeamEnergy(gDefaultBeamE),fBeamCurrent(gDefaultBeamCur),fBeamPolarization(gDefaultBeamPol),
+  fBeamBiasWeight(1.0),fBeamBiasPhysicalPdf(1.0),fBeamBiasSamplePdf(1.0),
   fOldRaster(true),fRasterX(5.0*mm),fRasterY(5.0*mm),
   fX0(0.0),fY0(0.0),fTh0(0.0),fPh0(0.0),
   fdTh(0.0),fdPh(0.0),fCorrTh(0.0),fCorrPh(0.0)
 {
     // Infrared energy cutoff
     fEnergyCut = 1e-6 * MeV;
+    fBeamBiasMode = "physical";
+    fBeamBiasMin = electron_mass_c2;
+    fBeamBiasMax = gDefaultBeamE;
 
     // Default material if sampling volume not found
     fDefaultMat = new G4Material("Default_proton", 1.0, 1.0, 1e-19*g/mole);
@@ -70,6 +74,10 @@ remollBeamTarget::remollBeamTarget()
     fTargetMessenger.DeclareMethod("mother",&remollBeamTarget::SetActiveTargetMother,"Set target mother name").SetStates(G4State_Idle);
     fTargetMessenger.DeclareMethod("volume",&remollBeamTarget::SetActiveTargetVolume,"Set target volume name").SetStates(G4State_Idle);
     fTargetMessenger.DeclareMethod("print",&remollBeamTarget::PrintTargetInfo).SetStates(G4State_Idle);
+
+    fBeamBiasMessenger.DeclareProperty("mode",fBeamBiasMode,"Beam momentum bias mode: physical or uniform");
+    fBeamBiasMessenger.DeclarePropertyWithUnit("min","GeV",fBeamBiasMin,"Minimum biased beam momentum");
+    fBeamBiasMessenger.DeclarePropertyWithUnit("max","GeV",fBeamBiasMax,"Maximum biased beam momentum");
 }
 
 remollBeamTarget::~remollBeamTarget()
@@ -208,6 +216,49 @@ void remollBeamTarget::SetActiveTargetVolume(G4String name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 //  Sampling functions
+
+G4double remollBeamTarget::RadiativeGammaCorrection(G4double bt) const
+{
+    const static G4double Euler = 0.5772157;
+    return 1. - bt*Euler + bt*bt/2.*(Euler*Euler+pi*pi/6.);
+}
+
+G4double remollBeamTarget::RadiativeEmissionProbability(G4double Ekin, G4double bt) const
+{
+    if (Ekin <= fEnergyCut || bt <= 0.0) return 0.0;
+
+    G4double prob = 1.- pow(fEnergyCut/Ekin,bt) - bt/(bt+1.)*(1.- pow(fEnergyCut/Ekin,bt+1.))
+	+ 0.75*bt/(2.+bt)*(1.- pow(fEnergyCut/Ekin,bt+2.));
+    return prob/RadiativeGammaCorrection(bt);
+}
+
+G4double remollBeamTarget::RadiativeLossShape(G4double eloss, G4double Ekin, G4double bt) const
+{
+    if (eloss < fEnergyCut || eloss > Ekin || Ekin <= 0.0) return 0.0;
+    return 1./eloss*(1.-eloss/Ekin+0.75*pow(eloss/Ekin,2))*pow(eloss/Ekin,bt);
+}
+
+G4double remollBeamTarget::RadiativeLossPdf(G4double eloss, G4double Ekin, G4double bt) const
+{
+    if (bt <= 0.0) return 0.0;
+    return bt*RadiativeLossShape(eloss, Ekin, bt)/RadiativeGammaCorrection(bt);
+}
+
+G4double remollBeamTarget::SamplePhysicalRadiativeLoss(G4double Ekin, G4double bt) const
+{
+    G4double eloss, sample, ref;
+    do {
+	sample = G4UniformRand();
+	eloss = fEnergyCut*pow(Ekin/fEnergyCut,sample);
+	G4double env = 1./eloss;
+	G4double value = RadiativeLossShape(eloss, Ekin, bt);
+
+	sample = G4UniformRand();
+	ref = value/env;
+    } while (sample > ref);
+
+    return eloss;
+}
 
 remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
 {
@@ -453,30 +504,39 @@ remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
     G4double  Ekin = fBeamEnergy - electron_mass_c2;
     G4double  bt   = fRadiationLength * 4.0 / 3.0;
 
-    // Euler-Mascheroni constant for gamma function
-    const static G4double Euler = 0.5772157;
+    fBeamBiasWeight = 1.0;
+    fBeamBiasPhysicalPdf = 1.0;
+    fBeamBiasSamplePdf = 1.0;
 
-    G4double prob = 1.- pow(fEnergyCut/Ekin,bt) - bt/(bt+1.)*(1.- pow(fEnergyCut/Ekin,bt+1.))
-	+ 0.75*bt/(2.+bt)*(1.- pow(fEnergyCut/Ekin,bt+2.));
-    prob = prob/(1.- bt*Euler + bt*bt/2.*(Euler*Euler+pi*pi/6.)); /* Gamma function */
+    if (fBeamBiasMode == "physical" || fBeamBiasMode == "none") {
+	G4double prob = RadiativeEmissionProbability(Ekin, bt);
 
-    G4double prob_sample = G4UniformRand();
-    if (prob_sample <= prob) {
-        G4double eloss, sample, ref;
-	do {
-	    sample = G4UniformRand();
-	    eloss = fEnergyCut*pow(Ekin/fEnergyCut,sample);
-	    G4double env = 1./eloss;
-	    G4double value = 1./eloss*(1.-eloss/Ekin+0.75*pow(eloss/Ekin,2))*pow(eloss/Ekin,bt);
+	G4double prob_sample = G4UniformRand();
+	if (prob_sample <= prob) {
+	    G4double eloss = SamplePhysicalRadiativeLoss(Ekin, bt);
+	    fSampledEnergy = fBeamEnergy - eloss;
+	    assert( fSampledEnergy >= electron_mass_c2 );
+	} else {
+	    fSampledEnergy = fBeamEnergy;
+	}
+    } else if (fBeamBiasMode == "uniform") {
+	G4double min_beamp = std::max(fBeamBiasMin, electron_mass_c2);
+	G4double max_beamp = std::min(fBeamBiasMax, fBeamEnergy - fEnergyCut);
 
-	    sample = G4UniformRand(); // FIXME (wdc) again?
-	    ref = value/env;
-	} while (sample > ref);
+	if (max_beamp <= min_beamp) {
+	    G4cerr << "ERROR: invalid /remoll/bias/beamp uniform range: "
+	           << min_beamp/GeV << " to " << max_beamp/GeV << " GeV" << G4endl;
+	    exit(1);
+	}
 
-	fSampledEnergy = fBeamEnergy - eloss;
-	assert( fSampledEnergy >= electron_mass_c2 );
+	fSampledEnergy = G4RandFlat::shoot(min_beamp, max_beamp);
+	G4double eloss = fBeamEnergy - fSampledEnergy;
+	fBeamBiasPhysicalPdf = RadiativeLossPdf(eloss, Ekin, bt);
+	fBeamBiasSamplePdf = 1.0/(max_beamp - min_beamp);
+	fBeamBiasWeight = fBeamBiasPhysicalPdf/fBeamBiasSamplePdf;
     } else {
-	fSampledEnergy = fBeamEnergy;
+	G4cerr << "ERROR: unknown /remoll/bias/beamp/mode " << fBeamBiasMode << G4endl;
+	exit(1);
     }
 
     vertex.fBeamEnergy = fSampledEnergy;

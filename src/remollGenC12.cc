@@ -44,7 +44,10 @@ remollGenC12::~remollGenC12() {
 void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
 
     G4double beamE = vert->GetBeamEnergy(); // in MeV (it can be modified by beam loss)
-    G4double th = acos(G4RandFlat::shoot(cos(fTh_max), cos(fTh_min))); // radians
+    G4double th_bias_weight = 1.0;
+    G4double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight); // radians
+    evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fBiasWeight *= th_bias_weight;
 
     /////////////////////////////////////////
     // sample with 1.0/(1-cos)^2
@@ -256,5 +259,3 @@ void remollGenC12::GenElastic(G4double beamE,G4double theta,
 
   return;
 }
-
-

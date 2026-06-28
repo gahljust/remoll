@@ -66,6 +66,11 @@ class remollEvent {
 	G4double fBeamE;
 	G4double fRate;
 	G4double fEffXs;
+	G4double fBiasWeight;
+	G4double fBeamBiasWeight;
+	G4double fThCoMBiasWeight;
+	G4double fBeamBiasPhysicalPdf;
+	G4double fBeamBiasSamplePdf;
 	G4double fAsym, fmAsym;
 
 	G4double fQ2;

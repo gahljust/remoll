@@ -36,6 +36,9 @@ struct remollEvent_t {
   double Q2, W2;
   double thcom;
   double beamp;
+  double bias;
+  double beam_bias;
+  double thcom_bias;
 };
 
 // Beam and target structure

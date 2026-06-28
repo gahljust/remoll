@@ -164,10 +164,14 @@ void remollGenBeam::SamplePhysics(remollVertex * /*vert*/, remollEvent *evt)
 
     // Add direction range
     if (fIsotropic) {
-      double th = acos(G4RandFlat::shoot(cos(fIsotropicThetaMax), cos(fIsotropicThetaMin)));
+      G4double th_bias_weight = 1.0;
+      double th = SampleThetaWithBias(fIsotropicThetaMin, fIsotropicThetaMax, th_bias_weight);
+      evt->fThCoMBiasWeight = th_bias_weight;
+      evt->fBiasWeight *= th_bias_weight;
       double ph = G4RandFlat::shoot(0.0, 2.0*pi);
       direction.setTheta(th);
       direction.setPhi(ph);
+      evt->SetThCoM(th);
     }
 
     // Add a spread based on chosen model

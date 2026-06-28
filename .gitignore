@@ -93,3 +93,9 @@ _site
 .jekyll-metadata
 vendor
 Gemfile.lock
+
+# Local Typesense search tooling and index configuration
+search_index/
+
+# Local editor/index cache
+.cache/

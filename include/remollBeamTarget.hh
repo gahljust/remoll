@@ -90,8 +90,17 @@ class remollBeamTarget {
 	G4double fBeamCurrent;
 	G4double fBeamPolarization;
 
+	G4double fBeamBiasWeight;
+	G4double fBeamBiasPhysicalPdf;
+	G4double fBeamBiasSamplePdf;
+
     private:
 	remollMultScatt fMS;
+	G4double RadiativeGammaCorrection(G4double bt) const;
+	G4double RadiativeEmissionProbability(G4double Ekin, G4double bt) const;
+	G4double RadiativeLossShape(G4double eloss, G4double Ekin, G4double bt) const;
+	G4double RadiativeLossPdf(G4double eloss, G4double Ekin, G4double bt) const;
+	G4double SamplePhysicalRadiativeLoss(G4double Ekin, G4double bt) const;
     public:
         const remollMultScatt& GetMultScatt() const { return fMS; }
 
@@ -108,6 +117,10 @@ class remollBeamTarget {
             this,
             "/remoll/target/",
             "Remoll target properties"};
+	G4GenericMessenger fBeamBiasMessenger{
+            this,
+            "/remoll/bias/beamp/",
+            "Beam momentum biasing"};
 
 	G4Material *fDefaultMat;
 
@@ -120,6 +133,9 @@ class remollBeamTarget {
         G4double fEffectiveMaterialLength;
 
         G4double fEnergyCut;
+        G4String fBeamBiasMode;
+        G4double fBeamBiasMin;
+        G4double fBeamBiasMax;
 
 	// Base position/angle sampling info
         G4bool fOldRaster;
@@ -145,4 +161,3 @@ class remollBeamTarget {
 
 
 #endif//__REMOLLBEAMTARGET_HH
-

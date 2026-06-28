@@ -17,6 +17,7 @@ remollEvent::remollEvent()
   fBeamPolarization(0,0,0),
   fVertexPos(0,0,0),
   fBeamE(0),fRate(0),fEffXs(0),
+  fBiasWeight(1.0),fBeamBiasWeight(1.0),fThCoMBiasWeight(1.0),fBeamBiasPhysicalPdf(1.0),fBeamBiasSamplePdf(1.0),
   fAsym(0),fmAsym(0),
   fQ2(0),fW2(0),fXbj(0),
   fThCoM(0)
@@ -106,6 +107,9 @@ remollEvent_t remollEvent::GetEventIO() const {
   ev.W2 = fW2;
   ev.thcom = fThCoM;
   ev.beamp = fBeamMomentum.mag();
+  ev.bias = fBiasWeight;
+  ev.beam_bias = fBeamBiasWeight;
+  ev.thcom_bias = fThCoMBiasWeight;
   return ev;
 }
 
@@ -149,6 +153,11 @@ void remollEvent::Reset(){
 
     fRate  = 0.0/s;
     fEffXs = -1e9*nanobarn;
+    fBiasWeight = 1.0;
+    fBeamBiasWeight = 1.0;
+    fThCoMBiasWeight = 1.0;
+    fBeamBiasPhysicalPdf = 1.0;
+    fBeamBiasSamplePdf = 1.0;
     fAsym  = -1e9;
 
     fQ2    = -1e9*GeV*GeV;
@@ -219,8 +228,6 @@ void remollEvent::Print(){
 	}
     }
 }
-
-
 
 
 

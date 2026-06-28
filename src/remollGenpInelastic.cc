@@ -27,7 +27,10 @@ void remollGenpInelastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     double beamE = vert->GetBeamEnergy();
     double mp    = proton_mass_c2;
 
-    double th = acos(G4RandFlat::shoot(cos(fTh_max), cos(fTh_min)));
+    G4double th_bias_weight = 1.0;
+    double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
+    evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fBiasWeight *= th_bias_weight;
     double ph = G4RandFlat::shoot(0.0, 2.0*pi);
     double efmax = mp*beamE/(mp + beamE*(1.0-cos(th)));;
     double ef = G4RandFlat::shoot(0.0, efmax);
@@ -52,6 +55,7 @@ void remollGenpInelastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 
     double Q2 = 2.0*beamE*ef*(1.0-cos(th));
     evt->SetQ2( Q2 );
+    evt->SetThCoM(th);
 
     G4double APV = -1.0*Q2*0.8e-4/GeV/GeV; // Empirical APV value, 
                                       // stolen from mollerClass.C in mollersim

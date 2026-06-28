@@ -57,6 +57,10 @@ class remollVEventGen {
         void SetThmax(double thmax) { fTh_max = thmax; }
 
     protected:
+        G4double SampleThCoMWithBias(G4double& bias_weight);
+        G4double SampleThetaWithBias(G4double min_th, G4double max_th, G4double& bias_weight);
+        G4bool HasThetaBias() const;
+
 	// Generator name
         G4String fName;
 
@@ -66,6 +70,9 @@ class remollVEventGen {
 	static G4double fTh_min, fTh_max;
 	static G4double fPh_min, fPh_max;
 	static G4double fE_min, fE_max;
+        G4String fThCoMBiasMode;
+        G4double fThCoMBiasMin;
+        G4double fThCoMBiasMax;
 
   G4String fBeamPol;
 public:
@@ -101,6 +108,10 @@ public:
             this,
             "/remoll/evgen/",
             "Remoll event generator properties"};
+	G4GenericMessenger fThCoMBiasMessenger{
+            this,
+            "/remoll/bias/thcom/",
+            "Thrown-angle biasing"};
     protected:
 	G4GenericMessenger fThisGenMessenger;
 };

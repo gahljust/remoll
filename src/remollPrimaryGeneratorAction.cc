@@ -209,6 +209,8 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
     // Calculate rate
     SamplingType_t sampling_type = fEventGen->GetSamplingType();
+    fEvent->fEffXs *= fEvent->fBiasWeight;
+    if (fEvent->fRate != 0) fEvent->fRate *= fEvent->fBiasWeight;
     if (fEvent->fRate == 0) { // If the rate is set to 0 then calculate it using the cross section
         fEvent->fRate  = fEvent->fEffXs * fBeamTarg.GetEffLumin(sampling_type) / nthrown;
 

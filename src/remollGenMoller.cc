@@ -30,7 +30,10 @@ void remollGenMoller::SamplePhysics(remollVertex *vert, remollEvent *evt){
   double gamma_com = 1.0/sqrt(1.0 - beta_com*beta_com);
 
   double e_com = me*gamma_com;
-  double thcom = acos(G4RandFlat::shoot(cos(fThCoM_max), cos(fThCoM_min)));
+  G4double th_bias_weight = 1.0;
+  double thcom = SampleThCoMWithBias(th_bias_weight);
+  evt->fThCoMBiasWeight = th_bias_weight;
+  evt->fBiasWeight *= th_bias_weight;
   double phcom = G4RandFlat::shoot(fPh_min, fPh_max);
 
   double sigma = alpha*alpha*pow(3.0+cos(thcom)*cos(thcom),2.0)*hbarc*hbarc/pow(sin(thcom),4.0)/(2.0*me*beamE); // units of area

@@ -50,7 +50,10 @@ void remollGenPion::SamplePhysics(remollVertex *vert, remollEvent *evt)
 
     double rad_len = vert->GetRadiationLength();
 
-    double th = acos(G4RandFlat::shoot(cos(fTh_max), cos(fTh_min)));
+    G4double th_bias_weight = 1.0;
+    double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
+    evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fBiasWeight *= th_bias_weight;
     double ph = G4RandFlat::shoot(fPh_min, fPh_max);
 
     // For pion generation we don't set fE_min and fE_max so for now true_emax = beamE : rakitha Wed Sep 25 10:43:57 EDT 2013
@@ -131,6 +134,7 @@ void remollGenPion::SamplePhysics(remollVertex *vert, remollEvent *evt)
 
     evt->SetAsymmetry(0.0);
     evt->SetRate(0);
+    evt->SetThCoM(th);
 
     evt->ProduceNewParticle( G4ThreeVector(0.0, 0.0, 0.0),
 	    G4ThreeVector(pf*cos(ph)*sin(th), pf*sin(ph)*sin(th), pf*cos(th)),
@@ -353,4 +357,3 @@ double remollGenPion::wiserfit(double *x, double *par)
 
     return 0.0;
 }
-

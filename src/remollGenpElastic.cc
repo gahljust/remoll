@@ -190,15 +190,25 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     double icth_b = 1.0/(1.0-cthmax);
     double icth_a = 1.0/(1.0-cthmin);
 
-    double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
+    double th = 0.0;
+    double samp_fact = 1.0;
 
-    assert( -1.0 < sampv && sampv < 1.0 );
+    if (HasThetaBias()) {
+	G4double th_bias_weight = 1.0;
+	th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
+	evt->fThCoMBiasWeight = th_bias_weight;
+	evt->fBiasWeight *= th_bias_weight;
+    } else {
+	double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
 
-    double th = acos(1.0-sampv);
+	assert( -1.0 < sampv && sampv < 1.0 );
 
-    // Value to reweight cross section by to account for non-uniform
-    // sampling
-    double samp_fact = sampv*sampv*(icth_a-icth_b)/(cthmin-cthmax);
+	th = acos(1.0-sampv);
+
+	// Value to reweight cross section by to account for non-uniform
+	// sampling
+	samp_fact = sampv*sampv*(icth_a-icth_b)/(cthmin-cthmax);
+    }
 
     double ph = G4RandFlat::shoot(0.0, 2.0*pi);
 
@@ -222,6 +232,10 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 
     double V = (fPh_max - fPh_min) * (cthmin - cthmax) * samp_fact;
 
+    double thisZ;
+
+    thisZ = vert->GetMaterial()->GetZ();
+
     // Suppress too low angles from being generated
     // If we're in the multiple-scattering regime
     // the cross sections are senseless.  We'll define this 
@@ -234,10 +248,6 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 
     //  Multiply by Z because we have Z protons 
     //  value for uneven weighting
-
-    double thisZ;
-
-    thisZ = vert->GetMaterial()->GetZ();
 
     evt->SetEffCrossSection(sigma*V*thisZ*thisZ*value);
 
@@ -259,6 +269,7 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     evt->SetAsymmetry(APV);
 
     evt->SetQ2( q2 );
+    evt->SetThCoM( th );
     evt->SetW2( proton_mass_c2*proton_mass_c2 );
 
     // REradiate////////////////////////////////////////////////////////////////////////////
@@ -340,9 +351,6 @@ G4double remollGenpElastic::EnergNumInt(G4double btt, G4double a0, G4double b0){
 
     return sum;
 }
-
-
-
 
 
 

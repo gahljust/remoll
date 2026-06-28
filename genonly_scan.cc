@@ -250,8 +250,10 @@ void NormalizeRate(remollEvent* event, const remollBeamTarget& beam_target,
   const G4double lumin = beam_target.GetEffLumin(sampling_type);
 
   if (event->fRate == 0) {
+    event->fEffXs *= event->fBiasWeight;
     event->fRate = event->fEffXs * lumin / nthrown;
   } else {
+    event->fRate *= event->fBiasWeight;
     event->fEffXs = event->fRate * nthrown / lumin;
     event->fRate = event->fRate / nthrown;
   }
@@ -354,6 +356,7 @@ int main(int argc, char** argv)
   Float_t vx = 0, vy = 0, vz = 0;
   Float_t p0_GeV = 0, th0 = 0, ph0 = 0;
   Float_t radlen = 0, travelled = 0;
+  Float_t bias_weight = 1, beam_bias_weight = 1, thcom_bias_weight = 1;
 
   tree.Branch("entry", &entry, "entry/l");
   tree.Branch("xs", &xs, "xs/F");
@@ -371,6 +374,9 @@ int main(int argc, char** argv)
   tree.Branch("ph0", &ph0, "ph0/F");
   tree.Branch("radlen", &radlen, "radlen/F");
   tree.Branch("travelled", &travelled, "travelled/F");
+  tree.Branch("bias_weight", &bias_weight, "bias_weight/F");
+  tree.Branch("beam_bias_weight", &beam_bias_weight, "beam_bias_weight/F");
+  tree.Branch("thcom_bias_weight", &thcom_bias_weight, "thcom_bias_weight/F");
 
   const unsigned long long progress_step =
       config.progress_points == 0 ? 0 :
@@ -399,6 +405,9 @@ int main(int argc, char** argv)
 
     radlen = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fRadiationLength : 0);
     travelled = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fTravelledLength : 0);
+    bias_weight = static_cast<Float_t>(remoll_event->fBiasWeight);
+    beam_bias_weight = static_cast<Float_t>(remoll_event->fBeamBiasWeight);
+    thcom_bias_weight = static_cast<Float_t>(remoll_event->fThCoMBiasWeight);
 
     const auto mom0 = ParticleMom(remoll_event.get(), 0);
     p0_GeV = static_cast<Float_t>(mom0.mag() / GeV);
