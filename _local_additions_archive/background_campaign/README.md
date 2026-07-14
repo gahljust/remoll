@@ -1,0 +1,166 @@
+# Background remoll Campaign
+
+This controller runs one remoll configuration until its required detector
+results close or reach their declared budget. Only then does it advance to the
+next configuration. Complete ROOT batches are retained without thinning or
+rewriting.
+
+## Operator files
+
+- `campaign.toml`: configurations, priorities, precision, and resource limits.
+- `detectors.toml`: authoritative precision and diagnostic detector groups.
+- `base.mac`: shared remoll geometry, fields, and transport controls.
+- `campaign.py`: validation, scheduling, analysis, and status commands.
+- `analyze_batch.C`: event-level ROOT accumulation and generator-cell analysis.
+
+The editable inventory expands to 39 configurations: three 11 GeV LH2
+production interactions and 36 carbon calibration combinations from three
+energies, three foil positions, two sieve states, and two interactions.
+
+## Commands
+
+Run from the remoll repository root:
+
+```bash
+python3 _local_additions_archive/background_campaign/campaign.py check
+python3 _local_additions_archive/background_campaign/campaign.py inventory
+python3 _local_additions_archive/background_campaign/campaign.py status
+python3 _local_additions_archive/background_campaign/campaign.py inspect CONFIG
+python3 _local_additions_archive/background_campaign/campaign.py run-one CONFIG --dry-run
+python3 _local_additions_archive/background_campaign/campaign.py start
+python3 _local_additions_archive/background_campaign/campaign.py pause
+python3 _local_additions_archive/background_campaign/campaign.py resume
+python3 _local_additions_archive/background_campaign/campaign.py stop
+```
+
+### Short controller test
+
+`campaign_test.toml` contains only 11 GeV LH2 Moller and writes to the separate
+`runs/controller_test` directory. It uses 1,000-event batches and a temporary
+10% precision target:
+
+```bash
+python3 _local_additions_archive/background_campaign/campaign.py \
+  --campaign _local_additions_archive/background_campaign/campaign_test.toml start
+```
+
+The current completed exercise reached its 20,000-event test budget. The old
+group-only rule would have stopped after 6,000 events, but the tally-reliability
+checks correctly kept it running and ultimately reported `statistics_limited`.
+These are controller-validation results, not final physics rates or production
+precision.
+
+`start` is continuous. It does not rotate through configurations batch by
+batch. `pause` takes effect after the active batch; `stop` terminates the
+active remoll process and leaves the campaign resumable.
+
+## What closes
+
+For Rings 1-6, every individual ring tile, ShowerMax open, closed, and
+transition regions, and every individual ShowerMax plane, the analyzer
+uses one generated remoll event as the independent statistical unit. It tracks
+crossing rate for all tallies and `rate * kinetic energy` for ShowerMax,
+including all hits from the event. Group tallies also report primary and
+secondary contributions separately.
+
+A required result closes only after:
+
+- the ordinary-pilot and total-batch minimums are met;
+- relative standard error is below the configured target;
+- no single event exceeds the configured contribution limit; and
+- the latest three batches agree with the earlier estimate within the
+  configured stability threshold;
+- ordinary-control histories pass the configured VOV, error-scaling, FOM,
+  high-score-tail, and next-largest-history checks.
+
+A weak nonzero result can instead close as negligible when its confidence
+upper bound is below the configured fraction of the strongest detector-group
+result. At least 30 signal events are required for that bound. An empty result
+is never declared zero; it remains a rare tail until resolved or explicitly
+reported `statistics_limited` at the event/batch budget.
+
+Ordinary and biased batches have different variances. The pooled estimate is
+the event-count-weighted mean, while its variance is assembled from each
+batch's own within-batch variance. This is valid for the changing adaptive
+proposal and avoids treating hits from one shower as independent samples.
+
+## Tally reliability
+
+The analyzer retains the first four event-score moments and the 201 largest
+event scores for every required group and tile tally. Reliability is evaluated
+from ordinary physical-distribution control batches, independently of the
+pooled estimate that uses all correctly weighted batches. The reported suite is
+modeled on the MCNP history-score checks:
+
+- relative-error behavior versus history count, expected near `N^-1/2`;
+- variance of the variance (VOV), expected to decrease near `N^-1`;
+- figure-of-merit stability over cumulative ordinary controls;
+- a Hill power-law index from the 201 largest nonzero scores, required to be
+  greater than 3 by default; and
+- the fractional mean change if the next history equals the largest score seen.
+
+The slopes and thresholds are editable in `[reliability]` in the campaign
+file. `inspect CONFIG` shows group diagnostics and tile state counts;
+`inspect CONFIG --tiles` prints every individual tile tally. Passing these
+checks is evidence of stable sampled history scores, not proof that an unseen
+phase-space contribution cannot exist.
+
+Reference: LANL, *An MCNP Primer*, 2024, section 5.6, “Statistical Analysis of
+Tally Results”: <https://mcnp.lanl.gov/pdf_files/Book_MonteCarlo_2024_ShultisBahadori_AnMCNPPrimer.pdf>.
+
+## Adaptive batches
+
+After five ordinary pilot batches, the controller finds the unresolved
+detector observable with the largest relative uncertainty or event dominance.
+It then targets the generator cell with the largest conditional second moment.
+Available coordinates are thrown angle, azimuth, pre-vertex beam momentum,
+target depth, and, for ep inelastic, outgoing-energy fraction.
+
+At least every fifth post-pilot batch is an ordinary control. For the exact
+observable a biased proposal was intended to improve, the controller compares
+
+\[
+C=s^2\frac{t}{n},
+\]
+
+where `s^2` is its pooled event variance and `t/n` is runtime per event. Lower
+`C` means more precision per unit runtime. After three trials of the same
+axis/cell/observable proposal, it is rejected if it produces no target
+responses or if its cost is at least 1.25 times the ordinary-control cost.
+Rejected proposals are not selected again. If no useful biased proposal
+remains, sampling automatically returns to the ordinary distribution. All
+rejected batches remain valid weighted campaign data.
+
+Every adaptive proposal is a full-support mixture:
+
+\[
+q(x)=\epsilon p(x)+(1-\epsilon)g_k(x),
+\qquad
+w_{\mathrm{bias}}(x)=\frac{p(x)}{q(x)}.
+\]
+
+The default `epsilon = 0.20` preserves a physical-distribution component over
+the complete phase space. No cell is cut away. Moller electron pairs remain
+one remoll event with one shared event weight. The ROOT `ev` record stores the
+total bias weight and each component's weight, physical PDF, and sampled PDF.
+
+## Data and output
+
+Each accepted batch contains the full remoll tree: `ev`, `part`, `hit`, `rate`,
+`bm`, and the other standard branches. A compact JSON record stores the exact
+macro, seed, proposal, integrity result, elapsed time, alerts, batch moments,
+and adaptive-cell moments. Successful verbose logs are deleted after alerts
+are extracted. Active and failed logs are capped at 5 MB, and remoll output is
+never streamed through the terminal or held indefinitely in memory.
+
+## Validation completed
+
+- The 39-item inventory, target/sieve macros, generator commands, screening,
+  detector IDs, and all five proposal command sets pass validation.
+- Ordinary and theta-mixture Moller generator rates agreed within `1.53`
+  combined standard errors in independent 100,000-event tests.
+- Ordinary and outgoing-energy-mixture ep-inelastic rates agreed within `1.02`
+  combined standard errors in independent 50,000-event tests.
+- Tiny transported batches exercised ordinary, theta, phi, beam-momentum,
+  target-depth, and outgoing-energy modes with valid ROOT integrity and stored
+  PDF/weight ratios. Validation ROOT files and logs were removed afterward.

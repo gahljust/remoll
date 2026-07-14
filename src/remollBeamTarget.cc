@@ -41,6 +41,7 @@ G4bool remollBeamTarget::fUpdateNeeded = true;
 remollBeamTarget::remollBeamTarget()
 : fBeamEnergy(gDefaultBeamE),fBeamCurrent(gDefaultBeamCur),fBeamPolarization(gDefaultBeamPol),
   fBeamBiasWeight(1.0),fBeamBiasPhysicalPdf(1.0),fBeamBiasSamplePdf(1.0),
+  fVertexBiasWeight(1.0),fVertexBiasPhysicalPdf(1.0),fVertexBiasSamplePdf(1.0),
   fOldRaster(true),fRasterX(5.0*mm),fRasterY(5.0*mm),
   fX0(0.0),fY0(0.0),fTh0(0.0),fPh0(0.0),
   fdTh(0.0),fdPh(0.0),fCorrTh(0.0),fCorrPh(0.0)
@@ -50,6 +51,11 @@ remollBeamTarget::remollBeamTarget()
     fBeamBiasMode = "physical";
     fBeamBiasMin = electron_mass_c2;
     fBeamBiasMax = gDefaultBeamE;
+    fBeamBiasPhysicalFraction = 1.0;
+    fVertexBiasMode = "physical";
+    fVertexBiasMinFraction = 0.0;
+    fVertexBiasMaxFraction = 1.0;
+    fVertexBiasPhysicalFraction = 1.0;
 
     // Default material if sampling volume not found
     fDefaultMat = new G4Material("Default_proton", 1.0, 1.0, 1e-19*g/mole);
@@ -75,9 +81,14 @@ remollBeamTarget::remollBeamTarget()
     fTargetMessenger.DeclareMethod("volume",&remollBeamTarget::SetActiveTargetVolume,"Set target volume name").SetStates(G4State_Idle);
     fTargetMessenger.DeclareMethod("print",&remollBeamTarget::PrintTargetInfo).SetStates(G4State_Idle);
 
-    fBeamBiasMessenger.DeclareProperty("mode",fBeamBiasMode,"Beam momentum bias mode: physical or uniform");
+    fBeamBiasMessenger.DeclareProperty("mode",fBeamBiasMode,"Beam momentum bias mode: physical, uniform, or mixture");
     fBeamBiasMessenger.DeclarePropertyWithUnit("min","GeV",fBeamBiasMin,"Minimum biased beam momentum");
     fBeamBiasMessenger.DeclarePropertyWithUnit("max","GeV",fBeamBiasMax,"Maximum biased beam momentum");
+    fBeamBiasMessenger.DeclareProperty("physicalFraction",fBeamBiasPhysicalFraction,"Physical component probability in mixture mode");
+    fVertexBiasMessenger.DeclareProperty("mode",fVertexBiasMode,"Vertex-z bias mode: physical, uniform, or mixture");
+    fVertexBiasMessenger.DeclareProperty("minFraction",fVertexBiasMinFraction,"Minimum target-length fraction");
+    fVertexBiasMessenger.DeclareProperty("maxFraction",fVertexBiasMaxFraction,"Maximum target-length fraction");
+    fVertexBiasMessenger.DeclareProperty("physicalFraction",fVertexBiasPhysicalFraction,"Physical component probability in mixture mode");
 }
 
 remollBeamTarget::~remollBeamTarget()
@@ -314,7 +325,38 @@ remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
             // nothing to do, just avoid compilation warning
             break;
     }
-    G4double effective_position = G4RandFlat::shoot(0.0, total_effective_length);
+    fVertexBiasWeight = 1.0;
+    fVertexBiasPhysicalPdf = 1.0;
+    fVertexBiasSamplePdf = 1.0;
+    G4double position_fraction = G4UniformRand();
+    if (fVertexBiasMode == "uniform" || fVertexBiasMode == "mixture") {
+        G4double min_fraction = std::max(0.0, fVertexBiasMinFraction);
+        G4double max_fraction = std::min(1.0, fVertexBiasMaxFraction);
+        if (max_fraction <= min_fraction) {
+            G4cerr << "ERROR: invalid /remoll/bias/vertexz fraction range" << G4endl;
+            exit(1);
+        }
+        if (fVertexBiasMode == "mixture") {
+            if (fVertexBiasPhysicalFraction <= 0.0 || fVertexBiasPhysicalFraction > 1.0) {
+                G4cerr << "ERROR: /remoll/bias/vertexz/physicalFraction must be in (0,1]" << G4endl;
+                exit(1);
+            }
+            position_fraction = G4UniformRand() < fVertexBiasPhysicalFraction
+                ? G4UniformRand() : G4RandFlat::shoot(min_fraction, max_fraction);
+        } else {
+            position_fraction = G4RandFlat::shoot(min_fraction, max_fraction);
+        }
+        G4double uniform_pdf = position_fraction >= min_fraction && position_fraction <= max_fraction
+            ? 1.0/(max_fraction-min_fraction) : 0.0;
+        fVertexBiasSamplePdf = fVertexBiasMode == "mixture"
+            ? fVertexBiasPhysicalFraction + (1.0-fVertexBiasPhysicalFraction)*uniform_pdf
+            : uniform_pdf;
+        fVertexBiasWeight = fVertexBiasPhysicalPdf/fVertexBiasSamplePdf;
+    } else if (fVertexBiasMode != "physical" && fVertexBiasMode != "none") {
+        G4cerr << "ERROR: unknown /remoll/bias/vertexz/mode " << fVertexBiasMode << G4endl;
+        exit(1);
+    }
+    G4double effective_position = position_fraction*total_effective_length;
 
 
     G4bool found_active_volume = false;
@@ -508,7 +550,7 @@ remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
     fBeamBiasPhysicalPdf = 1.0;
     fBeamBiasSamplePdf = 1.0;
 
-    if (fBeamBiasMode == "physical" || fBeamBiasMode == "none") {
+    auto sample_physical = [&]() {
 	G4double prob = RadiativeEmissionProbability(Ekin, bt);
 
 	G4double prob_sample = G4UniformRand();
@@ -519,7 +561,11 @@ remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
 	} else {
 	    fSampledEnergy = fBeamEnergy;
 	}
-    } else if (fBeamBiasMode == "uniform") {
+    };
+
+    if (fBeamBiasMode == "physical" || fBeamBiasMode == "none") {
+	sample_physical();
+    } else if (fBeamBiasMode == "uniform" || fBeamBiasMode == "mixture") {
 	G4double min_beamp = std::max(fBeamBiasMin, electron_mass_c2);
 	G4double max_beamp = std::min(fBeamBiasMax, fBeamEnergy - fEnergyCut);
 
@@ -529,10 +575,33 @@ remollVertex remollBeamTarget::SampleVertex(SamplingType_t sampling_type)
 	    exit(1);
 	}
 
-	fSampledEnergy = G4RandFlat::shoot(min_beamp, max_beamp);
-	G4double eloss = fBeamEnergy - fSampledEnergy;
-	fBeamBiasPhysicalPdf = RadiativeLossPdf(eloss, Ekin, bt);
-	fBeamBiasSamplePdf = 1.0/(max_beamp - min_beamp);
+	if (fBeamBiasMode == "mixture") {
+	    if (fBeamBiasPhysicalFraction <= 0.0 || fBeamBiasPhysicalFraction > 1.0) {
+		G4cerr << "ERROR: /remoll/bias/beamp/physicalFraction must be in (0,1]" << G4endl;
+		exit(1);
+	    }
+	    if (G4UniformRand() < fBeamBiasPhysicalFraction)
+		sample_physical();
+	    else
+		fSampledEnergy = G4RandFlat::shoot(min_beamp, max_beamp);
+
+	    if (fSampledEnergy == fBeamEnergy) {
+		fBeamBiasPhysicalPdf = 1.0 - RadiativeEmissionProbability(Ekin, bt);
+		fBeamBiasSamplePdf = fBeamBiasPhysicalFraction*fBeamBiasPhysicalPdf;
+	    } else {
+		G4double eloss = fBeamEnergy - fSampledEnergy;
+		fBeamBiasPhysicalPdf = RadiativeLossPdf(eloss, Ekin, bt);
+		G4double uniform_pdf = (fSampledEnergy >= min_beamp && fSampledEnergy <= max_beamp)
+		    ? 1.0/(max_beamp-min_beamp) : 0.0;
+		fBeamBiasSamplePdf = fBeamBiasPhysicalFraction*fBeamBiasPhysicalPdf
+		    + (1.0-fBeamBiasPhysicalFraction)*uniform_pdf;
+	    }
+	} else {
+	    fSampledEnergy = G4RandFlat::shoot(min_beamp, max_beamp);
+	    G4double eloss = fBeamEnergy - fSampledEnergy;
+	    fBeamBiasPhysicalPdf = RadiativeLossPdf(eloss, Ekin, bt);
+	    fBeamBiasSamplePdf = 1.0/(max_beamp - min_beamp);
+	}
 	fBeamBiasWeight = fBeamBiasPhysicalPdf/fBeamBiasSamplePdf;
     } else {
 	G4cerr << "ERROR: unknown /remoll/bias/beamp/mode " << fBeamBiasMode << G4endl;

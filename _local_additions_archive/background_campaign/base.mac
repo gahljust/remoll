@@ -1,0 +1,16 @@
+/remoll/setgeofile geometry/mollerMother.gdml
+/remoll/physlist/register FTFP_BERT
+/remoll/physlist/parallel/enable
+/remoll/parallel/setfile geometry/mollerParallel.gdml
+
+/run/initialize
+/control/execute macros/load_magnetic_fieldmaps.mac
+
+# Stop transport only after the detector systems and in the downstream beam
+# pipe, matching the established calibration scan setup.
+/remoll/kryptonite/volume donutSystem_logical
+/remoll/kryptonite/volume logic_DSpipe_vacuumtube
+
+/remoll/oldras false
+/remoll/beam_corrph 0.02134
+/remoll/beam_corrth 0.02134

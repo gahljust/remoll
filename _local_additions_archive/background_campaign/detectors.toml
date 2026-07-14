@@ -1,0 +1,33 @@
+# Authoritative detector groups for detector-plane campaign statistics.
+# These definitions affect recording only; they do not stop Geant4 tracking.
+
+[main_detector]
+segments = 14
+beam_facing_base = 110000
+far_facing_base = 150000
+segment_multiplier = 100
+
+[main_detector.rings]
+ring1 = [10]
+ring2 = [20]
+ring3 = [30]
+ring4 = [40]
+ring5 = [51, 52, 53]
+ring6 = [60]
+
+[showermax]
+# Tile-sized virtual planes immediately upstream of the 28 physical stacks.
+first_id = 70030
+last_id = 72730
+step = 100
+open = [70030, 70430, 70830, 71230, 71630, 72030, 72430]
+closed = [70230, 70630, 71030, 71430, 71830, 72230, 72630]
+transition = [70130, 70330, 70530, 70730, 70930, 71130, 71330, 71530, 71730, 71930, 72130, 72330, 72530, 72730]
+
+[diagnostic]
+gem = [32, 33, 34, 35]
+ring_virtual = [120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131]
+
+[excluded]
+aggregate = [28, 30]
+pion = [29]

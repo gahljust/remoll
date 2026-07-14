@@ -17,7 +17,13 @@ remollEvent::remollEvent()
   fBeamPolarization(0,0,0),
   fVertexPos(0,0,0),
   fBeamE(0),fRate(0),fEffXs(0),
-  fBiasWeight(1.0),fBeamBiasWeight(1.0),fThCoMBiasWeight(1.0),fBeamBiasPhysicalPdf(1.0),fBeamBiasSamplePdf(1.0),
+  fBiasWeight(1.0),fBeamBiasWeight(1.0),fThCoMBiasWeight(1.0),
+  fThCoMBiasPhysicalPdf(1.0),fThCoMBiasSamplePdf(1.0),
+  fPhiBiasWeight(1.0),fPhiBiasPhysicalPdf(1.0),fPhiBiasSamplePdf(1.0),
+  fOutgoingEnergyBiasWeight(1.0),fOutgoingEnergyBiasPhysicalPdf(1.0),
+  fOutgoingEnergyBiasSamplePdf(1.0),
+  fVertexBiasWeight(1.0),fVertexBiasPhysicalPdf(1.0),fVertexBiasSamplePdf(1.0),
+  fBeamBiasPhysicalPdf(1.0),fBeamBiasSamplePdf(1.0),
   fAsym(0),fmAsym(0),
   fQ2(0),fW2(0),fXbj(0),
   fThCoM(0)
@@ -109,7 +115,20 @@ remollEvent_t remollEvent::GetEventIO() const {
   ev.beamp = fBeamMomentum.mag();
   ev.bias = fBiasWeight;
   ev.beam_bias = fBeamBiasWeight;
+  ev.beam_bias_physical_pdf = fBeamBiasPhysicalPdf;
+  ev.beam_bias_sample_pdf = fBeamBiasSamplePdf;
   ev.thcom_bias = fThCoMBiasWeight;
+  ev.thcom_bias_physical_pdf = fThCoMBiasPhysicalPdf;
+  ev.thcom_bias_sample_pdf = fThCoMBiasSamplePdf;
+  ev.phi_bias = fPhiBiasWeight;
+  ev.phi_bias_physical_pdf = fPhiBiasPhysicalPdf;
+  ev.phi_bias_sample_pdf = fPhiBiasSamplePdf;
+  ev.outgoinge_bias = fOutgoingEnergyBiasWeight;
+  ev.outgoinge_bias_physical_pdf = fOutgoingEnergyBiasPhysicalPdf;
+  ev.outgoinge_bias_sample_pdf = fOutgoingEnergyBiasSamplePdf;
+  ev.vertex_bias = fVertexBiasWeight;
+  ev.vertex_bias_physical_pdf = fVertexBiasPhysicalPdf;
+  ev.vertex_bias_sample_pdf = fVertexBiasSamplePdf;
   return ev;
 }
 
@@ -156,6 +175,17 @@ void remollEvent::Reset(){
     fBiasWeight = 1.0;
     fBeamBiasWeight = 1.0;
     fThCoMBiasWeight = 1.0;
+    fThCoMBiasPhysicalPdf = 1.0;
+    fThCoMBiasSamplePdf = 1.0;
+    fPhiBiasWeight = 1.0;
+    fPhiBiasPhysicalPdf = 1.0;
+    fPhiBiasSamplePdf = 1.0;
+    fOutgoingEnergyBiasWeight = 1.0;
+    fOutgoingEnergyBiasPhysicalPdf = 1.0;
+    fOutgoingEnergyBiasSamplePdf = 1.0;
+    fVertexBiasWeight = 1.0;
+    fVertexBiasPhysicalPdf = 1.0;
+    fVertexBiasSamplePdf = 1.0;
     fBeamBiasPhysicalPdf = 1.0;
     fBeamBiasSamplePdf = 1.0;
     fAsym  = -1e9;
@@ -228,10 +258,6 @@ void remollEvent::Print(){
 	}
     }
 }
-
-
-
-
 
 
 

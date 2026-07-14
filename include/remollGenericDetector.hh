@@ -186,6 +186,9 @@ class remollGenericDetector : public G4VSensitiveDetector {
         if (icompare(det_type, "boundaryhits") == 0) {
           fDetectBoundaryHits = true;
         }
+        if (icompare(det_type, "surfacehits") == 0) {
+          fDetectSurfaceHits = true;
+        }
         if (icompare(det_type, "secondaries") == 0) {
           fDetectSecondaries = true;
         }
@@ -207,6 +210,9 @@ class remollGenericDetector : public G4VSensitiveDetector {
         if (fDetectBoundaryHits == true) {
           G4cout << GetName() << " detects hits only on entry boundary" << G4endl;
         }
+        if (fDetectSurfaceHits == true) {
+          G4cout << GetName() << " detects entry-surface hits without detector sums" << G4endl;
+        }
         if (fDetectSecondaries == true) {
           G4cout << GetName() << " detects secondaries" << G4endl;
         }
@@ -224,6 +230,7 @@ class remollGenericDetector : public G4VSensitiveDetector {
             << (fDetectLowEnergyNeutrals? " lowenergyneutral":"")
             << (fDetectOpticalPhotons? " opticalphoton":"")
             << (fDetectSecondaries? " secondaries":"")
+            << (fDetectSurfaceHits? " surfacehits":"")
             << G4endl;
       };
 
@@ -251,6 +258,7 @@ class remollGenericDetector : public G4VSensitiveDetector {
       G4bool fDetectOpticalPhotons;
       G4bool fDetectLowEnergyNeutrals;
       G4bool fDetectBoundaryHits;
+      G4bool fDetectSurfaceHits;
 
       G4int fDetNo;
 

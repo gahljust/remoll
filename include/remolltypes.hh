@@ -38,7 +38,20 @@ struct remollEvent_t {
   double beamp;
   double bias;
   double beam_bias;
+  double beam_bias_physical_pdf;
+  double beam_bias_sample_pdf;
   double thcom_bias;
+  double thcom_bias_physical_pdf;
+  double thcom_bias_sample_pdf;
+  double phi_bias;
+  double phi_bias_physical_pdf;
+  double phi_bias_sample_pdf;
+  double outgoinge_bias;
+  double outgoinge_bias_physical_pdf;
+  double outgoinge_bias_sample_pdf;
+  double vertex_bias;
+  double vertex_bias_physical_pdf;
+  double vertex_bias_sample_pdf;
 };
 
 // Beam and target structure

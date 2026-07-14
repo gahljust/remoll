@@ -30,10 +30,22 @@ void remollGenpInelastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     G4double th_bias_weight = 1.0;
     double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
     evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+    evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
     evt->fBiasWeight *= th_bias_weight;
-    double ph = G4RandFlat::shoot(0.0, 2.0*pi);
+    G4double ph_bias_weight = 1.0;
+    double ph = SamplePhiWithBias(ph_bias_weight);
+    evt->fPhiBiasWeight = ph_bias_weight;
+    evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+    evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+    evt->fBiasWeight *= ph_bias_weight;
     double efmax = mp*beamE/(mp + beamE*(1.0-cos(th)));;
-    double ef = G4RandFlat::shoot(0.0, efmax);
+    G4double energy_bias_weight = 1.0;
+    double ef = SampleOutgoingEnergyWithBias(efmax, energy_bias_weight);
+    evt->fOutgoingEnergyBiasWeight = energy_bias_weight;
+    evt->fOutgoingEnergyBiasPhysicalPdf = fLastOutgoingEnergyPhysicalPdf;
+    evt->fOutgoingEnergyBiasSamplePdf = fLastOutgoingEnergySamplePdf;
+    evt->fBiasWeight *= energy_bias_weight;
 
     double thissigma_p = sigma_p( beamE/GeV, th, ef/GeV )*nanobarn/GeV;
     double thissigma_n = sigma_n( beamE/GeV, th, ef/GeV )*nanobarn/GeV;

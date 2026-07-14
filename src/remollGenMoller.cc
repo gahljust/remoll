@@ -33,8 +33,15 @@ void remollGenMoller::SamplePhysics(remollVertex *vert, remollEvent *evt){
   G4double th_bias_weight = 1.0;
   double thcom = SampleThCoMWithBias(th_bias_weight);
   evt->fThCoMBiasWeight = th_bias_weight;
+  evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+  evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
   evt->fBiasWeight *= th_bias_weight;
-  double phcom = G4RandFlat::shoot(fPh_min, fPh_max);
+  G4double ph_bias_weight = 1.0;
+  double phcom = SamplePhiWithBias(ph_bias_weight);
+  evt->fPhiBiasWeight = ph_bias_weight;
+  evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+  evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+  evt->fBiasWeight *= ph_bias_weight;
 
   double sigma = alpha*alpha*pow(3.0+cos(thcom)*cos(thcom),2.0)*hbarc*hbarc/pow(sin(thcom),4.0)/(2.0*me*beamE); // units of area
 

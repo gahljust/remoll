@@ -32,8 +32,15 @@ void remollGenFlat::SamplePhysics(remollVertex *vert, remollEvent *evt){
     G4double th_bias_weight = 1.0;
     double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
     evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+    evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
     evt->fBiasWeight *= th_bias_weight;
-    double ph = G4RandFlat::shoot(fPh_min, fPh_max);
+    G4double ph_bias_weight = 1.0;
+    double ph = SamplePhiWithBias(ph_bias_weight);
+    evt->fPhiBiasWeight = ph_bias_weight;
+    evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+    evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+    evt->fBiasWeight *= ph_bias_weight;
     double ef = G4RandFlat::shoot(fE_min, fE_max);
 
     evt->SetEffCrossSection(1);

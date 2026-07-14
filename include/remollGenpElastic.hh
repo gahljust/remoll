@@ -21,6 +21,10 @@ class remollGenpElastic : public remollVEventGen {
 
 	G4double RadProfile(G4double,G4double);
 	G4double EnergNumInt(G4double,G4double,G4double);
+	G4double GetScreeningQ2(G4double) const;
+	G4double CoulombScreeningFactor(G4double,G4double) const;
+
+	G4bool fApplyScreening;
 };
 
 #endif//__REMOLLGENPELASTIC_HH 

@@ -93,6 +93,9 @@ class remollBeamTarget {
 	G4double fBeamBiasWeight;
 	G4double fBeamBiasPhysicalPdf;
 	G4double fBeamBiasSamplePdf;
+	G4double fVertexBiasWeight;
+	G4double fVertexBiasPhysicalPdf;
+	G4double fVertexBiasSamplePdf;
 
     private:
 	remollMultScatt fMS;
@@ -121,6 +124,10 @@ class remollBeamTarget {
             this,
             "/remoll/bias/beamp/",
             "Beam momentum biasing"};
+	G4GenericMessenger fVertexBiasMessenger{
+            this,
+            "/remoll/bias/vertexz/",
+            "Target vertex-z biasing"};
 
 	G4Material *fDefaultMat;
 
@@ -136,6 +143,11 @@ class remollBeamTarget {
         G4String fBeamBiasMode;
         G4double fBeamBiasMin;
         G4double fBeamBiasMax;
+        G4double fBeamBiasPhysicalFraction;
+        G4String fVertexBiasMode;
+        G4double fVertexBiasMinFraction;
+        G4double fVertexBiasMaxFraction;
+        G4double fVertexBiasPhysicalFraction;
 
 	// Base position/angle sampling info
         G4bool fOldRaster;

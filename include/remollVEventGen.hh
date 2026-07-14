@@ -59,6 +59,8 @@ class remollVEventGen {
     protected:
         G4double SampleThCoMWithBias(G4double& bias_weight);
         G4double SampleThetaWithBias(G4double min_th, G4double max_th, G4double& bias_weight);
+        G4double SamplePhiWithBias(G4double& bias_weight);
+        G4double SampleOutgoingEnergyWithBias(G4double maximum, G4double& bias_weight);
         G4bool HasThetaBias() const;
 
 	// Generator name
@@ -70,9 +72,24 @@ class remollVEventGen {
 	static G4double fTh_min, fTh_max;
 	static G4double fPh_min, fPh_max;
 	static G4double fE_min, fE_max;
-        G4String fThCoMBiasMode;
-        G4double fThCoMBiasMin;
-        G4double fThCoMBiasMax;
+        static G4String fThCoMBiasMode;
+        static G4double fThCoMBiasMin;
+        static G4double fThCoMBiasMax;
+        static G4double fThCoMBiasPhysicalFraction;
+        G4double fLastThetaPhysicalPdf;
+        G4double fLastThetaSamplePdf;
+        static G4String fPhiBiasMode;
+        static G4double fPhiBiasMin;
+        static G4double fPhiBiasMax;
+        static G4double fPhiBiasPhysicalFraction;
+        G4double fLastPhiPhysicalPdf;
+        G4double fLastPhiSamplePdf;
+        static G4String fOutgoingEnergyBiasMode;
+        static G4double fOutgoingEnergyBiasMinFraction;
+        static G4double fOutgoingEnergyBiasMaxFraction;
+        static G4double fOutgoingEnergyBiasPhysicalFraction;
+        G4double fLastOutgoingEnergyPhysicalPdf;
+        G4double fLastOutgoingEnergySamplePdf;
 
   G4String fBeamPol;
 public:
@@ -112,6 +129,14 @@ public:
             this,
             "/remoll/bias/thcom/",
             "Thrown-angle biasing"};
+	G4GenericMessenger fPhiBiasMessenger{
+            this,
+            "/remoll/bias/phi/",
+            "Azimuthal-angle biasing"};
+	G4GenericMessenger fOutgoingEnergyBiasMessenger{
+            this,
+            "/remoll/bias/outgoinge/",
+            "Outgoing-energy biasing"};
     protected:
 	G4GenericMessenger fThisGenMessenger;
 };

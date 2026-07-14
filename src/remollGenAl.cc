@@ -47,6 +47,8 @@ void remollGenAl::SamplePhysics(remollVertex *vert, remollEvent *evt) {
     G4double th_bias_weight = 1.0;
     G4double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight); // radians
     evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+    evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
     evt->fBiasWeight *= th_bias_weight;
 
     /////////////////////////////////////////
@@ -72,7 +74,12 @@ void remollGenAl::SamplePhysics(remollVertex *vert, remollEvent *evt) {
 */
 
     G4double phaseSpaceFactor = (fPh_max - fPh_min) * (cos(fTh_min) - cos(fTh_max));
-    G4double ph = G4RandFlat::shoot(fPh_min, fPh_max);
+    G4double ph_bias_weight = 1.0;
+    G4double ph = SamplePhiWithBias(ph_bias_weight);
+    evt->fPhiBiasWeight = ph_bias_weight;
+    evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+    evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+    evt->fBiasWeight *= ph_bias_weight;
     G4double eOut=0;
     G4double fWeight=0;
     G4double Q2=0;

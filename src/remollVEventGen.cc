@@ -22,12 +22,27 @@ G4double remollVEventGen::fPh_min = 0.0*deg;
 G4double remollVEventGen::fPh_max = 360.0*deg;
 G4double remollVEventGen::fE_min = 0.0*deg;
 G4double remollVEventGen::fE_max = 11.0*GeV;
+G4String remollVEventGen::fThCoMBiasMode = "physical";
+G4double remollVEventGen::fThCoMBiasMin = -1.0;
+G4double remollVEventGen::fThCoMBiasMax = -1.0;
+G4double remollVEventGen::fThCoMBiasPhysicalFraction = 1.0;
+G4String remollVEventGen::fPhiBiasMode = "physical";
+G4double remollVEventGen::fPhiBiasMin = -1.0;
+G4double remollVEventGen::fPhiBiasMax = -1.0;
+G4double remollVEventGen::fPhiBiasPhysicalFraction = 1.0;
+G4String remollVEventGen::fOutgoingEnergyBiasMode = "physical";
+G4double remollVEventGen::fOutgoingEnergyBiasMinFraction = 0.0;
+G4double remollVEventGen::fOutgoingEnergyBiasMaxFraction = 1.0;
+G4double remollVEventGen::fOutgoingEnergyBiasPhysicalFraction = 1.0;
 
 remollVEventGen::remollVEventGen(const G4String name)
 : fName(name),
-  fThCoMBiasMode("physical"),
-  fThCoMBiasMin(-1.0),
-  fThCoMBiasMax(-1.0),
+  fLastThetaPhysicalPdf(1.0),
+  fLastThetaSamplePdf(1.0),
+  fLastPhiPhysicalPdf(1.0),
+  fLastPhiSamplePdf(1.0),
+  fLastOutgoingEnergyPhysicalPdf(1.0),
+  fLastOutgoingEnergySamplePdf(1.0),
   fBeamPol("0"),
   fNumberOfParticles(1),fParticleGun(0),
   fBeamTarg(0),
@@ -51,9 +66,18 @@ remollVEventGen::remollVEventGen(const G4String name)
         &remollVEventGen::PrintEventGen,
         "Print the event generator limits");
 
-    fThCoMBiasMessenger.DeclareProperty("mode",fThCoMBiasMode,"Thrown-angle bias mode: physical or uniform");
+    fThCoMBiasMessenger.DeclareProperty("mode",fThCoMBiasMode,"Thrown-angle bias mode: physical, uniform, or mixture");
     fThCoMBiasMessenger.DeclarePropertyWithUnit("min","deg",fThCoMBiasMin,"Minimum biased thrown angle");
     fThCoMBiasMessenger.DeclarePropertyWithUnit("max","deg",fThCoMBiasMax,"Maximum biased thrown angle");
+    fThCoMBiasMessenger.DeclareProperty("physicalFraction",fThCoMBiasPhysicalFraction,"Physical component probability in mixture mode");
+    fPhiBiasMessenger.DeclareProperty("mode",fPhiBiasMode,"Azimuthal bias mode: physical, uniform, or mixture");
+    fPhiBiasMessenger.DeclarePropertyWithUnit("min","deg",fPhiBiasMin,"Minimum biased azimuthal angle");
+    fPhiBiasMessenger.DeclarePropertyWithUnit("max","deg",fPhiBiasMax,"Maximum biased azimuthal angle");
+    fPhiBiasMessenger.DeclareProperty("physicalFraction",fPhiBiasPhysicalFraction,"Physical component probability in mixture mode");
+    fOutgoingEnergyBiasMessenger.DeclareProperty("mode",fOutgoingEnergyBiasMode,"Outgoing-energy bias mode: physical or mixture");
+    fOutgoingEnergyBiasMessenger.DeclareProperty("minFraction",fOutgoingEnergyBiasMinFraction,"Minimum fraction of the kinematic maximum");
+    fOutgoingEnergyBiasMessenger.DeclareProperty("maxFraction",fOutgoingEnergyBiasMaxFraction,"Maximum fraction of the kinematic maximum");
+    fOutgoingEnergyBiasMessenger.DeclareProperty("physicalFraction",fOutgoingEnergyBiasPhysicalFraction,"Physical component probability in mixture mode");
 
     fSamplingType = kActiveTargetVolume;
     fApplyMultScatt = false;
@@ -76,12 +100,16 @@ G4bool remollVEventGen::HasThetaBias() const
 G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_limit, G4double& bias_weight)
 {
     bias_weight = 1.0;
+    const G4double normalization = cos(min_limit) - cos(max_limit);
 
     if (fThCoMBiasMode == "physical" || fThCoMBiasMode == "none") {
-        return acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+        G4double th = acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+        fLastThetaPhysicalPdf = sin(th)/normalization;
+        fLastThetaSamplePdf = fLastThetaPhysicalPdf;
+        return th;
     }
 
-    if (fThCoMBiasMode == "uniform") {
+    if (fThCoMBiasMode == "uniform" || fThCoMBiasMode == "mixture") {
         G4double min_th = fThCoMBiasMin >= 0.0 ? std::max(fThCoMBiasMin, min_limit) : min_limit;
         G4double max_th = fThCoMBiasMax >= 0.0 ? std::min(fThCoMBiasMax, max_limit) : max_limit;
 
@@ -91,15 +119,106 @@ G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_l
             exit(1);
         }
 
-        G4double th = G4RandFlat::shoot(min_th, max_th);
-        G4double physical_pdf = sin(th)/(cos(min_limit) - cos(max_limit));
-        G4double sample_pdf = 1.0/(max_th - min_th);
-        bias_weight = physical_pdf/sample_pdf;
+        G4double th;
+        if (fThCoMBiasMode == "mixture") {
+            if (fThCoMBiasPhysicalFraction <= 0.0 || fThCoMBiasPhysicalFraction > 1.0) {
+                G4cerr << "ERROR: /remoll/bias/thcom/physicalFraction must be in (0,1]" << G4endl;
+                exit(1);
+            }
+            if (G4UniformRand() < fThCoMBiasPhysicalFraction)
+                th = acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+            else
+                th = G4RandFlat::shoot(min_th, max_th);
+        } else {
+            th = G4RandFlat::shoot(min_th, max_th);
+        }
+        fLastThetaPhysicalPdf = sin(th)/normalization;
+        G4double uniform_pdf = (th >= min_th && th <= max_th) ? 1.0/(max_th - min_th) : 0.0;
+        fLastThetaSamplePdf = fThCoMBiasMode == "mixture"
+            ? fThCoMBiasPhysicalFraction*fLastThetaPhysicalPdf
+              + (1.0-fThCoMBiasPhysicalFraction)*uniform_pdf
+            : uniform_pdf;
+        bias_weight = fLastThetaPhysicalPdf/fLastThetaSamplePdf;
         return th;
     }
 
     G4cerr << "ERROR: unknown /remoll/bias/thcom/mode " << fThCoMBiasMode << G4endl;
     exit(1);
+}
+
+G4double remollVEventGen::SamplePhiWithBias(G4double& bias_weight)
+{
+    bias_weight = 1.0;
+    const G4double physical_pdf = 1.0/(fPh_max - fPh_min);
+    if (fPhiBiasMode == "physical" || fPhiBiasMode == "none") {
+        fLastPhiPhysicalPdf = physical_pdf;
+        fLastPhiSamplePdf = physical_pdf;
+        return G4RandFlat::shoot(fPh_min, fPh_max);
+    }
+    G4double min_ph = fPhiBiasMin >= 0.0 ? std::max(fPhiBiasMin, fPh_min) : fPh_min;
+    G4double max_ph = fPhiBiasMax >= 0.0 ? std::min(fPhiBiasMax, fPh_max) : fPh_max;
+    if (max_ph <= min_ph) {
+        G4cerr << "ERROR: invalid /remoll/bias/phi range" << G4endl;
+        exit(1);
+    }
+    G4double ph;
+    if (fPhiBiasMode == "mixture") {
+        if (fPhiBiasPhysicalFraction <= 0.0 || fPhiBiasPhysicalFraction > 1.0) {
+            G4cerr << "ERROR: /remoll/bias/phi/physicalFraction must be in (0,1]" << G4endl;
+            exit(1);
+        }
+        ph = G4UniformRand() < fPhiBiasPhysicalFraction
+            ? G4RandFlat::shoot(fPh_min, fPh_max)
+            : G4RandFlat::shoot(min_ph, max_ph);
+    } else if (fPhiBiasMode == "uniform") {
+        ph = G4RandFlat::shoot(min_ph, max_ph);
+    } else {
+        G4cerr << "ERROR: unknown /remoll/bias/phi/mode " << fPhiBiasMode << G4endl;
+        exit(1);
+    }
+    G4double uniform_pdf = (ph >= min_ph && ph <= max_ph) ? 1.0/(max_ph-min_ph) : 0.0;
+    fLastPhiPhysicalPdf = physical_pdf;
+    fLastPhiSamplePdf = fPhiBiasMode == "mixture"
+        ? fPhiBiasPhysicalFraction*physical_pdf + (1.0-fPhiBiasPhysicalFraction)*uniform_pdf
+        : uniform_pdf;
+    bias_weight = fLastPhiPhysicalPdf/fLastPhiSamplePdf;
+    return ph;
+}
+
+G4double remollVEventGen::SampleOutgoingEnergyWithBias(G4double maximum,
+                                                       G4double& bias_weight)
+{
+    bias_weight = 1.0;
+    const G4double physical_pdf = 1.0/maximum;
+    if (fOutgoingEnergyBiasMode == "physical" || fOutgoingEnergyBiasMode == "none") {
+        fLastOutgoingEnergyPhysicalPdf = physical_pdf;
+        fLastOutgoingEnergySamplePdf = physical_pdf;
+        return G4RandFlat::shoot(0.0, maximum);
+    }
+    if (fOutgoingEnergyBiasMode != "mixture") {
+        G4cerr << "ERROR: unknown /remoll/bias/outgoinge/mode "
+               << fOutgoingEnergyBiasMode << G4endl;
+        exit(1);
+    }
+    const G4double min_fraction = std::max(0.0, fOutgoingEnergyBiasMinFraction);
+    const G4double max_fraction = std::min(1.0, fOutgoingEnergyBiasMaxFraction);
+    if (max_fraction <= min_fraction || fOutgoingEnergyBiasPhysicalFraction <= 0.0
+            || fOutgoingEnergyBiasPhysicalFraction > 1.0) {
+        G4cerr << "ERROR: invalid /remoll/bias/outgoinge mixture settings" << G4endl;
+        exit(1);
+    }
+    const G4double minimum = min_fraction*maximum;
+    const G4double target_maximum = max_fraction*maximum;
+    const G4double energy = G4UniformRand() < fOutgoingEnergyBiasPhysicalFraction
+        ? G4RandFlat::shoot(0.0, maximum)
+        : G4RandFlat::shoot(minimum, target_maximum);
+    const G4double target_pdf = energy >= minimum && energy <= target_maximum
+        ? 1.0/(target_maximum-minimum) : 0.0;
+    fLastOutgoingEnergyPhysicalPdf = physical_pdf;
+    fLastOutgoingEnergySamplePdf = fOutgoingEnergyBiasPhysicalFraction*physical_pdf
+        + (1.0-fOutgoingEnergyBiasPhysicalFraction)*target_pdf;
+    bias_weight = fLastOutgoingEnergyPhysicalPdf/fLastOutgoingEnergySamplePdf;
+    return energy;
 }
 
 void remollVEventGen::PrintEventGen()
@@ -137,7 +256,10 @@ remollEvent* remollVEventGen::GenerateEvent()
     thisev->fBeamBiasWeight = fBeamTarg->fBeamBiasWeight;
     thisev->fBeamBiasPhysicalPdf = fBeamTarg->fBeamBiasPhysicalPdf;
     thisev->fBeamBiasSamplePdf = fBeamTarg->fBeamBiasSamplePdf;
-    thisev->fBiasWeight = thisev->fBeamBiasWeight;
+    thisev->fVertexBiasWeight = fBeamTarg->fVertexBiasWeight;
+    thisev->fVertexBiasPhysicalPdf = fBeamTarg->fVertexBiasPhysicalPdf;
+    thisev->fVertexBiasSamplePdf = fBeamTarg->fVertexBiasSamplePdf;
+    thisev->fBiasWeight = thisev->fBeamBiasWeight*thisev->fVertexBiasWeight;
 
     thisev->fVertexPos    = fBeamTarg->fVer;
     if( fApplyMultScatt ) {

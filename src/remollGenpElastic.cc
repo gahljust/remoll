@@ -24,6 +24,10 @@ remollGenpElastic::remollGenpElastic()
     fE_min = 80.0*MeV; // Absolute minimum of electron energy to generate
 
     fApplyMultScatt = true;
+    fApplyScreening = false;
+
+    fThisGenMessenger.DeclareProperty("applyScreening",fApplyScreening,
+	    "Apply Wentzel-Moliere atomic screening to the ep elastic cross section");
 }
 
 remollGenpElastic::~remollGenpElastic(){
@@ -197,6 +201,8 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 	G4double th_bias_weight = 1.0;
 	th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
 	evt->fThCoMBiasWeight = th_bias_weight;
+	evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+	evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
 	evt->fBiasWeight *= th_bias_weight;
     } else {
 	double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
@@ -210,7 +216,12 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 	samp_fact = sampv*sampv*(icth_a-icth_b)/(cthmin-cthmax);
     }
 
-    double ph = G4RandFlat::shoot(0.0, 2.0*pi);
+    G4double ph_bias_weight = 1.0;
+    double ph = SamplePhiWithBias(ph_bias_weight);
+    evt->fPhiBiasWeight = ph_bias_weight;
+    evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+    evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+    evt->fBiasWeight *= ph_bias_weight;
 
     double ef    = proton_mass_c2*beamE/(proton_mass_c2 + beamE*(1.0-cos(th)));
 
@@ -235,6 +246,10 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     double thisZ;
 
     thisZ = vert->GetMaterial()->GetZ();
+
+    if( fApplyScreening ){
+	sigma *= CoulombScreeningFactor(q2, GetScreeningQ2(thisZ));
+    }
 
     // Suppress too low angles from being generated
     // If we're in the multiple-scattering regime
@@ -352,7 +367,30 @@ G4double remollGenpElastic::EnergNumInt(G4double btt, G4double a0, G4double b0){
     return sum;
 }
 
+G4double remollGenpElastic::GetScreeningQ2(G4double z) const{
+    if( z <= 0.0 ){
+	return 0.0;
+    }
 
+    const G4double alphaFS = 1.0/137.035999074;
+    const G4double bohrRadiusFm = 5.29177210903e4; // fm
+    const G4double hbarcMeVFm = 197.3269631;       // MeV fm
+
+    G4double aTF = 0.885*bohrRadiusFm*pow(z,-1.0/3.0);
+    G4double qTF = hbarcMeVFm/aTF;
+    G4double moliere = 1.13 + 3.76*pow(alphaFS*z,2.0);
+
+    return qTF*qTF*moliere;
+}
+
+G4double remollGenpElastic::CoulombScreeningFactor(G4double q2, G4double qscreen2) const{
+    if( qscreen2 <= 0.0 ){
+	return 1.0;
+    }
+
+    G4double ratio = q2/(q2 + qscreen2);
+    return ratio*ratio;
+}
 
 
 

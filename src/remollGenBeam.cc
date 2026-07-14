@@ -167,8 +167,15 @@ void remollGenBeam::SamplePhysics(remollVertex * /*vert*/, remollEvent *evt)
       G4double th_bias_weight = 1.0;
       double th = SampleThetaWithBias(fIsotropicThetaMin, fIsotropicThetaMax, th_bias_weight);
       evt->fThCoMBiasWeight = th_bias_weight;
+      evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+      evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
       evt->fBiasWeight *= th_bias_weight;
-      double ph = G4RandFlat::shoot(0.0, 2.0*pi);
+      G4double ph_bias_weight = 1.0;
+      double ph = SamplePhiWithBias(ph_bias_weight);
+      evt->fPhiBiasWeight = ph_bias_weight;
+      evt->fPhiBiasPhysicalPdf = fLastPhiPhysicalPdf;
+      evt->fPhiBiasSamplePdf = fLastPhiSamplePdf;
+      evt->fBiasWeight *= ph_bias_weight;
       direction.setTheta(th);
       direction.setPhi(ph);
       evt->SetThCoM(th);

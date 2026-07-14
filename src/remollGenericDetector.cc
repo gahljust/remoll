@@ -29,6 +29,7 @@ remollGenericDetector::remollGenericDetector( G4String name, G4int detnum )
   fDetectOpticalPhotons = false;
   fDetectLowEnergyNeutrals = false;
   fDetectBoundaryHits = false;
+  fDetectSurfaceHits = false;
 
   std::stringstream genhit;
   genhit << "genhit_" << detnum;
@@ -154,29 +155,50 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
     G4int copyID = volume->GetCopyNo();
 
 
-    // Add energy deposit to detector sum
-    G4int pid = particle->GetPDGEncoding();
-    G4ThreeVector pos = prepoint->GetPosition();
-    G4double edep = step->GetTotalEnergyDeposit();
-
-    // Create a detector sum for this detector, if necessary
-    if (fSumMap.count(copyID) == 0u) {
-      remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
-      fSumMap[copyID] = sum;
-      fSumColl->insert(sum);
+    // First step in volume?
+    G4bool firststepinvolume = false;
+    if (prepoint->GetStepStatus() == fGeomBoundary)
+      firststepinvolume = true;
+    else if (prepoint->GetStepStatus() == fUndefined) {
+      G4VUserTrackInformation* usertrackinfo = track->GetUserInformation();
+      remollUserTrackInformation* remollusertrackinfo =
+          dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
+      if (remollusertrackinfo != nullptr
+          && remollusertrackinfo->GetStepStatus() == fGeomBoundary)
+        firststepinvolume = true;
     }
-    // Add to sum for this event only
-    remollGenericDetectorSum* sum = fSumMap[copyID];
-    sum->AddEDep(pid, pos, edep);
 
-    // Create a running sum for this detector, if necessary
-    if (fRunningSumMap.count(copyID) == 0u) {
-      remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
-      fRunningSumMap[copyID] = sum;
+    // Surface-only detectors record the entering track state and do no
+    // interior-step or energy-deposition bookkeeping. Returning false here
+    // only declines a detector hit; Geant4 transport continues unchanged.
+    if (fDetectSurfaceHits && ! firststepinvolume)
+      return false;
+
+    if (! fDetectSurfaceHits) {
+      // Add energy deposit to detector sum
+      G4int pid = particle->GetPDGEncoding();
+      G4ThreeVector pos = prepoint->GetPosition();
+      G4double edep = step->GetTotalEnergyDeposit();
+
+      // Create a detector sum for this detector, if necessary
+      if (fSumMap.count(copyID) == 0u) {
+        remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
+        fSumMap[copyID] = sum;
+        fSumColl->insert(sum);
+      }
+      // Add to sum for this event only
+      remollGenericDetectorSum* sum = fSumMap[copyID];
+      sum->AddEDep(pid, pos, edep);
+
+      // Create a running sum for this detector, if necessary
+      if (fRunningSumMap.count(copyID) == 0u) {
+        remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
+        fRunningSumMap[copyID] = sum;
+      }
+      // Add to running sum of all events
+      remollGenericDetectorSum* runningsum = fRunningSumMap[copyID];
+      runningsum->AddEDep(pid, pos, edep);
     }
-    // Add to running sum of all events
-    remollGenericDetectorSum* runningsum = fRunningSumMap[copyID];
-    runningsum->AddEDep(pid, pos, edep);
 
     // Ignore optical photons as hits as set by DetType == opticalphoton
     if (! fDetectOpticalPhotons
@@ -209,24 +231,6 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
         has_been_warned = true;
       }
       return false;
-    }
-
-    // First step in volume?
-    G4bool firststepinvolume = false;
-    // if prepoint status is fGeomBoundary it's easy
-    if (prepoint->GetStepStatus() == fGeomBoundary)
-      firststepinvolume = true;
-    // if prepoint status is fUndefined it could be because of optical photons
-    else if (prepoint->GetStepStatus() == fUndefined) {
-      // get track user information and cast in our own format
-      G4VUserTrackInformation* usertrackinfo = track->GetUserInformation();
-      remollUserTrackInformation* remollusertrackinfo =
-          dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
-      if (remollusertrackinfo != nullptr) {
-        // if stored postpoint status is fGeomBoundary
-        if (remollusertrackinfo->GetStepStatus() == fGeomBoundary)
-          firststepinvolume = true;
-      }
     }
 
     // Only detect hits that are on the incident boundary edge of the geometry in question
@@ -329,7 +333,7 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
           remollusertrackinfo->GetCreatorMaterialName();
     }
 
-    hit->fEdep  = step->GetTotalEnergyDeposit();
+    hit->fEdep  = fDetectSurfaceHits ? 0.0 : step->GetTotalEnergyDeposit();
 
     return true;
 }

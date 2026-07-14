@@ -69,6 +69,17 @@ class remollEvent {
 	G4double fBiasWeight;
 	G4double fBeamBiasWeight;
 	G4double fThCoMBiasWeight;
+	G4double fThCoMBiasPhysicalPdf;
+	G4double fThCoMBiasSamplePdf;
+	G4double fPhiBiasWeight;
+	G4double fPhiBiasPhysicalPdf;
+	G4double fPhiBiasSamplePdf;
+	G4double fOutgoingEnergyBiasWeight;
+	G4double fOutgoingEnergyBiasPhysicalPdf;
+	G4double fOutgoingEnergyBiasSamplePdf;
+	G4double fVertexBiasWeight;
+	G4double fVertexBiasPhysicalPdf;
+	G4double fVertexBiasSamplePdf;
 	G4double fBeamBiasPhysicalPdf;
 	G4double fBeamBiasSamplePdf;
 	G4double fAsym, fmAsym;
