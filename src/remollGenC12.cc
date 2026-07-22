@@ -104,15 +104,9 @@ void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
       exit(1);
     }
     
-    const G4Material* material = vert->GetMaterial();
-    if (material == nullptr || material->GetNumberOfElements() != 1
-        || std::abs(material->GetZ() - 6.0) > 1.0e-9) {
+    if( vert->GetMaterial()->GetNumberOfElements() != 1 ) {
         G4cerr << __FILE__ << " line " << __LINE__ <<
-               "  : Error!  The C12 generator requires an elemental carbon "
-               "target (Z=6), but the active target material is "
-               << (material == nullptr ? "<null>" : material->GetName())
-               << ". Select a carbon target before /run/beamOn, for example "
-               "/control/execute macros/target/Optics1.mac." << G4endl;
+               "  : Error!  Some lazy programmer didn't account for complex materials in the moller process!" << G4endl;
         exit(1);
     }
 

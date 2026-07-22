@@ -57,19 +57,8 @@ remollBeamTarget::remollBeamTarget()
     fVertexBiasMaxFraction = 1.0;
     fVertexBiasPhysicalFraction = 1.0;
 
-    // Default material if sampling volume not found.  G4Material's table is
-    // process-global, while one remollBeamTarget is constructed concurrently
-    // for every worker.  Creating the same named material in each worker can
-    // corrupt that table (and, on macOS, eventually trip the allocator during
-    // otherwise unrelated worker initialization).
-    {
-      G4AutoLock lock(&remollBeamTargetMutex);
-      fDefaultMat = G4Material::GetMaterial("Default_proton", false);
-      if (fDefaultMat == nullptr) {
-        fDefaultMat = new G4Material(
-            "Default_proton", 1.0, 1.0, 1e-19*g/mole);
-      }
-    }
+    // Default material if sampling volume not found
+    fDefaultMat = new G4Material("Default_proton", 1.0, 1.0, 1e-19*g/mole);
 
     // Create generic messenger
     fMessenger.DeclarePropertyWithUnit("beamcurr","microampere",fBeamCurrent,"Beam current");
