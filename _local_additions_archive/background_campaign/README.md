@@ -12,6 +12,8 @@ rewriting.
 - `base.mac`: shared remoll geometry, fields, and transport controls.
 - `campaign.py`: validation, scheduling, analysis, and status commands.
 - `analyze_batch.C`: event-level ROOT accumulation and generator-cell analysis.
+- `adaptive_replay/`: the experimental parent-surface replay scanner and all
+  of its ROOT helpers. Generated files belong under the ignored `runs/` tree.
 
 The editable inventory expands to 39 configurations: three 11 GeV LH2
 production interactions and 36 carbon calibration combinations from three
@@ -143,6 +145,62 @@ The default `epsilon = 0.20` preserves a physical-distribution component over
 the complete phase space. No cell is cut away. Moller electron pairs remain
 one remoll event with one shared event weight. The ROOT `ev` record stores the
 total bias weight and each component's weight, physical PDF, and sampled PDF.
+
+## Experimental parent-surface replay
+
+`adaptive_replay/adaptive_parent_replay.py` is the single continuation point
+for the recent ShowerMax convergence experiment. It analyzes all 62 required
+tile/group rate and energy-rate observables, locks onto one unresolved
+observable until its complete convergence gates pass, runs exact-state pilots,
+adds correctly weighted replay batches to one resumable accumulated ROOT file,
+retains ordinary-control batches for the MCNP-style reliability tests, and
+leaves the input ROOT file untouched.
+
+The central correction is **parent-first ancestry**. If an important detector
+hit is a secondary, its own downstream surface crossing is not a valid biasing
+state: replaying that state only resamples transport after the rare interaction
+has already happened. Candidate replay states now begin with `hit.mtrid` and
+walk farther up the recorded ancestry only as needed. Primary hits may still
+use their own upstream crossing. If no parent/ancestor crosses the requested
+recorded surface, the source builders fail explicitly instead of silently
+substituting the child.
+
+Current checkpoint status:
+
+- The restart/recovery logic, 62-observable convergence accounting,
+  original-plus-replay estimator, exact-state pilot learning, full-support
+  proposal weighting, and multithreaded external-rate fix are implemented.
+- A 1,000-event target-primary bias test was intentionally retired. It put 449
+  events into the selected target kinematic neighborhood but produced no hit
+  in the sparse ShowerMax tile, demonstrating that the rare secondary must be
+  attacked at its responsible parent surface rather than at the original
+  target primary.
+- The representative sparse gamma was recorded at GEM surfaces, but its
+  electron parent was not recorded at any of those surfaces. The next missing
+  implementation is therefore automatic recovery of that parent state: replay
+  the stored original history with enhanced boundary/interaction recording,
+  select the parent's last upstream crossing, construct a density of nearby
+  physically observed parent states there, and then resume weighted adaptive
+  batches. This must be automated; manual per-event reconstruction is only a
+  diagnostic and is not part of the intended workflow.
+
+Run the current scanner from the repository root (US carbon 2.2 GeV is the
+default input):
+
+```bash
+python3 _local_additions_archive/background_campaign/adaptive_replay/\
+adaptive_parent_replay.py --check
+
+python3 _local_additions_archive/background_campaign/adaptive_replay/\
+adaptive_parent_replay.py --batch-events 1000 --pilot-events 1000 \
+  --threads 4 --target-rse 0.05 --max-batches 100
+```
+
+The second command is expected to stop with a clear missing-parent-surface
+error for an old file that lacks the necessary crossing; that is the guarded
+boundary of this checkpoint, not a signal to replay the child or hand-create a
+source. Ancestry/creation-volume summaries live alongside the scanner in
+`adaptive_replay/ancestry_attribution.C`.
 
 ## Data and output
 

@@ -4,6 +4,7 @@
 #include "G4Track.hh"
 #include "G4Material.hh"
 #include "G4MaterialTable.hh"
+#include "remollInteractionRecorder.hh"
 
 remollSteppingAction::remollSteppingAction()
 {
@@ -15,4 +16,5 @@ remollSteppingAction::~remollSteppingAction()
 
 void remollSteppingAction::UserSteppingAction(const G4Step *aStep)
 {
+  remollInteractionRecorder::GetInstance().RecordStep(aStep);
 }

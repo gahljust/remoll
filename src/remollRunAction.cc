@@ -7,6 +7,7 @@
 #include "remollRun.hh"
 #include "remollRunData.hh"
 #include "remollBeamTarget.hh"
+#include "remollInteractionRecorder.hh"
 
 #include "G4Threading.hh"
 #include "G4AutoLock.hh"
@@ -14,6 +15,9 @@ namespace { G4Mutex remollRunActionMutex = G4MUTEX_INITIALIZER; }
 
 remollRunAction::remollRunAction()
 {
+  // Construct the recorder during action initialization so its macro
+  // commands exist before the first run starts.
+  (void) remollInteractionRecorder::GetInstance();
   fMessenger.DeclareMethod(
       "seed",
       &remollRunAction::UpdateSeed,
@@ -66,6 +70,7 @@ void remollRunAction::BeginOfRunAction(const G4Run* run)
 
     remollRunData *rundata = remollRun::GetRunData();
     rundata->SetNthrown( aRun->GetNumberOfEventToBeProcessed() );
+    remollInteractionRecorder::GetInstance().BeginRun();
   }
 }
 
@@ -84,6 +89,6 @@ void remollRunAction::EndOfRunAction(const G4Run* run)
       G4AutoLock lock(&remollRunActionMutex);
       remollIO* io = remollIO::GetInstance();
       io->WriteTree();
+      remollInteractionRecorder::GetInstance().EndRun();
   }
 }
-
