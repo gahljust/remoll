@@ -175,14 +175,12 @@ Current checkpoint status:
   in the sparse ShowerMax tile, demonstrating that the rare secondary must be
   attacked at its responsible parent surface rather than at the original
   target primary.
-- The representative sparse gamma was recorded at GEM surfaces, but its
-  electron parent was not recorded at any of those surfaces. The next missing
-  implementation is therefore automatic recovery of that parent state: replay
-  the stored original history with enhanced boundary/interaction recording,
-  select the parent's last upstream crossing, construct a density of nearby
-  physically observed parent states there, and then resume weighted adaptive
-  batches. This must be automated; manual per-event reconstruction is only a
-  diagnostic and is not part of the intended workflow.
+- The representative sparse gamma was recorded at GEM surfaces, but its causal
+  parent lineage was not. `run_twofold_poc.py` now automates recovery from the
+  stored event RNG state, records the responsible physical-volume boundary,
+  follows parent creation steps in causal order, and builds a proposal from
+  physically observed neighboring entries. Integrating that resolver into the
+  continuous `adaptive_parent_replay.py` controller remains the next step.
 
 Run the current scanner from the repository root (US carbon 2.2 GeV is the
 default input):
@@ -196,11 +194,41 @@ adaptive_parent_replay.py --batch-events 1000 --pilot-events 1000 \
   --threads 4 --target-rse 0.05 --max-batches 100
 ```
 
-The second command is expected to stop with a clear missing-parent-surface
-error for an old file that lacks the necessary crossing; that is the guarded
-boundary of this checkpoint, not a signal to replay the child or hand-create a
-source. Ancestry/creation-volume summaries live alongside the scanner in
+The continuous scanner still stops with a clear missing-parent-surface error
+when an old file lacks the crossing. Run the two-fold proof below to recover
+and test that boundary automatically; it is not yet wired into the scanner's
+batch loop. Ancestry/creation-volume summaries live alongside the scanner in
 `adaptive_replay/ancestry_attribution.C`.
+
+### Two-fold primary/secondary proof
+
+`adaptive_replay/run_twofold_poc.py` performs the branch decision directly on
+an existing ROOT file. It runs all 62 statistics, writes cumulative tile RSE
+and Neff versus history count through `diagnose_tile.C`, ranks the histories
+dominating the worst result, and classifies the leading hit. A primary result
+is explicitly handed off to the campaign generator-neighborhood machinery
+(that handoff is not exercised by this secondary-dominated file). For a
+secondary, the proof exports its stored random state and a random physical control sample,
+deterministically replays those histories with volume interaction recording,
+and walks the causal ancestry until it finds a real ancestor entry that occurs
+before the selected secondary-production chain.
+
+For the US carbon 2.2 GeV sieve-out file, the worst observable is
+`tile_71630/rate`: 29.86% RSE, Neff 11.22, with one history carrying 29.29% of
+the total. It is a 1.76 MeV gamma produced by bremsstrahlung in
+`twobounce_long`. Exact replay resolves the causal chain as electron 2436 to
+gamma 2525 to electron 2546 to gamma 2695; electron 2436 is the first ancestor
+with a volume entry before that chain. In an equal-cost 2,000-history pilot
+using 68 observed forward electron-entry states, ordinary physical-bank replay
+gave 1 useful history (Neff 1.00, RSE 100%), while the full-support targeted
+mixture gave 10 useful histories from 42 distinct source states (Neff 4.24,
+RSE 48.5%). This is a 10x useful-history gain but not convergence or a final
+normalization; the finite observed entry bank remains a pilot approximation.
+
+```bash
+python3 _local_additions_archive/background_campaign/adaptive_replay/\
+run_twofold_poc.py --bank-events 200 --replay-events 2000 --threads 4
+```
 
 ## Data and output
 

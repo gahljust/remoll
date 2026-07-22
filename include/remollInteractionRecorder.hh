@@ -34,6 +34,7 @@ class remollInteractionRecorder {
     bool fIncludeTransportation{false};
     G4String fOutputPath{"interactions.tsv"};
     G4String fMaterial{""};
+    G4String fPhysicalVolume{""};
     G4double fMinKineticEnergyMeV{0.0};
     std::ofstream fOutput;
     std::uint64_t fNextInteraction{0U};

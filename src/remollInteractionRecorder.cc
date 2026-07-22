@@ -8,6 +8,7 @@
 #include "G4StepPoint.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
+#include "G4VPhysicalVolume.hh"
 #include "G4ios.hh"
 
 #include "remollSystemOfUnits.hh"
@@ -47,6 +48,9 @@ remollInteractionRecorder::remollInteractionRecorder()
       "material", fMaterial,
       "Only record this Geant4 material name; empty records all materials");
   fMessenger.DeclareProperty(
+      "physicalVolume", fPhysicalVolume,
+      "Only record steps touching this pre/post physical volume; empty records all");
+  fMessenger.DeclareProperty(
       "includeTransportation", fIncludeTransportation,
       "Also record Transportation and step-limiter steps");
   fMessenger.DeclareProperty(
@@ -67,7 +71,8 @@ void remollInteractionRecorder::BeginRun()
   }
   fOutput << "event\tinteraction\ttrack\tparent\trole\tsecondary_index"
              "\tchild_track\tpdg"
-             "\tmaterial\tprocess\tprocess_type\tprocess_subtype\tstatus"
+             "\tmaterial\tpre_volume\tpost_volume\tprocess"
+             "\tprocess_type\tprocess_subtype\tstatus"
              "\tpre_x_mm\tpre_y_mm\tpre_z_mm\tpre_px_mev\tpre_py_mev"
              "\tpre_pz_mev\tpre_ke_mev\tpost_x_mm\tpost_y_mm\tpost_z_mm"
              "\tpost_px_mev\tpost_py_mev\tpost_pz_mev\tpost_ke_mev"
@@ -79,6 +84,8 @@ void remollInteractionRecorder::BeginRun()
   fRunActive = true;
   G4cout << "remoll/interaction: recording to " << fOutputPath;
   if (!fMaterial.empty()) G4cout << " for material " << fMaterial;
+  if (!fPhysicalVolume.empty())
+    G4cout << " touching physical volume " << fPhysicalVolume;
   G4cout << G4endl;
 }
 
@@ -92,6 +99,14 @@ void remollInteractionRecorder::RecordStep(const G4Step* step)
   const G4Material* material = pre->GetMaterial();
   if (material == nullptr) return;
   if (!fMaterial.empty() && material->GetName() != fMaterial) return;
+  const G4VPhysicalVolume* pre_volume = pre->GetPhysicalVolume();
+  const G4VPhysicalVolume* post_volume = post->GetPhysicalVolume();
+  const G4String pre_volume_name =
+      pre_volume == nullptr ? G4String("none") : pre_volume->GetName();
+  const G4String post_volume_name =
+      post_volume == nullptr ? G4String("none") : post_volume->GetName();
+  if (!fPhysicalVolume.empty() && pre_volume_name != fPhysicalVolume
+      && post_volume_name != fPhysicalVolume) return;
   if (pre->GetKineticEnergy() / MeV < fMinKineticEnergyMeV) return;
 
   const G4VProcess* process = post->GetProcessDefinedStep();
@@ -127,7 +142,8 @@ void remollInteractionRecorder::RecordStep(const G4Step* step)
             << parent->GetTrackID() << '\t' << parent->GetParentID() << '\t'
             << role << '\t' << secondary_index << '\t' << child_track
             << '\t' << pdg << '\t'
-            << Clean(material->GetName()) << '\t' << Clean(process_name)
+            << Clean(material->GetName()) << '\t' << Clean(pre_volume_name)
+            << '\t' << Clean(post_volume_name) << '\t' << Clean(process_name)
             << '\t' << process_type << '\t' << process_subtype << '\t'
             << parent->GetTrackStatus() << '\t'
             << pre_x.x() / mm << '\t' << pre_x.y() / mm << '\t'

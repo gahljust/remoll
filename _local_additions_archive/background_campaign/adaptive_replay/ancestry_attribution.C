@@ -38,8 +38,6 @@
 #include <tuple>
 #include <vector>
 
-#include "include/remolltypes.hh"
-
 namespace {
 
 const char* SpeciesClass(int pid)
