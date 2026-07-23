@@ -9,62 +9,6 @@
 
 <define>
   &positions;
-  <!-- ShowerMax stack planes sit just upstream of the stack region. -->
-  <constant name="showerMaxStackFrontPlaneZLow" value="23920.00-41-72.10799999999999/2-0.5/2-0.1"/>
-  <constant name="showerMaxStackFrontPlaneZHigh" value="23920.00+41-72.10799999999999/2-0.5/2-0.1"/>
-
-  <quantity name="sieve_system_inner_radius" type="length" value="26.5" unit="mm"/>
-  <quantity name="sieve_system_outer_radius" type="length" value="98" unit="mm"/>
-  <quantity name="sieve_hole_diameter" type="length" value="5" unit="mm"/>
-
-  <quantity name="sieve_hole71_radial_position" type="length" value="44" unit="mm"/>
-  <quantity name="sieve_hole71_angular_offset_phi" type="angle" value="0 + 360/14 - 360/7" unit="deg"/>
-  <quantity name="sieve_hole72_radial_position" type="length" value="68" unit="mm"/>
-  <quantity name="sieve_hole72_angular_offset_phi" type="angle" value="8 + 360/14 - 360/7" unit="deg"/>
-  <quantity name="sieve_hole73_radial_position" type="length" value="84.5" unit="mm"/>
-  <quantity name="sieve_hole73_angular_offset_phi" type="angle" value="-8 + 360/14 - 360/7" unit="deg"/>
-
-  <quantity name="sieve_hole61_radial_position" type="length" value="39" unit="mm"/>
-  <quantity name="sieve_hole61_angular_offset_phi" type="angle" value="0 - (360/7)*2 + 360/14" unit="deg"/>
-  <quantity name="sieve_hole62_radial_position" type="length" value="60" unit="mm"/>
-  <quantity name="sieve_hole62_angular_offset_phi" type="angle" value="8 - (360/7)*2 + 360/14" unit="deg"/>
-  <quantity name="sieve_hole63_radial_position" type="length" value="75" unit="mm"/>
-  <quantity name="sieve_hole63_angular_offset_phi" type="angle" value="-8 - (360/7)*2 + 360/14" unit="deg"/>
-
-  <quantity name="sieve_hole51_radial_position" type="length" value="56" unit="mm"/>
-  <quantity name="sieve_hole51_angular_offset_phi" type="angle" value="-8 + 360/14 -  (360/7)*3" unit="deg"/>
-  <quantity name="sieve_hole52_radial_position" type="length" value="56" unit="mm"/>
-  <quantity name="sieve_hole52_angular_offset_phi" type="angle" value="8 + 360/14 -  (360/7)*3" unit="deg"/>
-  <quantity name="sieve_hole53_radial_position" type="length" value="80" unit="mm"/>
-  <quantity name="sieve_hole53_angular_offset_phi" type="angle" value="0 + 360/14 -  (360/7)*3" unit="deg"/>
-
-  <quantity name="sieve_hole41_radial_position" type="length" value="50" unit="mm"/>
-  <quantity name="sieve_hole41_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*4" unit="deg"/>
-  <quantity name="sieve_hole42_radial_position" type="length" value="60" unit="mm"/>
-  <quantity name="sieve_hole42_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*4" unit="deg"/>
-  <quantity name="sieve_hole43_radial_position" type="length" value="70" unit="mm"/>
-  <quantity name="sieve_hole43_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*4" unit="deg"/>
-
-  <quantity name="sieve_hole31_radial_position" type="length" value="39" unit="mm"/>
-  <quantity name="sieve_hole31_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*5" unit="deg"/>
-  <quantity name="sieve_hole32_radial_position" type="length" value="63" unit="mm"/>
-  <quantity name="sieve_hole32_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*5" unit="deg"/>
-  <quantity name="sieve_hole33_radial_position" type="length" value="80" unit="mm"/>
-  <quantity name="sieve_hole33_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*5" unit="deg"/>
-
-  <quantity name="sieve_hole21_radial_position" type="length" value="50" unit="mm"/>
-  <quantity name="sieve_hole21_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*6" unit="deg"/>
-  <quantity name="sieve_hole22_radial_position" type="length" value="56" unit="mm"/>
-  <quantity name="sieve_hole22_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*6" unit="deg"/>
-  <quantity name="sieve_hole23_radial_position" type="length" value="75" unit="mm"/>
-  <quantity name="sieve_hole23_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*6" unit="deg"/>
-
-  <quantity name="sieve_hole11_radial_position" type="length" value="35" unit="mm"/>
-  <quantity name="sieve_hole11_angular_offset_phi" type="angle" value="0 + 360/14 - (360/7)*7" unit="deg"/>
-  <quantity name="sieve_hole12_radial_position" type="length" value="58" unit="mm"/>
-  <quantity name="sieve_hole12_angular_offset_phi" type="angle" value="-8 + 360/14 - (360/7)*7" unit="deg"/>
-  <quantity name="sieve_hole13_radial_position" type="length" value="84.5" unit="mm"/>
-  <quantity name="sieve_hole13_angular_offset_phi" type="angle" value="8 + 360/14 - (360/7)*7" unit="deg"/>
 </define>
 
 <materials>
@@ -97,16 +41,6 @@
     name="smallVirtualPlane_solid"
     startphi="0" deltaphi="360" aunit="deg"
     rmax="1000" rmin="0" z="1" lunit="mm"/>
-
-  <tube
-    name="sieveVirtualPlane_annulus_solid"
-    startphi="0" deltaphi="360" aunit="deg"
-    rmin="sieve_system_inner_radius" rmax="sieve_system_outer_radius" z="0.01" lunit="mm"/>
-
-  <tube
-    name="sieveHoleVirtualPlane_solid"
-    startphi="0" deltaphi="360" aunit="deg"
-    rmin="0" rmax="sieve_hole_diameter/2" z="0.01" lunit="mm"/>
 
   <box lunit="mm" name="RasterPS_solid" x="800" y="2500" z="800"/>
 
@@ -169,7 +103,7 @@
 
 
 
-  <box name="Showermax_stack_VirtualPlane_solid" lunit="mm" x="160.0" y="265.0" z="0.5"/>
+  <box name="Showermax_stack_VirtualPlane_solid" lunit="mm" x="160" y="265" z="0.5"/>
 
 </solids>
 
@@ -274,156 +208,9 @@
 
   <volume name="sieveVirtualPlane_log">
     <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveVirtualPlane_annulus_solid"/>
+    <solidref ref="smallVirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
     <auxiliary auxtype="DetNo" auxvalue="270"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane01_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27011"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane02_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27012"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane03_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27013"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane04_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27014"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane05_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27015"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane06_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27016"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane07_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27017"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane08_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27018"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane09_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27019"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane10_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27020"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane11_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27021"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane12_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27022"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane13_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27023"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane14_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27024"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane15_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27025"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane16_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27026"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane17_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27027"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane18_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27028"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane19_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27029"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane20_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27030"/>
-  </volume>
-
-  <volume name="sieveHoleVirtualPlane21_log">
-    <materialref ref="G4_Galactic"/>
-    <solidref ref="sieveHoleVirtualPlane_solid"/>
-    <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="27031"/>
   </volume>
 
   <volume name="Col2Ent_log">
@@ -752,202 +539,200 @@
     <auxiliary auxtype="DetNo" auxvalue="66"/>
   </volume>
 
-  <!-- ShowerMax stack planes follow the legacy proxy ID order:
-       70030 at singledet_15, 71430 at singledet_01, 72130 at singledet_08. -->
-  <volume name="showerMaxStackVirtualPlane01_log">
+  <volume name="showerMaxStackVirtualPlane_01_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70030"/>
+    <auxiliary auxtype="DetNo" auxvalue="73001"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane02_log">
+  <volume name="showerMaxStackVirtualPlane_02_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70130"/>
+    <auxiliary auxtype="DetNo" auxvalue="73002"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane03_log">
+  <volume name="showerMaxStackVirtualPlane_03_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70230"/>
+    <auxiliary auxtype="DetNo" auxvalue="73003"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane04_log">
+  <volume name="showerMaxStackVirtualPlane_04_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70330"/>
+    <auxiliary auxtype="DetNo" auxvalue="73004"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane05_log">
+  <volume name="showerMaxStackVirtualPlane_05_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70430"/>
+    <auxiliary auxtype="DetNo" auxvalue="73005"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane06_log">
+  <volume name="showerMaxStackVirtualPlane_06_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70530"/>
+    <auxiliary auxtype="DetNo" auxvalue="73006"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane07_log">
+  <volume name="showerMaxStackVirtualPlane_07_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70630"/>
+    <auxiliary auxtype="DetNo" auxvalue="73007"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane08_log">
+  <volume name="showerMaxStackVirtualPlane_08_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70730"/>
+    <auxiliary auxtype="DetNo" auxvalue="73008"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane09_log">
+  <volume name="showerMaxStackVirtualPlane_09_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70830"/>
+    <auxiliary auxtype="DetNo" auxvalue="73009"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane10_log">
+  <volume name="showerMaxStackVirtualPlane_10_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="70930"/>
+    <auxiliary auxtype="DetNo" auxvalue="73010"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane11_log">
+  <volume name="showerMaxStackVirtualPlane_11_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71030"/>
+    <auxiliary auxtype="DetNo" auxvalue="73011"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane12_log">
+  <volume name="showerMaxStackVirtualPlane_12_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71130"/>
+    <auxiliary auxtype="DetNo" auxvalue="73012"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane13_log">
+  <volume name="showerMaxStackVirtualPlane_13_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71230"/>
+    <auxiliary auxtype="DetNo" auxvalue="73013"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane14_log">
+  <volume name="showerMaxStackVirtualPlane_14_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71330"/>
+    <auxiliary auxtype="DetNo" auxvalue="73014"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane15_log">
+  <volume name="showerMaxStackVirtualPlane_15_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71430"/>
+    <auxiliary auxtype="DetNo" auxvalue="73015"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane16_log">
+  <volume name="showerMaxStackVirtualPlane_16_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71530"/>
+    <auxiliary auxtype="DetNo" auxvalue="73016"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane17_log">
+  <volume name="showerMaxStackVirtualPlane_17_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71630"/>
+    <auxiliary auxtype="DetNo" auxvalue="73017"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane18_log">
+  <volume name="showerMaxStackVirtualPlane_18_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71730"/>
+    <auxiliary auxtype="DetNo" auxvalue="73018"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane19_log">
+  <volume name="showerMaxStackVirtualPlane_19_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71830"/>
+    <auxiliary auxtype="DetNo" auxvalue="73019"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane20_log">
+  <volume name="showerMaxStackVirtualPlane_20_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="71930"/>
+    <auxiliary auxtype="DetNo" auxvalue="73020"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane21_log">
+  <volume name="showerMaxStackVirtualPlane_21_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72030"/>
+    <auxiliary auxtype="DetNo" auxvalue="73021"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane22_log">
+  <volume name="showerMaxStackVirtualPlane_22_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72130"/>
+    <auxiliary auxtype="DetNo" auxvalue="73022"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane23_log">
+  <volume name="showerMaxStackVirtualPlane_23_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72230"/>
+    <auxiliary auxtype="DetNo" auxvalue="73023"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane24_log">
+  <volume name="showerMaxStackVirtualPlane_24_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72330"/>
+    <auxiliary auxtype="DetNo" auxvalue="73024"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane25_log">
+  <volume name="showerMaxStackVirtualPlane_25_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72430"/>
+    <auxiliary auxtype="DetNo" auxvalue="73025"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane26_log">
+  <volume name="showerMaxStackVirtualPlane_26_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72530"/>
+    <auxiliary auxtype="DetNo" auxvalue="73026"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane27_log">
+  <volume name="showerMaxStackVirtualPlane_27_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72630"/>
+    <auxiliary auxtype="DetNo" auxvalue="73027"/>
   </volume>
 
-  <volume name="showerMaxStackVirtualPlane28_log">
+  <volume name="showerMaxStackVirtualPlane_28_log">
     <materialref ref="G4_Galactic"/>
     <solidref ref="Showermax_stack_VirtualPlane_solid"/>
     <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
-    <auxiliary auxtype="DetNo" auxvalue="72730"/>
+    <auxiliary auxtype="DetNo" auxvalue="73028"/>
   </volume>
 
   <volume name="LintelExit_log">
@@ -1401,115 +1186,10 @@
       <volumeref ref="collar0ExitVirtualPlane_log"/>
       <position name="collar0DSVirtualPlane_pos" unit="mm" z="-990"/>
     </physvol>
-
+        
     <physvol name="sieveVirtualPlane_phys">
       <volumeref ref="sieveVirtualPlane_log"/>
-      <position name="sieveVirtualPlane_downstream_pos" unit="mm" z="300.1"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane01_phys">
-      <volumeref ref="sieveHoleVirtualPlane01_log"/>
-      <position name="sieveHoleVirtualPlane01_pos" unit="mm" x="sieve_hole11_radial_position*cos(sieve_hole11_angular_offset_phi)" y="sieve_hole11_radial_position*sin(sieve_hole11_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane02_phys">
-      <volumeref ref="sieveHoleVirtualPlane02_log"/>
-      <position name="sieveHoleVirtualPlane02_pos" unit="mm" x="sieve_hole12_radial_position*cos(sieve_hole12_angular_offset_phi)" y="sieve_hole12_radial_position*sin(sieve_hole12_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane03_phys">
-      <volumeref ref="sieveHoleVirtualPlane03_log"/>
-      <position name="sieveHoleVirtualPlane03_pos" unit="mm" x="sieve_hole13_radial_position*cos(sieve_hole13_angular_offset_phi)" y="sieve_hole13_radial_position*sin(sieve_hole13_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane04_phys">
-      <volumeref ref="sieveHoleVirtualPlane04_log"/>
-      <position name="sieveHoleVirtualPlane04_pos" unit="mm" x="sieve_hole21_radial_position*cos(sieve_hole21_angular_offset_phi)" y="sieve_hole21_radial_position*sin(sieve_hole21_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane05_phys">
-      <volumeref ref="sieveHoleVirtualPlane05_log"/>
-      <position name="sieveHoleVirtualPlane05_pos" unit="mm" x="sieve_hole22_radial_position*cos(sieve_hole22_angular_offset_phi)" y="sieve_hole22_radial_position*sin(sieve_hole22_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane06_phys">
-      <volumeref ref="sieveHoleVirtualPlane06_log"/>
-      <position name="sieveHoleVirtualPlane06_pos" unit="mm" x="sieve_hole23_radial_position*cos(sieve_hole23_angular_offset_phi)" y="sieve_hole23_radial_position*sin(sieve_hole23_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane07_phys">
-      <volumeref ref="sieveHoleVirtualPlane07_log"/>
-      <position name="sieveHoleVirtualPlane07_pos" unit="mm" x="sieve_hole31_radial_position*cos(sieve_hole31_angular_offset_phi)" y="sieve_hole31_radial_position*sin(sieve_hole31_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane08_phys">
-      <volumeref ref="sieveHoleVirtualPlane08_log"/>
-      <position name="sieveHoleVirtualPlane08_pos" unit="mm" x="sieve_hole32_radial_position*cos(sieve_hole32_angular_offset_phi)" y="sieve_hole32_radial_position*sin(sieve_hole32_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane09_phys">
-      <volumeref ref="sieveHoleVirtualPlane09_log"/>
-      <position name="sieveHoleVirtualPlane09_pos" unit="mm" x="sieve_hole33_radial_position*cos(sieve_hole33_angular_offset_phi)" y="sieve_hole33_radial_position*sin(sieve_hole33_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane10_phys">
-      <volumeref ref="sieveHoleVirtualPlane10_log"/>
-      <position name="sieveHoleVirtualPlane10_pos" unit="mm" x="sieve_hole41_radial_position*cos(sieve_hole41_angular_offset_phi)" y="sieve_hole41_radial_position*sin(sieve_hole41_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane11_phys">
-      <volumeref ref="sieveHoleVirtualPlane11_log"/>
-      <position name="sieveHoleVirtualPlane11_pos" unit="mm" x="sieve_hole42_radial_position*cos(sieve_hole42_angular_offset_phi)" y="sieve_hole42_radial_position*sin(sieve_hole42_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane12_phys">
-      <volumeref ref="sieveHoleVirtualPlane12_log"/>
-      <position name="sieveHoleVirtualPlane12_pos" unit="mm" x="sieve_hole43_radial_position*cos(sieve_hole43_angular_offset_phi)" y="sieve_hole43_radial_position*sin(sieve_hole43_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane13_phys">
-      <volumeref ref="sieveHoleVirtualPlane13_log"/>
-      <position name="sieveHoleVirtualPlane13_pos" unit="mm" x="sieve_hole51_radial_position*cos(sieve_hole51_angular_offset_phi)" y="sieve_hole51_radial_position*sin(sieve_hole51_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane14_phys">
-      <volumeref ref="sieveHoleVirtualPlane14_log"/>
-      <position name="sieveHoleVirtualPlane14_pos" unit="mm" x="sieve_hole52_radial_position*cos(sieve_hole52_angular_offset_phi)" y="sieve_hole52_radial_position*sin(sieve_hole52_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane15_phys">
-      <volumeref ref="sieveHoleVirtualPlane15_log"/>
-      <position name="sieveHoleVirtualPlane15_pos" unit="mm" x="sieve_hole53_radial_position*cos(sieve_hole53_angular_offset_phi)" y="sieve_hole53_radial_position*sin(sieve_hole53_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane16_phys">
-      <volumeref ref="sieveHoleVirtualPlane16_log"/>
-      <position name="sieveHoleVirtualPlane16_pos" unit="mm" x="sieve_hole61_radial_position*cos(sieve_hole61_angular_offset_phi)" y="sieve_hole61_radial_position*sin(sieve_hole61_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane17_phys">
-      <volumeref ref="sieveHoleVirtualPlane17_log"/>
-      <position name="sieveHoleVirtualPlane17_pos" unit="mm" x="sieve_hole62_radial_position*cos(sieve_hole62_angular_offset_phi)" y="sieve_hole62_radial_position*sin(sieve_hole62_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane18_phys">
-      <volumeref ref="sieveHoleVirtualPlane18_log"/>
-      <position name="sieveHoleVirtualPlane18_pos" unit="mm" x="sieve_hole63_radial_position*cos(sieve_hole63_angular_offset_phi)" y="sieve_hole63_radial_position*sin(sieve_hole63_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane19_phys">
-      <volumeref ref="sieveHoleVirtualPlane19_log"/>
-      <position name="sieveHoleVirtualPlane19_pos" unit="mm" x="sieve_hole71_radial_position*cos(sieve_hole71_angular_offset_phi)" y="sieve_hole71_radial_position*sin(sieve_hole71_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane20_phys">
-      <volumeref ref="sieveHoleVirtualPlane20_log"/>
-      <position name="sieveHoleVirtualPlane20_pos" unit="mm" x="sieve_hole72_radial_position*cos(sieve_hole72_angular_offset_phi)" y="sieve_hole72_radial_position*sin(sieve_hole72_angular_offset_phi)" z="300.05"/>
-    </physvol>
-
-    <physvol name="sieveHoleVirtualPlane21_phys">
-      <volumeref ref="sieveHoleVirtualPlane21_log"/>
-      <position name="sieveHoleVirtualPlane21_pos" unit="mm" x="sieve_hole73_radial_position*cos(sieve_hole73_angular_offset_phi)" y="sieve_hole73_radial_position*sin(sieve_hole73_angular_offset_phi)" z="300.05"/>
+      <position ref="sieveVirtualPlane_pos" unit="mm" z="250"/>
     </physvol>
 
     <physvol name="Col2Ent_phys">
@@ -1903,174 +1583,175 @@
       <position name="Ring1Front_pos" unit="mm" z="22198.00 + 1070.8 + 21"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane01_phys">
-      <volumeref ref="showerMaxStackVirtualPlane01_log"/>
-      <position name="showerMaxStackVirtualPlane01_pos" unit="mm" x="-1100.0" y="0" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane01_rot" unit="rad" z="-3.141592653589793"/>
+    <!--Showermax stack virtual plane-->
+    <physvol name="showerMaxStackVirtualPlane_01_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_01_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_01_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_01_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane02_phys">
-      <volumeref ref="showerMaxStackVirtualPlane02_log"/>
-      <position name="showerMaxStackVirtualPlane02_pos" unit="mm" x="-1076.3204150487334" y="-245.6631110877705" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane02_rot" unit="rad" z="-3.3659921288462065"/>
+    <physvol name="showerMaxStackVirtualPlane_02_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_02_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_02_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_02_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane03_phys">
-      <volumeref ref="showerMaxStackVirtualPlane03_log"/>
-      <position name="showerMaxStackVirtualPlane03_pos" unit="mm" x="-991.065754692661" y="-477.2721130293138" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane03_rot" unit="rad" z="-3.5903916041026207"/>
+    <physvol name="showerMaxStackVirtualPlane_03_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_03_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_03_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_03_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane04_phys">
-      <volumeref ref="showerMaxStackVirtualPlane04_log"/>
-      <position name="showerMaxStackVirtualPlane04_pos" unit="mm" x="-863.1419566447047" y="-688.3327412520422" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane04_rot" unit="rad" z="-3.814791079359035"/>
+    <physvol name="showerMaxStackVirtualPlane_04_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_04_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_04_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_04_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane05_phys">
-      <volumeref ref="showerMaxStackVirtualPlane05_log"/>
-      <position name="showerMaxStackVirtualPlane05_pos" unit="mm" x="-685.838782044607" y="-860.0146307148326" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane05_rot" unit="rad" z="-4.039190554615448"/>
+    <physvol name="showerMaxStackVirtualPlane_05_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_05_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_05_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_05_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane06_phys">
-      <volumeref ref="showerMaxStackVirtualPlane06_log"/>
-      <position name="showerMaxStackVirtualPlane06_pos" unit="mm" x="-479.00764798578433" y="-994.6696301642706" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane06_rot" unit="rad" z="-4.263590029871862"/>
+    <physvol name="showerMaxStackVirtualPlane_06_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_06_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_06_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_06_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane07_phys">
-      <volumeref ref="showerMaxStackVirtualPlane07_log"/>
-      <position name="showerMaxStackVirtualPlane07_pos" unit="mm" x="-244.77302735194604" y="-1072.420703400006" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane07_rot" unit="rad" z="-4.487989505128276"/>
+    <physvol name="showerMaxStackVirtualPlane_07_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_07_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_07_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_07_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane08_phys">
-      <volumeref ref="showerMaxStackVirtualPlane08_log"/>
-      <position name="showerMaxStackVirtualPlane08_pos" unit="mm" x="0" y="-1104.0" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane08_rot" unit="rad" z="-4.71238898038469"/>
+    <physvol name="showerMaxStackVirtualPlane_08_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_08_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_08_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_08_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane09_phys">
-      <volumeref ref="showerMaxStackVirtualPlane09_log"/>
-      <position name="showerMaxStackVirtualPlane09_pos" unit="mm" x="244.77302735194468" y="-1072.4207034000062" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane09_rot" unit="rad" z="-4.936788455641103"/>
+    <physvol name="showerMaxStackVirtualPlane_09_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_09_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_09_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_09_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane10_phys">
-      <volumeref ref="showerMaxStackVirtualPlane10_log"/>
-      <position name="showerMaxStackVirtualPlane10_pos" unit="mm" x="479.007647985784" y="-994.6696301642709" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane10_rot" unit="rad" z="-5.161187930897517"/>
+    <physvol name="showerMaxStackVirtualPlane_10_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_10_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_10_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_10_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane11_phys">
-      <volumeref ref="showerMaxStackVirtualPlane11_log"/>
-      <position name="showerMaxStackVirtualPlane11_pos" unit="mm" x="685.8387820446067" y="-860.014630714833" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane11_rot" unit="rad" z="-5.385587406153931"/>
+    <physvol name="showerMaxStackVirtualPlane_11_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_11_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_11_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_11_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane12_phys">
-      <volumeref ref="showerMaxStackVirtualPlane12_log"/>
-      <position name="showerMaxStackVirtualPlane12_pos" unit="mm" x="863.1419566447048" y="-688.332741252042" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane12_rot" unit="rad" z="-5.609986881410345"/>
+    <physvol name="showerMaxStackVirtualPlane_12_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_12_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_12_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_12_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane13_phys">
-      <volumeref ref="showerMaxStackVirtualPlane13_log"/>
-      <position name="showerMaxStackVirtualPlane13_pos" unit="mm" x="991.0657546926614" y="-477.2721130293133" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane13_rot" unit="rad" z="-5.8343863566667595"/>
+    <physvol name="showerMaxStackVirtualPlane_13_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_13_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_13_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_13_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane14_phys">
-      <volumeref ref="showerMaxStackVirtualPlane14_log"/>
-      <position name="showerMaxStackVirtualPlane14_pos" unit="mm" x="1076.3204150487331" y="-245.66311108777137" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane14_rot" unit="rad" z="-6.058785831923172"/>
+    <physvol name="showerMaxStackVirtualPlane_14_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_14_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_14_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_14_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane15_phys">
-      <volumeref ref="showerMaxStackVirtualPlane15_log"/>
-      <position name="showerMaxStackVirtualPlane15_pos" unit="mm" x="1100.0" y="0.0" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane15_rot" unit="rad" z="-0.0"/>
+    <physvol name="showerMaxStackVirtualPlane_15_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_15_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_15_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_15_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane16_phys">
-      <volumeref ref="showerMaxStackVirtualPlane16_log"/>
-      <position name="showerMaxStackVirtualPlane16_pos" unit="mm" x="1076.3204150487334" y="245.66311108777109" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane16_rot" unit="rad" z="-0.2243994752564138"/>
+    <physvol name="showerMaxStackVirtualPlane_16_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_16_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_16_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_16_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane17_phys">
-      <volumeref ref="showerMaxStackVirtualPlane17_log"/>
-      <position name="showerMaxStackVirtualPlane17_pos" unit="mm" x="991.065754692661" y="477.2721130293139" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane17_rot" unit="rad" z="-0.4487989505128276"/>
+    <physvol name="showerMaxStackVirtualPlane_17_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_17_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_17_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_17_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane18_phys">
-      <volumeref ref="showerMaxStackVirtualPlane18_log"/>
-      <position name="showerMaxStackVirtualPlane18_pos" unit="mm" x="863.1419566447049" y="688.3327412520417" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane18_rot" unit="rad" z="-0.6731984257692414"/>
+    <physvol name="showerMaxStackVirtualPlane_18_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_18_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_18_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_18_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane19_phys">
-      <volumeref ref="showerMaxStackVirtualPlane19_log"/>
-      <position name="showerMaxStackVirtualPlane19_pos" unit="mm" x="685.838782044607" y="860.0146307148328" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane19_rot" unit="rad" z="-0.8975979010256552"/>
+    <physvol name="showerMaxStackVirtualPlane_19_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_19_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_19_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_19_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane20_phys">
-      <volumeref ref="showerMaxStackVirtualPlane20_log"/>
-      <position name="showerMaxStackVirtualPlane20_pos" unit="mm" x="479.0076479857842" y="994.6696301642708" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane20_rot" unit="rad" z="-1.121997376282069"/>
+    <physvol name="showerMaxStackVirtualPlane_20_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_20_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_20_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_20_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane21_phys">
-      <volumeref ref="showerMaxStackVirtualPlane21_log"/>
-      <position name="showerMaxStackVirtualPlane21_pos" unit="mm" x="244.7730273519459" y="1072.420703400006" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane21_rot" unit="rad" z="-1.3463968515384828"/>
+    <physvol name="showerMaxStackVirtualPlane_21_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_21_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_21_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_21_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane22_phys">
-      <volumeref ref="showerMaxStackVirtualPlane22_log"/>
-      <position name="showerMaxStackVirtualPlane22_pos" unit="mm" x="0" y="1104.0" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane22_rot" unit="rad" z="-1.5707963267948966"/>
+    <physvol name="showerMaxStackVirtualPlane_22_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_22_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_22_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_22_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane23_phys">
-      <volumeref ref="showerMaxStackVirtualPlane23_log"/>
-      <position name="showerMaxStackVirtualPlane23_pos" unit="mm" x="-244.77302735194576" y="1072.420703400006" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane23_rot" unit="rad" z="-1.7951958020513104"/>
+    <physvol name="showerMaxStackVirtualPlane_23_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_23_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_23_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_23_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane24_phys">
-      <volumeref ref="showerMaxStackVirtualPlane24_log"/>
-      <position name="showerMaxStackVirtualPlane24_pos" unit="mm" x="-479.0076479857841" y="994.6696301642708" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane24_rot" unit="rad" z="-2.019595277307724"/>
+    <physvol name="showerMaxStackVirtualPlane_24_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_24_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_24_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_24_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane25_phys">
-      <volumeref ref="showerMaxStackVirtualPlane25_log"/>
-      <position name="showerMaxStackVirtualPlane25_pos" unit="mm" x="-685.8387820446069" y="860.014630714833" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane25_rot" unit="rad" z="-2.243994752564138"/>
+    <physvol name="showerMaxStackVirtualPlane_25_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_25_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_25_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_25_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane26_phys">
-      <volumeref ref="showerMaxStackVirtualPlane26_log"/>
-      <position name="showerMaxStackVirtualPlane26_pos" unit="mm" x="-863.1419566447046" y="688.3327412520423" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane26_rot" unit="rad" z="-2.4683942278205513"/>
+    <physvol name="showerMaxStackVirtualPlane_26_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_26_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_26_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_26_rot"/>
     </physvol>
 
-    <physvol name="showerMaxStackVirtualPlane27_phys">
-      <volumeref ref="showerMaxStackVirtualPlane27_log"/>
-      <position name="showerMaxStackVirtualPlane27_pos" unit="mm" x="-991.0657546926609" y="477.272113029314" z="showerMaxStackFrontPlaneZLow"/>
-      <rotation name="showerMaxStackVirtualPlane27_rot" unit="rad" z="-2.6927937030769655"/>
-    </physvol>
-
-    <physvol name="showerMaxStackVirtualPlane28_phys">
-      <volumeref ref="showerMaxStackVirtualPlane28_log"/>
-      <position name="showerMaxStackVirtualPlane28_pos" unit="mm" x="-1076.3204150487334" y="245.66311108777074" z="showerMaxStackFrontPlaneZHigh"/>
-      <rotation name="showerMaxStackVirtualPlane28_rot" unit="rad" z="-2.9171931783333798"/>
+    <physvol name="showerMaxStackVirtualPlane_27_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_27_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_27_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_27_rot"/>
     </physvol>
     
+    <physvol name="showerMaxStackVirtualPlane_28_phys">
+      <volumeref ref="showerMaxStackVirtualPlane_28_log"/>
+      <positionref ref="showerMaxStackVirtualPlane_28_pos"/>
+      <rotationref ref="showerMaxStackVirtualPlane_28_rot"/>
+    </physvol>
+
     <physvol name="Ring1Back_phys">
       <volumeref ref="Ring1Back_log"/>
       <position name="Ring1Back_pos" unit="mm" z="22198.00 + 1204.94 + 21"/>
