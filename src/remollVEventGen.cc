@@ -97,15 +97,49 @@ G4bool remollVEventGen::HasThetaBias() const
     return !(fThCoMBiasMode == "physical" || fThCoMBiasMode == "none");
 }
 
-G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_limit, G4double& bias_weight)
+G4double remollVEventGen::ThrowThetaProposal(G4double min_limit, G4double max_limit,
+                                             ThetaProposal_t proposal) const
+{
+    if (proposal == kInverseOneMinusCosSquared) {
+        const G4double icth_a = 1.0/(1.0 - cos(min_limit));
+        const G4double icth_b = 1.0/(1.0 - cos(max_limit));
+        const G4double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
+        return acos(1.0 - sampv);
+    }
+    return acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+}
+
+G4double remollVEventGen::ThetaProposalPdf(G4double th, G4double min_limit, G4double max_limit,
+                                           ThetaProposal_t proposal) const
+{
+    const G4double cthmin = cos(min_limit);
+    const G4double cthmax = cos(max_limit);
+    if (proposal == kInverseOneMinusCosSquared) {
+        const G4double icth_a = 1.0/(1.0 - cthmin);
+        const G4double icth_b = 1.0/(1.0 - cthmax);
+        const G4double u = 1.0 - cos(th);
+        if (u <= 0.0) return 0.0;
+        // u = 1/X with X uniform on [icth_b,icth_a] gives q(u) = 1/((icth_a-icth_b) u^2);
+        // multiplying by |du/dth| = sin(th) puts it in the same measure as the target.
+        return sin(th)/((icth_a - icth_b)*u*u);
+    }
+    return sin(th)/(cthmin - cthmax);
+}
+
+G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_limit,
+                                              G4double& bias_weight, ThetaProposal_t proposal)
 {
     bias_weight = 1.0;
     const G4double normalization = cos(min_limit) - cos(max_limit);
 
     if (fThCoMBiasMode == "physical" || fThCoMBiasMode == "none") {
-        G4double th = acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+        G4double th = ThrowThetaProposal(min_limit, max_limit, proposal);
         fLastThetaPhysicalPdf = sin(th)/normalization;
-        fLastThetaSamplePdf = fLastThetaPhysicalPdf;
+        fLastThetaSamplePdf = ThetaProposalPdf(th, min_limit, max_limit, proposal);
+        // Unity for the flat-in-cos proposal; the 1/(1-cos)^2 sampling factor
+        // otherwise, which is what the generators used to fold in by hand.
+        bias_weight = fLastThetaSamplePdf > 0.0
+            ? fLastThetaPhysicalPdf/fLastThetaSamplePdf : 0.0;
         return th;
     }
 
@@ -126,7 +160,7 @@ G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_l
                 exit(1);
             }
             if (G4UniformRand() < fThCoMBiasPhysicalFraction)
-                th = acos(G4RandFlat::shoot(cos(max_limit), cos(min_limit)));
+                th = ThrowThetaProposal(min_limit, max_limit, proposal);
             else
                 th = G4RandFlat::shoot(min_th, max_th);
         } else {
@@ -134,11 +168,16 @@ G4double remollVEventGen::SampleThetaWithBias(G4double min_limit, G4double max_l
         }
         fLastThetaPhysicalPdf = sin(th)/normalization;
         G4double uniform_pdf = (th >= min_th && th <= max_th) ? 1.0/(max_th - min_th) : 0.0;
+        // The physical component of the mixture is the *proposal* density, not
+        // the target measure.  Using the target measure here would silently
+        // discard the 1/(1-cos)^2 importance sampling.
+        G4double physical_pdf = ThetaProposalPdf(th, min_limit, max_limit, proposal);
         fLastThetaSamplePdf = fThCoMBiasMode == "mixture"
-            ? fThCoMBiasPhysicalFraction*fLastThetaPhysicalPdf
+            ? fThCoMBiasPhysicalFraction*physical_pdf
               + (1.0-fThCoMBiasPhysicalFraction)*uniform_pdf
             : uniform_pdf;
-        bias_weight = fLastThetaPhysicalPdf/fLastThetaSamplePdf;
+        bias_weight = fLastThetaSamplePdf > 0.0
+            ? fLastThetaPhysicalPdf/fLastThetaSamplePdf : 0.0;
         return th;
     }
 

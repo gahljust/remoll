@@ -27,8 +27,12 @@ void remollGenpInelastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     double beamE = vert->GetBeamEnergy();
     double mp    = proton_mass_c2;
 
+    // 1/(1-cos)^2 proposal: the inelastic cross section still carries the
+    // forward Mott-like rise, so flat-in-cos throwing wastes most of the
+    // sample on unreachable small angles.
     G4double th_bias_weight = 1.0;
-    double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
+    double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight,
+                                    kInverseOneMinusCosSquared);
     evt->fThCoMBiasWeight = th_bias_weight;
     evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
     evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;

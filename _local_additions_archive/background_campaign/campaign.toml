@@ -85,7 +85,7 @@ theta_max_deg = 150.0
 generator = "elastic"
 adaptive_axes = ["theta", "phi", "beamp", "vertexz"]
 theta_command = "theta"
-theta_min_deg = 0.1
+theta_min_deg = 0.30
 theta_max_deg = 5.0
 apply_screening = true
 
@@ -93,14 +93,14 @@ apply_screening = true
 generator = "inelastic"
 adaptive_axes = ["theta", "phi", "beamp", "vertexz", "outgoinge"]
 theta_command = "theta"
-theta_min_deg = 0.1
+theta_min_deg = 0.30
 theta_max_deg = 5.0
 
 [interaction.c12_elastic]
 generator = "elasticC12"
 adaptive_axes = ["theta", "phi", "beamp", "vertexz"]
 theta_command = "theta"
-theta_min_deg = 0.1
+theta_min_deg = 0.30
 theta_max_deg = 5.0
 
 # Full-production inventory: LH2 at 11 GeV and 65 microampere.

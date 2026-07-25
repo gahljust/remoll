@@ -23,6 +23,7 @@ TFile* remollGenExternal::fFile = 0;
 TTree* remollGenExternal::fTree = 0;
 remollEvent_t* remollGenExternal::fEvent = 0;
 std::vector<remollGenericDetectorHit_t>* remollGenExternal::fHit = 0;
+G4double remollGenExternal::fRate = 1.0;
 Int_t remollGenExternal::fEntry = 0;
 Int_t remollGenExternal::fEntries = 0;
 
@@ -46,7 +47,11 @@ remollGenExternal::~remollGenExternal()
   // Close file which deletes tree
   if (fFile != nullptr) {
     fFile->Close();
+    delete fFile;
+    fFile = nullptr;
     fTree = 0;
+    fEvent = 0;
+    fHit = 0;
   }
 }
 
@@ -58,7 +63,11 @@ void remollGenExternal::SetGenExternalFile(G4String& filename)
   // Close previous file
   if (fFile != nullptr) {
     fFile->Close();
+    delete fFile;
     fFile = 0;
+    fTree = 0;
+    fEvent = 0;
+    fHit = 0;
   }
 
   // Try to open filename
@@ -87,10 +96,10 @@ void remollGenExternal::SetGenExternalFile(G4String& filename)
   }
 
   if (fTree->GetBranch("rate")) {
-    fTree->SetBranchAddress("rate", &rate);
+    fTree->SetBranchAddress("rate", &fRate);
   }else{
     G4cerr << "Warning! could not find rate branch. Set rate to 1"<<G4endl;
-    rate = 1;
+    fRate = 1;
   }
 
   if (fTree->GetBranch("ev") != nullptr) {
@@ -128,8 +137,8 @@ void remollGenExternal::SamplePhysics(remollVertex* /* vert */, remollEvent* evt
       evt->SetW2(999);
       evt->SetAsymmetry(1*ppb);
     }
-    if(!std::isnan(rate) && !std::isinf(rate)){
-      evt->SetRate(rate/s);
+    if(!std::isnan(fRate) && !std::isinf(fRate)){
+      evt->SetRate(fRate/s);
     }
 
     // Loop over all hits in this event

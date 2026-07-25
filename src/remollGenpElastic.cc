@@ -191,30 +191,17 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
     double cthmin = cos(fTh_min);
     double cthmax = cos(fTh_max);
 
-    double icth_b = 1.0/(1.0-cthmax);
-    double icth_a = 1.0/(1.0-cthmin);
-
-    double th = 0.0;
-    double samp_fact = 1.0;
-
-    if (HasThetaBias()) {
-	G4double th_bias_weight = 1.0;
-	th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight);
-	evt->fThCoMBiasWeight = th_bias_weight;
-	evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
-	evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
-	evt->fBiasWeight *= th_bias_weight;
-    } else {
-	double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
-
-	assert( -1.0 < sampv && sampv < 1.0 );
-
-	th = acos(1.0-sampv);
-
-	// Value to reweight cross section by to account for non-uniform
-	// sampling
-	samp_fact = sampv*sampv*(icth_a-icth_b)/(cthmin-cthmax);
-    }
+    // The 1/(1-cos)^2 sampler is now the physical component of the theta
+    // mixture, so it is used whether or not biasing is enabled.  Its
+    // reweighting factor (formerly the local samp_fact) arrives through
+    // fBiasWeight, which remollPrimaryGeneratorAction folds into fEffXs.
+    G4double th_bias_weight = 1.0;
+    double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight,
+				    kInverseOneMinusCosSquared);
+    evt->fThCoMBiasWeight = th_bias_weight;
+    evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
+    evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
+    evt->fBiasWeight *= th_bias_weight;
 
     G4double ph_bias_weight = 1.0;
     double ph = SamplePhiWithBias(ph_bias_weight);
@@ -241,7 +228,9 @@ void remollGenpElastic::SamplePhysics(remollVertex *vert, remollEvent *evt){
 
     double sigma = sigma_mott*(ef/beamE)*(ffpart1 + ffpart2);
 
-    double V = (fPh_max - fPh_min) * (cthmin - cthmax) * samp_fact;
+    // Full solid angle: the non-uniform sampling correction is carried by
+    // fBiasWeight, not by V.
+    double V = (fPh_max - fPh_min) * (cthmin - cthmax);
 
     double thisZ;
 

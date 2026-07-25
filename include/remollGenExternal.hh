@@ -61,9 +61,13 @@ class remollGenExternal : public remollVEventGen {
         // Event and hit structures
         static remollEvent_t* fEvent;
         static std::vector<remollGenericDetectorHit_t>* fHit;
+        // fTree is shared by all Geant4 workers and read under inFileMutex.
+        // Its branch destinations must therefore also be shared.  Keeping the
+        // rate worker-local made the last worker to call SetBranchAddress win,
+        // so the other workers replayed stale or zero event weights.
+        static G4double fRate;
 
         G4double fzOffset;
-        G4double rate;
 
         // Detector ID to consider
         G4int fDetectorID;

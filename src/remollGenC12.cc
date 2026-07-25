@@ -2,6 +2,7 @@
 
 #include "Randomize.hh"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 
@@ -44,35 +45,22 @@ remollGenC12::~remollGenC12() {
 void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
 
     G4double beamE = vert->GetBeamEnergy(); // in MeV (it can be modified by beam loss)
+    // Sample with 1/(1-cos)^2, which very nearly cancels the Mott divergence
+    // in the C12 elastic cross section.  Throwing flat in cos(th) here (as
+    // this generator did) spreads the event weight over ~6 decades and is the
+    // origin of the pathological rate tail seen in long carbon runs.
     G4double th_bias_weight = 1.0;
-    G4double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight); // radians
+    G4double th = SampleThetaWithBias(fTh_min, fTh_max, th_bias_weight,
+                                      kInverseOneMinusCosSquared); // radians
     evt->fThCoMBiasWeight = th_bias_weight;
     evt->fThCoMBiasPhysicalPdf = fLastThetaPhysicalPdf;
     evt->fThCoMBiasSamplePdf = fLastThetaSamplePdf;
     evt->fBiasWeight *= th_bias_weight;
 
-    /////////////////////////////////////////
-    // sample with 1.0/(1-cos)^2
-    ////////////////////////////////////////
-/*
-    double cthmin = cos(fTh_min);
-    double cthmax = cos(fTh_max);
-
-    double icth_b = 1.0/(1.0-cthmax);
-    double icth_a = 1.0/(1.0-cthmin);
-
-    double sampv = 1.0/G4RandFlat::shoot(icth_b, icth_a);
-
-    assert( -1.0 < sampv && sampv < 1.0 );
-
-    double th = acos(1.0-sampv);
-    // Value to reweight cross section by to account for non-uniform
-    // sampling
-    double samp_fact = sampv*sampv*(icth_a-icth_b)/(cthmin-cthmax);
-
-    G4double phaseSpaceFactor = 2.0*pi*(cos(fTh_min) - cos(fTh_max))*samp_fact;
-*/
-
+    // Full solid angle.  The 1/(1-cos)^2 reweighting factor that used to be
+    // folded in here by hand (the commented-out samp_fact) is now returned by
+    // SampleThetaWithBias and applied to fEffXs through fBiasWeight, so it
+    // must not be applied twice.
     G4double phaseSpaceFactor = (fPh_max - fPh_min) * (cos(fTh_min) - cos(fTh_max));
     G4double ph_bias_weight = 1.0;
     G4double ph = SamplePhiWithBias(ph_bias_weight);
@@ -104,9 +92,15 @@ void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
       exit(1);
     }
     
-    if( vert->GetMaterial()->GetNumberOfElements() != 1 ) {
+    const G4Material* material = vert->GetMaterial();
+    if (material == nullptr || material->GetNumberOfElements() != 1
+        || std::abs(material->GetZ() - 6.0) > 1.0e-9) {
         G4cerr << __FILE__ << " line " << __LINE__ <<
-               "  : Error!  Some lazy programmer didn't account for complex materials in the moller process!" << G4endl;
+               "  : Error!  The C12 generator requires an elemental carbon "
+               "target (Z=6), but the active target material is "
+               << (material == nullptr ? "<null>" : material->GetName())
+               << ". Select a carbon target before /run/beamOn, for example "
+               "/control/execute macros/target/Optics1.mac." << G4endl;
         exit(1);
     }
 

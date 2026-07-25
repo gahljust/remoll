@@ -24,9 +24,38 @@ from urllib.parse import parse_qs, urlparse
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 ANALYZER = HERE / "analyze_response_batch.C"
+FILE_ANALYZER = HERE / "analyze_response_file.C"
 DASHBOARD = HERE / "dashboard.html"
 RESPONSE_DATA = REPO / "analysis/showermax/response_lookup/data"
 TAIL = 201
+ANALYSIS_SCHEMA = "kinematics_decomposition_tails_v2"
+
+# Lower edge of the measured ShowerMax theta acceptance band, in degrees. The
+# generators used to throw from 0.1 deg, which is below anything that reaches
+# the detector and sits on the steepest part of the 1/sin^4(th/2) divergence.
+THETA_MIN_DEG = 0.30
+
+# A targeted window wider than this fraction of its axis is not targeting
+# anything. See the guard in macro_text().
+MAXIMUM_WINDOW_COVERAGE = 0.80
+
+
+def _axis_coverage(low: float, high: float,
+                   extent: tuple[float, float]) -> float:
+    """Fraction of an axis covered by a proposal window.
+
+    remoll clamps every bias window to the generator limits, so the comparison
+    is made against the clamped window rather than the raw table values.
+    """
+    axis_low, axis_high = extent
+    width = axis_high - axis_low
+    if not math.isfinite(width) or width <= 0.0:
+        return 1.0
+    clamped_low = max(low, axis_low)
+    clamped_high = min(high, axis_high)
+    if clamped_high <= clamped_low:
+        return 0.0
+    return (clamped_high - clamped_low) / width
 
 
 def atomic_json(path: Path, value: Any) -> None:
@@ -133,30 +162,41 @@ def macro_text(config: dict[str, Any], row: dict[str, str], sieve: str,
         f"/remoll/beamcurr {float(config['current_uA']):.12g} microampere",
     ]
     if row["channel"] == "moller":
-        lines += ["/remoll/evgen/thcommin 30 deg",
-                  "/remoll/evgen/thcommax 150 deg"]
+        theta_min, theta_max = 30.0, 150.0
+        lines += [f"/remoll/evgen/thcommin {theta_min:.12g} deg",
+                  f"/remoll/evgen/thcommax {theta_max:.12g} deg"]
     else:
+        # Lower edge of the measured ShowerMax acceptance band. Generating from
+        # 0.1 deg spends most of the sample on the 1/sin^4(th/2) divergence
+        # below the acceptance, which is geometrically blocked and only
+        # contributes weight tail.
+        theta_min = THETA_MIN_DEG
         theta_max = 3.0 if row["channel"] == "ep_elastic" else 5.0
-        lines += ["/remoll/evgen/thmin 0.1 deg",
+        lines += [f"/remoll/evgen/thmin {theta_min:.12g} deg",
                   f"/remoll/evgen/thmax {theta_max:.12g} deg"]
     lines += ["/remoll/evgen/phmin 0 deg", "/remoll/evgen/phmax 360 deg"]
     if row["channel"] == "ep_elastic":
         lines.append("/remoll/evgen/elastic/applyScreening true")
+    beam_gev = float(row["energy_mev"]) / 1000.0
     commands = {
         # SampleThetaWithBias is shared by all supported generators. Its
         # historical public messenger name is thcom even when the sampled
         # variable is a laboratory scattering angle.
         "theta": ("/remoll/bias/thcom", "min", "max",
-                  row["theta_q01_deg"], row["theta_q99_deg"], "deg"),
+                  row["theta_q01_deg"], row["theta_q99_deg"], "deg",
+                  (theta_min, theta_max)),
         "beamp": ("/remoll/bias/beamp", "min", "max",
-                  row["beamp_q01_gev"], row["beamp_q99_gev"], "GeV"),
+                  row["beamp_q01_gev"], row["beamp_q99_gev"], "GeV",
+                  (0.0, beam_gev)),
         "vertexz": ("/remoll/bias/vertexz", "minFraction", "maxFraction",
-                    row["vertexz_q01_fraction"], row["vertexz_q99_fraction"], ""),
+                    row["vertexz_q01_fraction"], row["vertexz_q99_fraction"], "",
+                    (0.0, 1.0)),
         "outgoinge": ("/remoll/bias/outgoinge", "minFraction", "maxFraction",
-                      row["outgoinge_q01_fraction"], row["outgoinge_q99_fraction"], ""),
+                      row["outgoinge_q01_fraction"], row["outgoinge_q99_fraction"], "",
+                      (0.0, 1.0)),
     }
     for axis in axes:
-        prefix, low_name, high_name, low, high, unit = commands[axis]
+        prefix, low_name, high_name, low, high, unit, extent = commands[axis]
         # A compact-table quantile window can collapse for a monochromatic or
         # otherwise fixed variable (notably beam momentum in carbon Møller
         # cells). A uniform proposal over zero width is undefined. Leaving that
@@ -165,6 +205,18 @@ def macro_text(config: dict[str, Any], row: dict[str, str], sieve: str,
             lines.append(
                 f"# {prefix} left physical: compact window is degenerate "
                 f"({low} to {high} {unit})".rstrip())
+            continue
+        # The opposite degeneracy: a window that spans essentially the whole
+        # axis. The targeted component is then indistinguishable from the
+        # physical one, so the mixture buys no variance reduction -- and on
+        # beamp it is actively harmful, because it replaces a distribution that
+        # is ~95% a delta at the full beam energy with a uniform throw over the
+        # entire radiative tail. Emitting nothing leaves the axis physical.
+        span = _axis_coverage(float(low), float(high), extent)
+        if span >= MAXIMUM_WINDOW_COVERAGE:
+            lines.append(
+                f"# {prefix} left physical: window covers {span:.0%} of the "
+                f"{axis} axis ({low} to {high} {unit}), no targeting gain".rstrip())
             continue
         lines += [
             f"{prefix}/mode mixture",

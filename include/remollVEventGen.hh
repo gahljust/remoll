@@ -57,11 +57,33 @@ class remollVEventGen {
         void SetThmax(double thmax) { fTh_max = thmax; }
 
     protected:
+        // Proposal density used for the *physical* component of the theta
+        // mixture.  kFlatInCosTheta reproduces the plain acos(uniform in
+        // cos) throw.  kInverseOneMinusCosSquared is the 1/(1-cos)^2
+        // importance sampler that very nearly cancels the Mott/Rutherford
+        // 1/sin^4(th/2) divergence: for a Mott cross section over 0.1-5 deg
+        // it collapses the weight dynamic range from ~6e6 to ~1.002.  Any
+        // generator whose cross section carries that divergence (C12, ep
+        // elastic, ep inelastic) must request it.
+        enum ThetaProposal_t { kFlatInCosTheta, kInverseOneMinusCosSquared };
+
         G4double SampleThCoMWithBias(G4double& bias_weight);
-        G4double SampleThetaWithBias(G4double min_th, G4double max_th, G4double& bias_weight);
+        G4double SampleThetaWithBias(G4double min_th, G4double max_th, G4double& bias_weight,
+                                     ThetaProposal_t proposal = kFlatInCosTheta);
         G4double SamplePhiWithBias(G4double& bias_weight);
         G4double SampleOutgoingEnergyWithBias(G4double maximum, G4double& bias_weight);
         G4bool HasThetaBias() const;
+
+    private:
+        // Throw from, and evaluate the density of, one theta proposal.  Both
+        // are expressed as densities in theta so the mixture and the target
+        // measure sin(th)/(cos(thmin)-cos(thmax)) combine directly.
+        G4double ThrowThetaProposal(G4double min_th, G4double max_th,
+                                    ThetaProposal_t proposal) const;
+        G4double ThetaProposalPdf(G4double th, G4double min_th, G4double max_th,
+                                  ThetaProposal_t proposal) const;
+
+    protected:
 
 	// Generator name
         G4String fName;
