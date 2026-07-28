@@ -99,3 +99,8 @@ search_index/
 
 # Local editor/index cache
 .cache/
+
+# Local-only agent notes and analysis tooling (own separate git repos,
+# never intended to be tracked by the main remoll repo)
+.agent/
+_local_additions_archive/
