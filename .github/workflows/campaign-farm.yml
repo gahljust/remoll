@@ -1,0 +1,197 @@
+# Dumb remoll job farm.
+#
+# A worker does exactly one thing: run remoll on a macro that was generated
+# LOCALLY, then hand the ROOT file back. No campaign framework, no analysis, no
+# viewer, no convergence logic, no kinematics table, no campaign repository and
+# no token are needed here. Every decision -- what to run, whether the result
+# converged, whether to run more -- stays on the local machine.
+#
+# Two shapes, one workflow. Give exactly one input:
+#
+#   bundle_b64  N configurations, one job each -- a breadth round. Twenty
+#               20k-event macros are ~546 KB raw but ~12.5 KB as a single
+#               tar.gz+base64, because they differ in only a handful of
+#               generator lines. Built by prepare_farm_bundle.py.
+#
+#   macro_b64   one configuration, N workers -- a depth round that converges a
+#               single cell ~N times faster. Built by prepare_farm_jobs.py.
+#
+# Each macro carries two placeholders, @@SEED@@ and @@OUTPUT@@, which are the
+# only things substituted remotely; that is text replacement, not physics.
+
+name: Campaign farm
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle_b64:
+        description: 'tar.gz+base64 bundle from prepare_farm_bundle.py (N configs, 1 job each)'
+        required: false
+        default: ''
+      macro_b64:
+        description: 'gzip+base64 single macro from prepare_farm_jobs.py (1 config, N workers)'
+        required: false
+        default: ''
+      workers:
+        description: 'macro_b64 mode only: parallel jobs (GitHub Free allows 20)'
+        required: false
+        default: '20'
+      seed_base:
+        description: 'Worker k uses seed_base + k (must match the local manifest)'
+        required: true
+        default: '710000'
+      threads:
+        description: 'remoll threads per job (hosted runners have 2 vCPU)'
+        required: true
+        default: '2'
+      image_tag:
+        description: 'Tag built by "Build campaign image" (usually the branch name)'
+        required: true
+        default: 'codex-surface_replay'
+      label:
+        description: 'Short tag for the artifacts, e.g. c12_us_6600_c12_elastic'
+        required: true
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.build.outputs.jobs }}
+      mode: ${{ steps.build.outputs.mode }}
+    steps:
+      - id: build
+        env:
+          BUNDLE: ${{ github.event.inputs.bundle_b64 }}
+          MACRO: ${{ github.event.inputs.macro_b64 }}
+          WORKERS: ${{ github.event.inputs.workers }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import base64, io, json, os, tarfile
+          bundle = (os.environ.get("BUNDLE") or "").strip()
+          macro = (os.environ.get("MACRO") or "").strip()
+          if bool(bundle) == bool(macro):
+              raise SystemExit("give exactly one of bundle_b64 or macro_b64")
+          if bundle:
+              # Expanded here only to learn the member names and fix their
+              # order; each job re-expands the same bundle and takes its own.
+              with tarfile.open(fileobj=io.BytesIO(base64.b64decode(bundle)),
+                                mode="r:gz") as tar:
+                  names = sorted(m.name for m in tar.getmembers() if m.isfile())
+              if not 1 <= len(names) <= 20:
+                  raise SystemExit(f"bundle holds {len(names)} macros, expected 1..20")
+              jobs = [{"index": i, "macro": n,
+                       "label": n[:-4] if n.endswith(".mac") else n}
+                      for i, n in enumerate(names)]
+              print("mode=bundle")
+          else:
+              n = int(os.environ.get("WORKERS") or "20")
+              if not 1 <= n <= 20:
+                  raise SystemExit(f"workers must be 1..20, got {n}")
+              jobs = [{"index": i, "macro": "", "label": ""} for i in range(n)]
+              print("mode=macro")
+          print("jobs=" + json.dumps(jobs))
+          PY
+
+  run:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350          # under the 6 h hard cap, with upload headroom
+    strategy:
+      fail-fast: false            # a worker dying must not cancel the others
+      matrix:
+        job: ${{ fromJson(needs.plan.outputs.jobs) }}
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Materialize this job's macro
+        id: macro
+        env:
+          BUNDLE: ${{ github.event.inputs.bundle_b64 }}
+          MACRO: ${{ github.event.inputs.macro_b64 }}
+          MODE: ${{ needs.plan.outputs.mode }}
+          MEMBER: ${{ matrix.job.macro }}
+          MEMBER_LABEL: ${{ matrix.job.label }}
+          INDEX: ${{ matrix.job.index }}
+          SEED_BASE: ${{ github.event.inputs.seed_base }}
+          LABEL: ${{ github.event.inputs.label }}
+        run: |
+          mkdir -p job
+          seed=$(( SEED_BASE + INDEX ))
+
+          if [ "$MODE" = "bundle" ]; then
+            # One configuration per job, so the artifact is named for the
+            # configuration rather than the worker and the collector can route it.
+            name="$MEMBER_LABEL"
+            printf '%s' "$BUNDLE" | base64 -d | tar -xzO "$MEMBER" > job/run.mac
+          else
+            name="$(printf '%s_w%02d' "$LABEL" "$INDEX")"
+            printf '%s' "$MACRO" | base64 -d | gunzip > job/run.mac
+          fi
+
+          # The only per-job edits. /remoll/seed drives the generator RNG, so
+          # distinct seeds are what make these jobs independent samples.
+          sed -i "s|@@SEED@@|${seed}|g; s|@@OUTPUT@@|/work/job/${name}.root|g" job/run.mac
+
+          if grep -q '@@SEED@@\|@@OUTPUT@@' job/run.mac; then
+            echo "placeholders were not substituted; wrong macro format"; exit 1
+          fi
+          if ! grep -q '^/run/beamOn' job/run.mac; then
+            echo "macro has no /run/beamOn line"; exit 1
+          fi
+          # GEM planes are part of the recording configuration for every run now;
+          # a round without them cannot be used for GEM correlation later.
+          for det in 32 33 34 35; do
+            grep -q "^/remoll/SD/enable ${det}$" job/run.mac || {
+              echo "GEM plane ${det} not enabled in this macro"; exit 1; }
+          done
+
+          echo "seed=${seed}" >> "$GITHUB_OUTPUT"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "Job ${INDEX}: seed ${seed}, output ${name}.root"
+          grep -E '^/remoll/(seed|filename|beamene|evgen/set)|^/run/beamOn' job/run.mac
+
+      - name: Run remoll
+        run: |
+          owner_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner_repo}/remoll-campaign:${{ github.event.inputs.image_tag }}"
+          docker pull "$image"
+          # Only the job directory is mounted; the image supplies remoll, its
+          # build, geometry, macros and analysis data. Nothing is written back
+          # into the repository tree.
+          docker run --rm -v "${{ github.workspace }}/job:/work/job" "$image" \
+            remoll -t '${{ github.event.inputs.threads }}' -m /work/job/run.mac
+
+      - name: Check the ROOT file exists and is non-empty
+        run: |
+          root="job/${{ steps.macro.outputs.name }}.root"
+          if [ ! -s "$root" ]; then
+            echo "remoll produced no usable ROOT output"; exit 1
+          fi
+          size=$(du -h "$root" | cut -f1)
+          {
+            echo "### ${{ steps.macro.outputs.name }}"
+            echo ""
+            echo "- seed: \`${{ steps.macro.outputs.seed }}\`"
+            echo "- output: \`${{ steps.macro.outputs.name }}.root\` (${size})"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the ROOT file
+        uses: actions/upload-artifact@v4
+        with:
+          name: root-${{ steps.macro.outputs.name }}
+          path: |
+            job/${{ steps.macro.outputs.name }}.root
+            job/run.mac
+          # ROOT files are already compressed; recompressing wastes minutes.
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 14
