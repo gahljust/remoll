@@ -43,6 +43,23 @@ jobs:
           # would be built from an incomplete geometry tree.
           submodules: recursive
 
+      - name: Fetch hash-validated magnetic-field maps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p map_directory
+          gh release download campaign-assets \
+            --repo '${{ github.repository }}' \
+            --pattern 'V2U.1a.50cm.parallel.txt.gz' \
+            --pattern 'DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt.gz' \
+            --dir map_directory
+          gzip -dkf map_directory/V2U.1a.50cm.parallel.txt.gz
+          gzip -dkf map_directory/DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt.gz
+          echo '99bf3fae83677c6c2f3e09a871682b2e  map_directory/V2U.1a.50cm.parallel.txt.gz' | md5sum -c -
+          echo 'b8b30b803bae42f69135323ff40fe7db  map_directory/V2U.1a.50cm.parallel.txt' | md5sum -c -
+          echo '070b004ffd281ebceee0b6eaaa847edf  map_directory/DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt.gz' | md5sum -c -
+          echo '9f97ba09601fc26676c1fd6ebd44731d  map_directory/DS_TM1-4_CoilA-G_ll_TM2-4_out3mm.txt' | md5sum -c -
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
