@@ -24,7 +24,7 @@ on:
       - 'macros/**'
       - 'analysis/showermax/**'
       - 'CMakeLists.txt'
-      - 'Dockerfile'
+      - 'Dockerfile.campaign'
       - '.github/workflows/campaign-image.yml'
 
 permissions:
@@ -67,7 +67,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: Dockerfile
+          file: Dockerfile.campaign
           push: true
           tags: |
             ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}

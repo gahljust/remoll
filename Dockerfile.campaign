@@ -1,0 +1,19 @@
+# Minimal remoll image for GitHub Actions campaign workers.
+#
+# The upstream Dockerfile installs XRootD and StashCP from retired CentOS 8
+# repositories.  Campaign workers need neither: their only input is a mounted
+# macro and their ROOT output is returned with actions/upload-artifact.
+FROM jeffersonlab/remoll-builder:main
+
+ENV REMOLL=/jlab/remoll
+WORKDIR $REMOLL
+
+COPY . .
+
+RUN source /etc/profile && \
+    cmake -S "$REMOLL" -B "$REMOLL/build" -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build "$REMOLL/build" -j"$(nproc)" && \
+    cmake --install "$REMOLL/build"
+
+ENTRYPOINT ["/bin/bash", "-c", "source /etc/profile && source $REMOLL/bin/remoll.sh && \"$@\"", "--"]
+CMD ["remoll"]
