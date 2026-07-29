@@ -42,6 +42,32 @@ remollGenC12::remollGenC12(G4int physicsType)
 remollGenC12::~remollGenC12() {
 }
 
+namespace {
+G4double InelasticEnergyAcceptance(G4double beamE, G4double theta)
+{
+    // GenInelastic redraws a flat outgoing energy until the F1/F2 model's
+    // W2/Q2 domain is satisfied.  Its proposal is therefore uniform on this
+    // accepted interval, not on the full [m_e,E] interval.  The ratio below is
+    // the exact target/proposal weight and must accompany the full-range phase
+    // space factor used by SamplePhysics.
+    const G4double q2_per_energy = 4.0*beamE*std::pow(std::sin(theta/2.0), 2);
+    const G4double denominator = 2.0*proton_mass_c2 + q2_per_energy;
+    const G4double low = std::max(
+        electron_mass_c2,
+        (proton_mass_c2*proton_mass_c2 + 2.0*proton_mass_c2*beamE
+         - 10.0*GeV*GeV)/denominator);
+    G4double high = std::min(
+        beamE,
+        (proton_mass_c2*proton_mass_c2 + 2.0*proton_mass_c2*beamE)
+        /denominator);
+    if (q2_per_energy > 0.0)
+        high = std::min(high, 10.0*GeV*GeV/q2_per_energy);
+    const G4double full_width = beamE - electron_mass_c2;
+    return full_width > 0.0
+        ? std::max(0.0, high-low)/full_width : 0.0;
+}
+}
+
 void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
 
     G4double beamE = vert->GetBeamEnergy(); // in MeV (it can be modified by beam loss)
@@ -83,10 +109,20 @@ void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
       GenQuasiElastic(beamE,th,Q2,W2,effectiveXsection,fWeight,eOut,asym);
       phaseSpaceFactor=phaseSpaceFactor*(beamE/GeV - electron_mass_c2/GeV);
       break;
-    case 2:
+    case 2: {
       GenInelastic(beamE,th,Q2,W2,effectiveXsection,fWeight,eOut,asym);
       phaseSpaceFactor=phaseSpaceFactor*(beamE/GeV - electron_mass_c2/GeV);
+      const G4double acceptance = InelasticEnergyAcceptance(beamE, th);
+      const G4double full_width = beamE-electron_mass_c2;
+      evt->fOutgoingEnergyBiasWeight = acceptance;
+      evt->fOutgoingEnergyBiasPhysicalPdf =
+          full_width > 0.0 ? 1.0/full_width : 0.0;
+      evt->fOutgoingEnergyBiasSamplePdf =
+          acceptance > 0.0 ? evt->fOutgoingEnergyBiasPhysicalPdf/acceptance
+                           : 0.0;
+      evt->fBiasWeight *= acceptance;
       break;
+    }
     default:
       G4cerr<<"Unknown C12 event type"<<G4endl;
       exit(1);
