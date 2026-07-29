@@ -47,7 +47,7 @@ on:
       image_tag:
         description: 'Tag built by "Build campaign image" (usually the branch name)'
         required: true
-        default: 'codex-surface_replay'
+        default: 'develop'
       label:
         description: 'Short tag for the artifacts, e.g. c12_us_6600_c12_elastic'
         required: true
