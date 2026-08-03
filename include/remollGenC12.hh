@@ -19,9 +19,9 @@ private:
   void SamplePhysics(remollVertex *, remollEvent *);
 
   ///Christy Bosted fit 
-  void GenInelastic(G4double beamE,G4double theta,
+  void GenInelastic(G4double beamE,G4double theta,G4double eOut,
 		    G4double &Q2,G4double &W2,G4double &effectiveXsection,
-		    G4double &fWeight,G4double &eOut,G4double &asym);
+		    G4double &fWeight,G4double &asym);
 
   ///Christy Bosted fit 
   void GenQuasiElastic(G4double beamE,G4double theta,

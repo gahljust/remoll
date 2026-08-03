@@ -2,6 +2,7 @@
 
 #include "Randomize.hh"
 
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -43,13 +44,17 @@ remollGenC12::~remollGenC12() {
 }
 
 namespace {
-G4double InelasticEnergyAcceptance(G4double beamE, G4double theta)
+struct InelasticEnergyDomain {
+    G4double low;
+    G4double high;
+    G4double fullWidth;
+};
+
+InelasticEnergyDomain GetInelasticEnergyDomain(G4double beamE, G4double theta)
 {
-    // GenInelastic redraws a flat outgoing energy until the F1/F2 model's
-    // W2/Q2 domain is satisfied.  Its proposal is therefore uniform on this
-    // accepted interval, not on the full [m_e,E] interval.  The ratio below is
-    // the exact target/proposal weight and must accompany the full-range phase
-    // space factor used by SamplePhysics.
+    // Resolve the interval that the old rejection loop sampled conditionally.
+    // Sampling this interval directly is equivalent in physical mode and lets
+    // the shared outgoing-energy mixture evaluate its proposal density exactly.
     const G4double q2_per_energy = 4.0*beamE*std::pow(std::sin(theta/2.0), 2);
     const G4double denominator = 2.0*proton_mass_c2 + q2_per_energy;
     const G4double low = std::max(
@@ -62,9 +67,7 @@ G4double InelasticEnergyAcceptance(G4double beamE, G4double theta)
         /denominator);
     if (q2_per_energy > 0.0)
         high = std::min(high, 10.0*GeV*GeV/q2_per_energy);
-    const G4double full_width = beamE - electron_mass_c2;
-    return full_width > 0.0
-        ? std::max(0.0, high-low)/full_width : 0.0;
+    return {low, high, beamE-electron_mass_c2};
 }
 }
 
@@ -110,17 +113,30 @@ void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
       phaseSpaceFactor=phaseSpaceFactor*(beamE/GeV - electron_mass_c2/GeV);
       break;
     case 2: {
-      GenInelastic(beamE,th,Q2,W2,effectiveXsection,fWeight,eOut,asym);
+      const InelasticEnergyDomain domain = GetInelasticEnergyDomain(beamE, th);
+      const G4double accepted_width = domain.high-domain.low;
+      if (domain.fullWidth <= 0.0 || accepted_width <= 0.0) {
+        G4cerr << "ERROR: " << __FILE__ << " line " << __LINE__ << G4endl;
+        G4cerr << "  empty C12 inelastic outgoing-energy domain: beamE theta "
+               << beamE/GeV << " " << th/deg << G4endl;
+        exit(1);
+      }
+
+      // Sample the same accepted interval as the former rejection loop.  The
+      // shared helper returns p_conditional/q_conditional; multiplying by the
+      // accepted/full width ratio gives p_full/q_conditional and preserves the
+      // full-range phase-space normalization below.
+      G4double energy_bias_weight = 1.0;
+      eOut = domain.low
+          + SampleOutgoingEnergyWithBias(accepted_width, energy_bias_weight);
+      energy_bias_weight *= accepted_width/domain.fullWidth;
+      evt->fOutgoingEnergyBiasWeight = energy_bias_weight;
+      evt->fOutgoingEnergyBiasPhysicalPdf = 1.0/domain.fullWidth;
+      evt->fOutgoingEnergyBiasSamplePdf = fLastOutgoingEnergySamplePdf;
+      evt->fBiasWeight *= energy_bias_weight;
+
+      GenInelastic(beamE,th,eOut,Q2,W2,effectiveXsection,fWeight,asym);
       phaseSpaceFactor=phaseSpaceFactor*(beamE/GeV - electron_mass_c2/GeV);
-      const G4double acceptance = InelasticEnergyAcceptance(beamE, th);
-      const G4double full_width = beamE-electron_mass_c2;
-      evt->fOutgoingEnergyBiasWeight = acceptance;
-      evt->fOutgoingEnergyBiasPhysicalPdf =
-          full_width > 0.0 ? 1.0/full_width : 0.0;
-      evt->fOutgoingEnergyBiasSamplePdf =
-          acceptance > 0.0 ? evt->fOutgoingEnergyBiasPhysicalPdf/acceptance
-                           : 0.0;
-      evt->fBiasWeight *= acceptance;
       break;
     }
     default:
@@ -152,26 +168,21 @@ void remollGenC12::SamplePhysics(remollVertex *vert, remollEvent *evt) {
     return;
 }
 
-void remollGenC12::GenInelastic(G4double beamE,G4double theta,
+void remollGenC12::GenInelastic(G4double beamE,G4double theta,G4double eOut,
                                G4double &Q2,G4double &W2,G4double &effectiveXsection,
-                               G4double &fWeight,G4double &eOut, G4double &asym) {
+                               G4double &fWeight,G4double &asym) {
 
     G4double F1 = 0.0;
     G4double F2 = 0.0;
     G4double W1 = 0.0;
     G4double xsect = 0.0;
 
-    G4double CTH,STH,T2THE,Nu;
-    
-    do{
-      eOut   =  electron_mass_c2 + G4UniformRand()*(beamE - electron_mass_c2);// Generate flat energy distribution of outgoing electron
-      CTH    = cos(theta/2.0);
-      STH    = sin(theta/2.0);
-      T2THE  = STH*STH/CTH/CTH;
-      Nu     = beamE - eOut;
-      Q2     = 4.0*beamE*eOut*STH*STH;
-      W2     = pow(proton_mass_c2,2) + 2.0*proton_mass_c2*Nu - Q2;
-    }while(W2/GeV/GeV<0 || W2/GeV/GeV>10 || Q2/GeV/GeV<0.0 || Q2/GeV/GeV>10); //this is because F1F2IN09 won't work for W>3 and Q2>10
+    const G4double CTH = cos(theta/2.0);
+    const G4double STH = sin(theta/2.0);
+    const G4double T2THE = STH*STH/CTH/CTH;
+    const G4double Nu = beamE - eOut;
+    Q2 = 4.0*beamE*eOut*STH*STH;
+    W2 = pow(proton_mass_c2,2) + 2.0*proton_mass_c2*Nu - Q2;
     
     // Mott scattering
     G4double MOTT = pow((hbarc/GeV/m*fine_structure_const/(2.*beamE/GeV)*CTH/STH/STH),2)/microbarn; // units: ubarn
