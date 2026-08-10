@@ -151,7 +151,9 @@ void remollGenFixedInelasticC12::SamplePhysics(remollVertex* vertex,
         MomentumFromKineticEnergy(beamKineticEnergy, electronMass);
     const G4double finalMomentum =
         MomentumFromKineticEnergy(finalElectronKineticEnergy, electronMass);
-    const G4double cosTheta = std::clamp(finalElectronDirection.z(), -1.0, 1.0);
+    // remoll currently builds as C++11; std::clamp is C++17.
+    const G4double cosTheta =
+        std::max(-1.0, std::min(1.0, finalElectronDirection.z()));
     // Evaluate Q2 without subtracting two O(E^2) terms.  The electronuclear
     // spectrum is sharply forward and reaches Q2 values for which the direct
     // expression 2(E E' - p p' cos(theta) - m^2) loses most of its digits.
