@@ -28,6 +28,7 @@
 #include "remollGenPion.hh"
 #include "remollGenBeam.hh"
 #include "remollGenC12.hh"
+#include "remollGenFixedInelasticC12.hh"
 #include "remollGenFlat.hh"
 #include "remollGenExternal.hh"
 #include "remollGenAl.hh"
@@ -62,6 +63,7 @@ remollPrimaryGeneratorAction::remollPrimaryGeneratorAction()
     fEvGenMap["elasticC12"] = std::make_shared<remollGenC12>(0);
     fEvGenMap["quasielasticC12"] = std::make_shared<remollGenC12>(1);
     fEvGenMap["inelasticC12"] = std::make_shared<remollGenC12>(2);
+    fEvGenMap["fixedinelasticC12"] = std::make_shared<remollGenFixedInelasticC12>();
     fEvGenMap["hyperon"] = std::make_shared<remollGenHyperon>();
 
     // Populate map with all possible primary generators
