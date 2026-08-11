@@ -184,8 +184,10 @@ void remollGenC12::GenInelastic(G4double beamE,G4double theta,G4double eOut,
     Q2 = 4.0*beamE*eOut*STH*STH;
     W2 = pow(proton_mass_c2,2) + 2.0*proton_mass_c2*Nu - Q2;
     
-    // Mott scattering
-    G4double MOTT = pow((hbarc/GeV/m*fine_structure_const/(2.*beamE/GeV)*CTH/STH/STH),2)/microbarn; // units: ubarn
+    // Mott scattering.  hbarc/GeV/m makes the bracket numerical in metres;
+    // restore the square into Geant4's native length units before converting
+    // to microbarn.  Omitting m*m suppresses this cross section by 10^6.
+    G4double MOTT = pow((hbarc/GeV/m*fine_structure_const/(2.*beamE/GeV)*CTH/STH/STH),2)*m*m/microbarn; // units: ubarn
 
     G4int A=12;
     G4int Z=6;
@@ -239,8 +241,8 @@ void remollGenC12::GenQuasiElastic(G4double beamE,G4double theta,
   Q2 = 4.0*beamE*eOut*STH*STH;
   W2 = proton_mass_c2*proton_mass_c2 + 2.0*proton_mass_c2*Nu - Q2;
   
-  // Mott scattering
-  G4double MOTT = pow((hbarc/GeV/m*fine_structure_const/(2.*beamE/GeV)*CTH/STH/STH),2)/microbarn; // units: ubarn
+  // Mott scattering; see GenInelastic for the metre-to-native-area conversion.
+  G4double MOTT = pow((hbarc/GeV/m*fine_structure_const/(2.*beamE/GeV)*CTH/STH/STH),2)*m*m/microbarn; // units: ubarn
 
   G4int A=12;
   G4int Z=6;
