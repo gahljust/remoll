@@ -80,7 +80,10 @@ jobs:
               # order; each job re-expands the same bundle and takes its own.
               with tarfile.open(fileobj=io.BytesIO(base64.b64decode(bundle)),
                                 mode="r:gz") as tar:
-                  names = sorted(m.name for m in tar.getmembers() if m.isfile())
+                  # Sidecars (notably fixed-quota Neyman plans) travel in the
+                  # same archive but do not create matrix jobs.
+                  names = sorted(m.name for m in tar.getmembers()
+                                 if m.isfile() and m.name.endswith(".mac"))
               if not 1 <= len(names) <= 20:
                   raise SystemExit(f"bundle holds {len(names)} macros, expected 1..20")
               jobs = [{"index": i, "macro": n,
@@ -131,7 +134,8 @@ jobs:
             # One configuration per job, so the artifact is named for the
             # configuration rather than the worker and the collector can route it.
             name="$MEMBER_LABEL"
-            printf '%s' "$BUNDLE" | base64 -d | tar -xzO "$MEMBER" > job/run.mac
+            printf '%s' "$BUNDLE" | base64 -d | tar -xz -C job
+            cp "job/$MEMBER" job/run.mac
           else
             name="$(printf '%s_w%02d' "$LABEL" "$INDEX")"
             printf '%s' "$MACRO" | base64 -d | gunzip > job/run.mac
@@ -191,6 +195,8 @@ jobs:
           path: |
             job/${{ steps.macro.outputs.name }}.root
             job/run.mac
+            job/*.neyman.tsv
+            job/*.gate.tsv
           # ROOT files are already compressed; recompressing wastes minutes.
           compression-level: 0
           if-no-files-found: error

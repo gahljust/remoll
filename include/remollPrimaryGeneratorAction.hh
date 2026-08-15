@@ -10,6 +10,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 class G4ParticleGun;
 class G4Event;
@@ -28,6 +29,8 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     const remollEvent* GetEvent() const { return fEvent; }
 
     void SetGenerator(G4String&);
+    void LoadTransportGate(G4String);
+    void LoadNeymanTransportPlan(G4String);
 
   private:
     std::map<G4String,std::shared_ptr<remollVEventGen>> fEvGenMap;
@@ -47,11 +50,20 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     G4int fRateCopy;
     G4bool fGeneratorOnly;
+    G4bool fTransportGateEnabled;
+    G4bool fNeymanTransportEnabled;
+    G4String fTransportGateFile;
+    G4int fTransportGatePBins;
+    G4int fTransportGateThetaBins;
+    std::vector<G4double> fTransportGatePEdges;
+    std::vector<G4double> fTransportGateThetaEdges;
+    std::vector<G4double> fTransportGateKeep;
     G4GenericMessenger fEvGenMessenger{this,"/remoll/evgen/","Remoll event generator properties"};
 
+    G4double TransportGateProbability() const;
+    G4bool ApplyNeymanTransportPlan(G4double& correction) const;
 
     G4double fEffCrossSection;
 };
 
 #endif
-
