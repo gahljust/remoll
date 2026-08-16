@@ -9,6 +9,7 @@
 
 // Geant4 headers
 #include "G4ParticleTable.hh"
+#include "G4IonTable.hh"
 
 // ROOT headers
 #include "TFile.h"
@@ -152,6 +153,17 @@ void remollGenExternal::SamplePhysics(remollVertex* /* vert */, remollEvent* evt
       // Get particle name
       G4ParticleTable* particletable = G4ParticleTable::GetParticleTable();
       G4ParticleDefinition* particle = particletable->FindParticle(hit.pid);
+      // Geant4 does not instantiate arbitrary nuclear fragments in the
+      // ordinary particle-table lookup. External replay of a genuine hadronic
+      // final state must ask the ion table to materialize valid 10LZZZAAAI
+      // encodings instead of dereferencing a null definition.
+      if (particle == nullptr && std::abs(hit.pid) >= 1000000000)
+        particle = particletable->GetIonTable()->GetIon(hit.pid);
+      if (particle == nullptr) {
+        G4cerr << "External event contains unknown PDG ID " << hit.pid
+               << " at detector " << fDetectorID << G4endl;
+        std::exit(1);
+      }
       G4String particlename = particle->GetParticleName();
 
       // Throw new particle

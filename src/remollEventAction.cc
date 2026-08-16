@@ -26,6 +26,12 @@ void remollEventAction::BeginOfEventAction(const G4Event* /* event */) { }
 
 void remollEventAction::EndOfEventAction(const G4Event* aEvent)
 {
+  // Fixed-quota candidates rejected before transport still contribute to the
+  // generator's Nthrown normalization, but contain no detector information and
+  // are deliberately omitted from the ROOT tree.  Accepted zero-weight trials
+  // are retained because ShouldWriteEvent follows transport selection, not rate.
+  if (!fPrimaryGeneratorAction->ShouldWriteEvent()) return;
+
   // We collect all interaction with remollIO in this thread for as
   // little locking as possible. This means that all the thread local
   // information must be retrieved from here.

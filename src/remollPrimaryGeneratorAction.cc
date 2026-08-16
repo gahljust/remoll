@@ -78,6 +78,7 @@ void SamplerFatal(const char* code, const G4String& message) {
 remollPrimaryGeneratorAction::remollPrimaryGeneratorAction()
   : fEventGen(0),fPriGen(0),fParticleGun(0),fEvent(0),fRateCopy(0),fGeneratorOnly(false),
     fTransportGateEnabled(false),fNeymanTransportEnabled(false),
+    fWriteEvent(true),
     fTransportGatePBins(0),fTransportGateThetaBins(0),
     fEffCrossSection(0)
 {
@@ -479,6 +480,7 @@ void remollPrimaryGeneratorAction::SetGenerator(G4String& genname)
 
 void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
+    fWriteEvent = true;
     if (!fEventGen && !fPriGen) {
       G4cerr << __FILE__ << " line " << __LINE__ << " - No event generator found." << G4endl;
       exit(1);
@@ -538,6 +540,11 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         fEvent->fEffXs = 0.0;
         fEvent->fRate = 0.0;
       }
+      // A fixed-quota analysis knows Nthrown and n_h from its archived macro
+      // and plan, so writing rejected candidates only duplicates bulky event,
+      // geometry-map, and RNG-state branches.  Gate samples remain unchanged
+      // because their IID analyzer currently uses the complete candidate tree.
+      fWriteEvent = !fNeymanTransportEnabled || transportEvent;
       for (unsigned int pidx = 0; transportEvent && !fGeneratorOnly && pidx < fEvent->fPartType.size(); pidx++) {
 
         double p = fEvent->fPartRealMom[pidx].mag();

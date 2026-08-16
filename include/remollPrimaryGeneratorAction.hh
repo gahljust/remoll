@@ -27,6 +27,10 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     void GeneratePrimaries(G4Event* anEvent);
 
     const remollEvent* GetEvent() const { return fEvent; }
+    // Fixed-quota sampling generates many cheap candidates after a stratum is
+    // already full.  Those rejected candidates must count in Nthrown but need
+    // no full ROOT record.  Accepted zero-weight trials remain writable.
+    G4bool ShouldWriteEvent() const { return fWriteEvent; }
 
     void SetGenerator(G4String&);
     void LoadTransportGate(G4String);
@@ -52,6 +56,7 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     G4bool fGeneratorOnly;
     G4bool fTransportGateEnabled;
     G4bool fNeymanTransportEnabled;
+    G4bool fWriteEvent;
     G4String fTransportGateFile;
     G4int fTransportGatePBins;
     G4int fTransportGateThetaBins;
