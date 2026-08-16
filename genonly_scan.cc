@@ -250,10 +250,14 @@ void NormalizeRate(remollEvent* event, const remollBeamTarget& beam_target,
   const G4double lumin = beam_target.GetEffLumin(sampling_type);
 
   if (event->fRate == 0) {
+#ifndef REMOLL_DEVELOP_COMPAT
     event->fEffXs *= event->fBiasWeight;
+#endif
     event->fRate = event->fEffXs * lumin / nthrown;
   } else {
+#ifndef REMOLL_DEVELOP_COMPAT
     event->fRate *= event->fBiasWeight;
+#endif
     event->fEffXs = event->fRate * nthrown / lumin;
     event->fRate = event->fRate / nthrown;
   }
@@ -405,9 +409,15 @@ int main(int argc, char** argv)
 
     radlen = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fRadiationLength : 0);
     travelled = static_cast<Float_t>(event_beam_target != nullptr ? event_beam_target->fTravelledLength : 0);
+#ifdef REMOLL_DEVELOP_COMPAT
+    bias_weight = 1.0f;
+    beam_bias_weight = 1.0f;
+    thcom_bias_weight = 1.0f;
+#else
     bias_weight = static_cast<Float_t>(remoll_event->fBiasWeight);
     beam_bias_weight = static_cast<Float_t>(remoll_event->fBeamBiasWeight);
     thcom_bias_weight = static_cast<Float_t>(remoll_event->fThCoMBiasWeight);
+#endif
 
     const auto mom0 = ParticleMom(remoll_event.get(), 0);
     p0_GeV = static_cast<Float_t>(mom0.mag() / GeV);
