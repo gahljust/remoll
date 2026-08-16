@@ -104,3 +104,4 @@ search_index/
 # never intended to be tracked by the main remoll repo)
 .agent/
 _local_additions_archive/
+_local_work/
