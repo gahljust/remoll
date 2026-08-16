@@ -89,10 +89,8 @@ jobs:
           tags: |
             ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
             ${{ steps.tag.outputs.image }}:${{ github.sha }}
-          # Layer cache in the registry keeps rebuilds cheap: only the final
-          # remoll compile layer is redone when source changes.
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Do not create a GitHub Actions layer cache.  The published GHCR
+          # image is the only remote build product retained by this project.
 
       - name: Report image reference
         run: |

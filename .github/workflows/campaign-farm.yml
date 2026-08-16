@@ -200,4 +200,6 @@ jobs:
           # ROOT files are already compressed; recompressing wastes minutes.
           compression-level: 0
           if-no-files-found: error
-          retention-days: 14
+          # Local collection deletes successful transfers immediately.  One
+          # day is only an interruption/recovery window.
+          retention-days: 1
