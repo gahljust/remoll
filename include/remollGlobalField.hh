@@ -57,7 +57,7 @@ class remollGlobalField : public G4MagneticField {
         void SetStepperType(G4int i) { fStepperType = i; SetStepper(); }
 
         /// Set the minimum step length
-        void SetMinStep(G4double stp) { fMinStep = stp; SetAccuracyParameters(); }
+        void SetMinStep(G4double stp) { fMinStep = stp; SetChordFinder(); }
 
         /// Set the delta chord length
         void SetDeltaChord(G4double dcr) { fDeltaChord = dcr; SetAccuracyParameters(); }

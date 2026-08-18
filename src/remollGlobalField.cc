@@ -70,12 +70,16 @@ remollGlobalField::remollGlobalField()
     fGlobalFieldMessenger.DeclareMethod("equationtype",&remollGlobalField::SetEquationType,"Set equation type: \n 0: B-field, no spin (default); \n 2: B-field, with spin");
     fGlobalFieldMessenger.DeclareMethod("steppertype",&remollGlobalField::SetStepperType,"Set stepper type: \n 0: ExplicitEuler; \n 1: ImplicitEuler; \n 2: SimpleRunge; \n 3: SimpleHeum; \n 4: ClassicalRK4 (default); \n 5: CashKarpRKF45");
     fGlobalFieldMessenger.DeclareMethod("print",&remollGlobalField::PrintAccuracyParameters,"Print the accuracy parameters");
-    fGlobalFieldMessenger.DeclareProperty("epsmin",fEpsMin,"Set the minimum epsilon of the field propagator");
-    fGlobalFieldMessenger.DeclareProperty("epsmax",fEpsMax,"Set the maximum epsilon of the field propagator");
-    fGlobalFieldMessenger.DeclareProperty("minstep",fMinStep,"Set the minimum step of the chord finder");
-    fGlobalFieldMessenger.DeclareProperty("deltachord",fDeltaChord,"Set delta chord for the chord finder");
-    fGlobalFieldMessenger.DeclareProperty("deltaonestep",fDeltaOneStep,"Set delta one step for the field manager");
-    fGlobalFieldMessenger.DeclareProperty("deltaintersection",fMinStep,"Set delta intersection for the field manager");
+    // Route accuracy commands through the setters so the live Geant4 field
+    // machinery is updated immediately.  Plain DeclareProperty only changed
+    // these cached members and left the active propagator/chord finder at its
+    // previous settings.
+    fGlobalFieldMessenger.DeclareMethod("epsmin",&remollGlobalField::SetEpsMin,"Set the minimum epsilon of the field propagator");
+    fGlobalFieldMessenger.DeclareMethod("epsmax",&remollGlobalField::SetEpsMax,"Set the maximum epsilon of the field propagator");
+    fGlobalFieldMessenger.DeclareMethodWithUnit("minstep","mm",&remollGlobalField::SetMinStep,"Set the minimum step of the chord finder");
+    fGlobalFieldMessenger.DeclareMethodWithUnit("deltachord","mm",&remollGlobalField::SetDeltaChord,"Set delta chord for the chord finder");
+    fGlobalFieldMessenger.DeclareMethodWithUnit("deltaonestep","mm",&remollGlobalField::SetDeltaOneStep,"Set delta one step for the field manager");
+    fGlobalFieldMessenger.DeclareMethodWithUnit("deltaintersection","mm",&remollGlobalField::SetDeltaIntersection,"Set delta intersection for the field manager");
     fGlobalFieldMessenger.DeclareMethod("interpolation",&remollGlobalField::SetInterpolationType,"Set magnetic field interpolation type");
     fGlobalFieldMessenger.DeclareMethod("zoffset",&remollGlobalField::SetZOffset,"Set magnetic field z offset");
     fGlobalFieldMessenger.DeclareMethod("scale",&remollGlobalField::SetFieldScale,"Scale magnetic field by factor");
@@ -180,6 +184,9 @@ void remollGlobalField::SetChordFinder()
   fChordFinder = new G4ChordFinder(this,fMinStep,fStepper);
   fChordFinder->GetIntegrationDriver()->SetVerboseLevel(0);
   fFieldManager->SetChordFinder(fChordFinder);
+  // Recreating the chord finder (for example after changing the stepper) must
+  // not silently discard the requested accuracy parameters.
+  SetAccuracyParameters();
 }
 
 void remollGlobalField::AddNewField(G4String& name)
