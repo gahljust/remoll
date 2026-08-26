@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gdml [
+<!ENTITY common_solids SYSTEM "common_solids.xml">
+<!ENTITY common_structure SYSTEM "common_structure.xml">
+]>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <materials/>
+  <solids>
+    &common_solids;
+    <tube name="ArenaLH2Solid" rmin="0" rmax="40" z="1250"
+          startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+    <tube name="ArenaLH2WindowSolid" rmin="0" rmax="40" z="0.127"
+          startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+    <tube name="ArenaLH2TargetExitSolid" rmin="0" rmax="1200" z="0.02"
+          startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+  </solids>
+  <structure>
+    <volume name="ArenaLH2UpstreamWindowLogical">
+      <materialref ref="G4_Al"/>
+      <solidref ref="ArenaLH2WindowSolid"/>
+      <auxiliary auxtype="Color" auxvalue="white"/>
+    </volume>
+    <volume name="ArenaLH2SamplingLogical">
+      <materialref ref="G4_lH2"/>
+      <solidref ref="ArenaLH2Solid"/>
+      <auxiliary auxtype="TargetSamplingVolume" auxvalue="LH2"/>
+      <auxiliary auxtype="Color" auxvalue="blue"/>
+    </volume>
+    <volume name="ArenaLH2DownstreamWindowLogical">
+      <materialref ref="G4_Al"/>
+      <solidref ref="ArenaLH2WindowSolid"/>
+      <auxiliary auxtype="Color" auxvalue="white"/>
+    </volume>
+    <volume name="ArenaLH2TargetExitLogical">
+      <materialref ref="G4_Galactic"/>
+      <solidref ref="ArenaLH2TargetExitSolid"/>
+      <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+      <auxiliary auxtype="DetNo" auxvalue="9100"/>
+      <auxiliary auxtype="Color" auxvalue="magenta"/>
+    </volume>
+    <volume name="ArenaTargetMotherLogical">
+      <materialref ref="G4_Galactic"/>
+      <solidref ref="ArenaTargetMotherSolid"/>
+      <physvol name="ArenaLH2UpstreamWindowPhysical">
+        <volumeref ref="ArenaLH2UpstreamWindowLogical"/>
+        <position z="-625.0635" unit="mm"/>
+      </physvol>
+      <physvol name="ArenaLH2SamplingPhysical">
+        <volumeref ref="ArenaLH2SamplingLogical"/>
+      </physvol>
+      <physvol name="ArenaLH2DownstreamWindowPhysical">
+        <volumeref ref="ArenaLH2DownstreamWindowLogical"/>
+        <position z="625.0635" unit="mm"/>
+      </physvol>
+      <!-- Downstream window ends at +625.127 mm.  This 0.02 mm plane begins
+           0.013 mm later, before any external drift or magnetic field. -->
+      <physvol name="ArenaLH2TargetExitPhysical">
+        <volumeref ref="ArenaLH2TargetExitLogical"/>
+        <position z="625.15" unit="mm"/>
+      </physvol>
+      <auxiliary auxtype="TargetSystem" auxvalue="ArenaLH2"/>
+    </volume>
+    &common_structure;
+  </structure>
+  <setup name="ArenaLH2" version="1.0">
+    <world ref="ArenaWorldLogical"/>
+  </setup>
+</gdml>

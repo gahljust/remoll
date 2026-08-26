@@ -1,0 +1,18 @@
+<!-- Shared, circularly symmetric solids for the analytic/remoll transport arena. -->
+<tube name="ArenaWorldSolid" rmin="0" rmax="1500" z="12000"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+<!-- Preserve remoll's production target nesting convention: the target region
+     is placed at -4500 mm and the selected target assembly is local to it. -->
+<tube name="ArenaTargetRegionSolid" rmin="0" rmax="1400" z="3000"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+<!-- The target mother is vacuum and deliberately wider than every monitor.
+     This lets a full downstream plane observe tracks that left the physical
+     target through its cylindrical side without changing their transport. -->
+<tube name="ArenaTargetMotherSolid" rmin="0" rmax="1300" z="1400"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+<tube name="ArenaMonitorSolid" rmin="0" rmax="1200" z="0.02"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+<tube name="ArenaApertureSolid" rmin="75" rmax="1200" z="2.0"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+<tube name="ArenaEndDetectorSolid" rmin="0" rmax="1200" z="10.0"
+      startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>

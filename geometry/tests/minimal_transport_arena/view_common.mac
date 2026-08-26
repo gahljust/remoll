@@ -1,0 +1,12 @@
+# Geometry-only native viewer. Use remoll's established Qt visualization setup
+# instead of duplicating its scene and run configuration here.
+/control/execute vis/SQt.mac
+/vis/viewer/clearCutawayPlanes
+/vis/viewer/reset
+/vis/viewer/set/background white
+/vis/viewer/set/viewpointThetaPhi 90 180 deg
+/vis/viewer/set/style surface
+/vis/viewer/set/lineSegmentsPerCircle 100
+/vis/viewer/set/targetPoint 0 0 0 m
+/vis/viewer/zoom 1.2
+/vis/viewer/flush

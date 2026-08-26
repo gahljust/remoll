@@ -1,0 +1,95 @@
+<!-- Air variant of the shared beamline. Keep geometry identical to
+     common_structure.xml; only ArenaWorldLogical's material differs. -->
+<volume name="ArenaTargetClearLogical">
+  <materialref ref="G4_Galactic"/>
+  <solidref ref="ArenaMonitorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9101"/>
+  <auxiliary auxtype="Color" auxvalue="cyan"/>
+</volume>
+<volume name="ArenaFieldEntryLogical">
+  <materialref ref="G4_Galactic"/>
+  <solidref ref="ArenaMonitorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9102"/>
+  <auxiliary auxtype="Color" auxvalue="cyan"/>
+</volume>
+<volume name="ArenaApertureUpLogical">
+  <materialref ref="G4_Galactic"/>
+  <solidref ref="ArenaMonitorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9103"/>
+  <auxiliary auxtype="Color" auxvalue="green"/>
+</volume>
+<volume name="ArenaApertureLogical">
+  <materialref ref="G4_W"/>
+  <solidref ref="ArenaApertureSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="collDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9200"/>
+  <auxiliary auxtype="Color" auxvalue="red"/>
+</volume>
+<volume name="ArenaApertureDownLogical">
+  <materialref ref="G4_Galactic"/>
+  <solidref ref="ArenaMonitorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9104"/>
+  <auxiliary auxtype="Color" auxvalue="green"/>
+</volume>
+<volume name="ArenaFieldExitLogical">
+  <materialref ref="G4_Galactic"/>
+  <solidref ref="ArenaMonitorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9105"/>
+  <auxiliary auxtype="Color" auxvalue="cyan"/>
+</volume>
+<volume name="ArenaEndDetectorLogical">
+  <materialref ref="G4_SILICON_DIOXIDE"/>
+  <solidref ref="ArenaEndDetectorSolid"/>
+  <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+  <auxiliary auxtype="DetNo" auxvalue="9106"/>
+  <auxiliary auxtype="Color" auxvalue="yellow"/>
+</volume>
+<volume name="ArenaTargetRegionLogical">
+  <materialref ref="G4_AIR"/>
+  <solidref ref="ArenaTargetRegionSolid"/>
+  <physvol name="ArenaTargetMotherPhysical">
+    <volumeref ref="ArenaTargetMotherLogical"/>
+    <position name="ArenaTargetLocalPosition" x="0" y="0" z="500" unit="mm"/>
+  </physvol>
+</volume>
+<volume name="ArenaWorldLogical">
+  <materialref ref="G4_AIR"/>
+  <solidref ref="ArenaWorldSolid"/>
+  <physvol name="ArenaTargetRegionPhysical">
+    <volumeref ref="ArenaTargetRegionLogical"/>
+    <position name="ArenaTargetRegionPosition" x="0" y="0" z="-4500" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaTargetClearPhysical">
+    <volumeref ref="ArenaTargetClearLogical"/>
+    <position name="ArenaTargetClearPosition" x="0" y="0" z="-3250" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaFieldEntryPhysical">
+    <volumeref ref="ArenaFieldEntryLogical"/>
+    <position name="ArenaFieldEntryPosition" x="0" y="0" z="-2001" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaApertureUpPhysical">
+    <volumeref ref="ArenaApertureUpLogical"/>
+    <position name="ArenaApertureUpPosition" x="0" y="0" z="-1.1" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaAperturePhysical">
+    <volumeref ref="ArenaApertureLogical"/>
+    <position name="ArenaAperturePosition" x="0" y="0" z="0" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaApertureDownPhysical">
+    <volumeref ref="ArenaApertureDownLogical"/>
+    <position name="ArenaApertureDownPosition" x="0" y="0" z="1.1" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaFieldExitPhysical">
+    <volumeref ref="ArenaFieldExitLogical"/>
+    <position name="ArenaFieldExitPosition" x="0" y="0" z="2001" unit="mm"/>
+  </physvol>
+  <physvol name="ArenaEndDetectorPhysical">
+    <volumeref ref="ArenaEndDetectorLogical"/>
+    <position name="ArenaEndDetectorPosition" x="0" y="0" z="4000" unit="mm"/>
+  </physvol>
+</volume>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gdml [
+<!ENTITY common_solids SYSTEM "common_solids.xml">
+<!ENTITY common_structure SYSTEM "common_structure_air.xml">
+]>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+  <materials/>
+  <solids>
+    &common_solids;
+    <tube name="ArenaC12Solid" rmin="0" rmax="12.5" z="0.254"
+          startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+    <tube name="ArenaC12TargetExitSolid" rmin="0" rmax="1200" z="0.02"
+          startphi="0" deltaphi="360" aunit="deg" lunit="mm"/>
+  </solids>
+  <structure>
+    <volume name="ArenaC12SamplingLogical">
+      <materialref ref="G4_C"/>
+      <solidref ref="ArenaC12Solid"/>
+      <auxiliary auxtype="TargetSamplingVolume" auxvalue="C12"/>
+      <auxiliary auxtype="Color" auxvalue="black"/>
+    </volume>
+    <volume name="ArenaC12TargetExitLogical">
+      <materialref ref="G4_Galactic"/>
+      <solidref ref="ArenaC12TargetExitSolid"/>
+      <auxiliary auxtype="SensDet" auxvalue="planeDet"/>
+      <auxiliary auxtype="DetNo" auxvalue="9100"/>
+      <auxiliary auxtype="Color" auxvalue="magenta"/>
+    </volume>
+    <volume name="ArenaTargetMotherLogical">
+      <materialref ref="G4_Galactic"/>
+      <solidref ref="ArenaTargetMotherSolid"/>
+      <physvol name="ArenaC12SamplingPhysical">
+        <volumeref ref="ArenaC12SamplingLogical"/>
+      </physvol>
+      <physvol name="ArenaC12TargetExitPhysical">
+        <volumeref ref="ArenaC12TargetExitLogical"/>
+        <position z="0.15" unit="mm"/>
+      </physvol>
+      <auxiliary auxtype="TargetSystem" auxvalue="ArenaC12"/>
+    </volume>
+    &common_structure;
+  </structure>
+  <setup name="ArenaC12Air" version="1.0">
+    <world ref="ArenaWorldLogical"/>
+  </setup>
+</gdml>

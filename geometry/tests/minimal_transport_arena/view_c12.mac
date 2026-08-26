@@ -1,0 +1,6 @@
+/run/numberOfThreads 1
+/remoll/geometry/setfile geometry/tests/minimal_transport_arena/arena_c12.gdml
+/remoll/parallel/setfile
+/remoll/physlist/parallel/disable
+/run/initialize
+/control/execute geometry/tests/minimal_transport_arena/view_common.mac
