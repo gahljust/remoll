@@ -1,13 +1,10 @@
 #include "remollRunData.hh"
+#include <unistd.h> // gethostname/getcwd; do not rely on transitive G4 headers
 
 #include "G4ios.hh"
 
 #include <string.h>
 #include <errno.h>
-
-#ifdef __APPLE__
-#include <unistd.h>
-#endif
 
 // External objects
 extern const char* const gGitInfo;

@@ -82,6 +82,20 @@ jobs:
           echo "image=ghcr.io/${owner_repo}/remoll-campaign" >> "$GITHUB_OUTPUT"
           echo "branch=${branch}" >> "$GITHUB_OUTPUT"
 
+      # Keep the compiled dependencies as a build asset, even if the much
+      # smaller remoll stage fails. Inline cache lives inside this image;
+      # no Actions cache or separate registry-cache blobs are created.
+      - name: Build and retain pinned toolchain
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.campaign
+          target: dependencies
+          push: true
+          tags: ${{ steps.tag.outputs.image }}:toolchain-g41142-root64002
+          cache-from: type=registry,ref=${{ steps.tag.outputs.image }}:toolchain-g41142-root64002
+          cache-to: type=inline
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -90,6 +104,10 @@ jobs:
           push: true
           build-args: |
             REMOLL_REVISION=${{ github.sha }}
+          cache-from: |
+            type=registry,ref=${{ steps.tag.outputs.image }}:toolchain-g41142-root64002
+            type=registry,ref=${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
+          cache-to: type=inline
           tags: |
             ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
             ${{ steps.tag.outputs.image }}:${{ github.sha }}
