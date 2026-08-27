@@ -1,19 +1,62 @@
-# Minimal remoll image for GitHub Actions campaign workers.
-#
-# The upstream Dockerfile installs XRootD and StashCP from retired CentOS 8
-# repositories.  Campaign workers need neither: their only input is a mounted
-# macro and their ROOT output is returned with actions/upload-artifact.
-FROM jeffersonlab/remoll-builder:main
+# Batch runtime pinned independently of the retired CentOS/G4-10.7 builder.
+FROM ubuntu:24.04 AS dependencies
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl git build-essential cmake ninja-build python3 python3-numpy \
+    libboost-all-dev libxerces-c-dev libexpat1-dev libssl-dev libtbb-dev libgsl-dev \
+    libvdt-dev libx11-dev libxpm-dev libxft-dev libxext-dev libglu1-mesa-dev \
+    libglew-dev libgl2ps-dev libfftw3-dev liblzma-dev liblz4-dev libzstd-dev \
+    libpcre2-dev libxxhash-dev libfreetype-dev libfontconfig-dev libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+ARG ROOT_ARCHIVE=root_v6.40.02.Linux-ubuntu24.04-x86_64-gcc13.3.tar.gz
+# Digest published by root-project/root's v6-40-02 GitHub release.
+ARG ROOT_SHA256=127db12fa498b51ce89e242bc787d7ed24dfe4cee935783ed13d39e7969eb486
+RUN curl -fL --retry 5 --retry-all-errors \
+      "https://github.com/root-project/root/releases/download/v6-40-02/${ROOT_ARCHIVE}" -o /tmp/root.tar.gz \
+    && echo "${ROOT_SHA256}  /tmp/root.tar.gz" | sha256sum -c - \
+    && tar -xzf /tmp/root.tar.gz -C /opt && rm /tmp/root.tar.gz
+ARG GEANT4_REVISION=8cc04f65977807f1848da7b958c421cd5e162f26
+RUN git clone --depth 1 --branch v11.4.2 https://github.com/Geant4/geant4.git /tmp/geant4-source \
+    && test "$(git -C /tmp/geant4-source rev-parse HEAD)" = "$GEANT4_REVISION" \
+    && cmake -S /tmp/geant4-source -B /tmp/geant4-build -G Ninja \
+       -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/geant4 \
+       -DGEANT4_BUILD_MULTITHREADED=ON -DGEANT4_USE_GDML=ON \
+       -DGEANT4_USE_SYSTEM_EXPAT=ON -DGEANT4_INSTALL_DATA=ON \
+    && cmake --build /tmp/geant4-build -j4 \
+    && cmake --install /tmp/geant4-build \
+    && rm -rf /tmp/geant4-source /tmp/geant4-build
+ENV ROOTSYS=/opt/root
+ENV PATH=/opt/root/bin:/opt/geant4/bin:${PATH}
+ENV LD_LIBRARY_PATH=/opt/root/lib:/opt/geant4/lib
 
+FROM dependencies AS build
+ARG REMOLL_REVISION
 ENV REMOLL=/jlab/remoll
 WORKDIR $REMOLL
-
+# .git is deliberately present only in this stage: checkout must disable
+# persisted credentials. The compiled ROOT metadata then has a real commit.
 COPY . .
+RUN test -n "$REMOLL_REVISION" \
+    && test "$(git rev-parse HEAD)" = "$REMOLL_REVISION" \
+    && ! git config --local --get-regexp '.*extraheader' \
+    && source /opt/geant4/bin/geant4.sh \
+    && test "$(geant4-config --version)" = 11.4.2 \
+    && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+       -DWITH_GEANT4_UIVIS=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Pythia6=TRUE \
+    && cmake --build build -j4 && cmake --install build \
+    && grep -q "$REMOLL_REVISION" build/gitinfo.cc \
+    && grep -q 'Geant4 version 11.4.2' build/gitinfo.cc \
+    && cp build/gitinfo.cc /jlab/remoll/build-provenance.txt \
+    && rm -rf /jlab/remoll/.git /jlab/remoll/build
 
-RUN source /etc/profile && \
-    cmake -S "$REMOLL" -B "$REMOLL/build" -DCMAKE_BUILD_TYPE=Release && \
-    cmake --build "$REMOLL/build" -j"$(nproc)" && \
-    cmake --install "$REMOLL/build"
-
-ENTRYPOINT ["/bin/bash", "-c", "source /etc/profile && source $REMOLL/bin/remoll.sh && \"$@\"", "--"]
+FROM dependencies AS runtime
+ARG REMOLL_REVISION
+LABEL org.opencontainers.image.revision=$REMOLL_REVISION \
+      org.opencontainers.image.source=https://github.com/gahljust/remoll \
+      org.remoll.geant4.version=11.4.2 org.remoll.root.version=6.40.02
+ENV REMOLL=/jlab/remoll
+WORKDIR $REMOLL
+COPY --from=build /jlab/remoll /jlab/remoll
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/geant4/bin/geant4.sh && source /opt/root/bin/thisroot.sh && source $REMOLL/bin/remoll.sh && exec \"$@\"", "--"]
 CMD ["remoll"]

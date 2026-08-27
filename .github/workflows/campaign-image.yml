@@ -25,6 +25,7 @@ on:
       - 'analysis/showermax/**'
       - 'CMakeLists.txt'
       - 'Dockerfile.campaign'
+      - '.dockerignore'
       - '.github/workflows/campaign-image.yml'
 
 permissions:
@@ -42,6 +43,7 @@ jobs:
           # generator inputs are missing from the build context and the image
           # would be built from an incomplete geometry tree.
           submodules: recursive
+          persist-credentials: false
 
       - name: Fetch hash-validated magnetic-field maps
         env:
@@ -86,6 +88,8 @@ jobs:
           context: .
           file: Dockerfile.campaign
           push: true
+          build-args: |
+            REMOLL_REVISION=${{ github.sha }}
           tags: |
             ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
             ${{ steps.tag.outputs.image }}:${{ github.sha }}

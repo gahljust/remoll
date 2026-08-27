@@ -51,6 +51,10 @@ on:
       label:
         description: 'Short tag for the artifacts, e.g. c12_us_6600_c12_elastic'
         required: true
+      replay_bank:
+        description: 'Optional same-repository release input: tag/filename.root#sha256 (validation only)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -163,16 +167,43 @@ jobs:
           echo "Job ${INDEX}: seed ${seed}, output ${name}.root"
           grep -E '^/remoll/(seed|filename|beamene|evgen/set)|^/run/beamOn' job/run.mac
 
+      - name: Fetch identical replay input when requested
+        if: inputs.replay_bank != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BANK: ${{ inputs.replay_bank }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, re, subprocess
+          match = re.fullmatch(r'([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+\.root)#([a-f0-9]{64})', os.environ['BANK'])
+          if not match:
+              raise SystemExit('invalid replay_bank: expected release-tag/name.root#sha256')
+          tag, name, expected = match.groups()
+          subprocess.run(['gh', 'release', 'download', tag, '--repo', os.environ['REPO'],
+                          '--pattern', name, '--dir', 'replay-input'], check=True)
+          path = pathlib.Path('replay-input') / name
+          with path.open('rb') as stream:
+              actual = hashlib.file_digest(stream, 'sha256').hexdigest()
+          if actual != expected:
+              raise SystemExit('replay bank SHA256 MISMATCH')
+          path.rename(pathlib.Path('job') / 'replay-bank.root')
+          pathlib.Path('job/replay-bank.sha256').write_text(actual + '\n')
+          print('Verified replay-bank.root SHA256', actual)
+          PY
+
       - name: Run remoll
         run: |
           owner_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
           image="ghcr.io/${owner_repo}/remoll-campaign:${{ github.event.inputs.image_tag }}"
           docker pull "$image"
+          docker image inspect "$image" --format '{{json .}}' > job/image-inspect.json
           # Only the job directory is mounted; the image supplies remoll, its
           # build, geometry, macros and analysis data. Nothing is written back
           # into the repository tree.
+          set -o pipefail
           docker run --rm -v "${{ github.workspace }}/job:/work/job" "$image" \
-            remoll -t '${{ github.event.inputs.threads }}' -m /work/job/run.mac
+            remoll -t '${{ github.event.inputs.threads }}' -m /work/job/run.mac 2>&1 | tee job/remoll.log
 
       - name: Check the ROOT file exists and is non-empty
         run: |
@@ -197,6 +228,9 @@ jobs:
             job/run.mac
             job/*.neyman.tsv
             job/*.gate.tsv
+            job/image-inspect.json
+            job/remoll.log
+            job/replay-bank.sha256
           # ROOT files are already compressed; recompressing wastes minutes.
           compression-level: 0
           if-no-files-found: error
