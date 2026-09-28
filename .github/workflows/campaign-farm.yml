@@ -52,7 +52,10 @@ jobs:
           pinned=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
           revision=$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
           test "$revision" = cba2ad82b057076e8fb9b5a9b193238f7960daf8
-          docker run --rm -v "$PWD/bundle:/work/bundle" -v "$PWD:/work/results" "$pinned" bash -c '
+          docker run --rm -v "$PWD/bundle:/work/bundle" -v "$PWD:/work/results" --entrypoint /bin/bash "$pinned" -c '
+            source /opt/geant4/bin/geant4.sh
+            source /opt/root/bin/thisroot.sh
+            source /jlab/remoll/bin/remoll.sh
             set -euo pipefail
             test "$(geant4-config --version)" = 11.4.2
             cmake -S /work/bundle -B /tmp/sampler-build -DCMAKE_BUILD_TYPE=Release
@@ -106,8 +109,12 @@ jobs:
         run: |
           set -euo pipefail
           docker pull "$IMAGE"
-          docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" "$IMAGE" \
-            python3 -B /work/bundle/farm_worker.py worker /work/results/output "$INDEX"
+          docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" -e FARM_INDEX="$INDEX" --entrypoint /bin/bash "$IMAGE" -c '
+            source /opt/geant4/bin/geant4.sh
+            source /opt/root/bin/thisroot.sh
+            source /jlab/remoll/bin/remoll.sh
+            exec python3 -B /work/bundle/farm_worker.py worker /work/results/output "$FARM_INDEX"
+          '
       - name: Upload compact weighted results
         if: always()
         uses: actions/upload-artifact@v4
