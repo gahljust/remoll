@@ -54,7 +54,9 @@ jobs:
           test "$revision" = cba2ad82b057076e8fb9b5a9b193238f7960daf8
           docker run --rm -v "$PWD/bundle:/work/bundle" -v "$PWD:/work/results" --entrypoint /bin/bash "$pinned" -c '
             source /opt/geant4/bin/geant4.sh
-            source /opt/root/bin/thisroot.sh
+            export ROOTSYS=/opt/root
+            export PATH=/opt/root/bin:$PATH
+            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
             source /jlab/remoll/bin/remoll.sh
             set -euo pipefail
             test "$(geant4-config --version)" = 11.4.2
@@ -111,7 +113,9 @@ jobs:
           docker pull "$IMAGE"
           docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" -e FARM_INDEX="$INDEX" --entrypoint /bin/bash "$IMAGE" -c '
             source /opt/geant4/bin/geant4.sh
-            source /opt/root/bin/thisroot.sh
+            export ROOTSYS=/opt/root
+            export PATH=/opt/root/bin:$PATH
+            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
             source /jlab/remoll/bin/remoll.sh
             set -euo pipefail
             exec python3 -B /work/bundle/root_worker.py --bundle /work/bundle --binary /work/bundle/bin --root /jlab/remoll --out /work/results/output --events 10000 --seed "$((2050010000 + FARM_INDEX*100))" --mode weighted
