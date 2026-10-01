@@ -1,12 +1,13 @@
 name: Campaign farm
-run-name: Beam lead · 40M histories · two checked rounds
+run-name: Beam lead · remaining 20M · original wave 2
 on:
   workflow_dispatch:
     inputs:
       bundle:
-        description: 'Immutable same-repository release bundle: tag/name.tar.gz#sha256'
+        description: 'Frozen original campaign bundle identity'
         required: true
 permissions:
+  actions: read
   contents: read
   packages: read
 concurrency:
@@ -15,154 +16,49 @@ concurrency:
 jobs:
   plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     outputs:
       jobs: ${{ steps.plan.outputs.jobs }}
       image: ${{ steps.plan.outputs.image }}
     steps:
-      - name: Fetch and verify frozen sampler
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUNDLE: ${{ inputs.bundle }}
-          REPO: ${{ github.repository }}
-        run: |
-          python3 - <<'PY'
-          import hashlib, os, pathlib, re, subprocess, tarfile
-          m=re.fullmatch(r'([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+\.tar\.gz)#([a-f0-9]{64})',os.environ['BUNDLE'])
-          if not m:raise SystemExit('Invalid frozen bundle reference')
-          tag,name,digest=m.groups()
-          subprocess.run(['gh','release','download',tag,'--repo',os.environ['REPO'],'--pattern',name,'--dir','input'],check=True)
-          p=pathlib.Path('input')/name
-          if hashlib.sha256(p.read_bytes()).hexdigest()!=digest:raise SystemExit('Bundle SHA256 mismatch')
-          with tarfile.open(p,'r:gz') as t:t.extractall('bundle',filter='data')
-          PY
-      - name: Log in to existing simulation image
-        uses: docker/login-action@v3
+      - name: Fetch original validated runtime
+        uses: actions/download-artifact@v4
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build sampler and check native closure
+          name: beam-sampler-runtime
+          path: runtime
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: 36773402554
+      - name: Verify frozen runtime and seed plan
         id: plan
-        run: |
-          set -euo pipefail
-          image='ghcr.io/gahljust/remoll/remoll-campaign@sha256:9c131f608dc5d904eb86f1eb41c3189f2836f1e232645cf45682b538ebf6fa64'
-          docker pull "$image"
-          docker image inspect "$image" > bundle/image-inspect.json
-          pinned=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
-          revision=$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
-          test "$revision" = cba2ad82b057076e8fb9b5a9b193238f7960daf8
-          docker run --rm -v "$PWD/bundle:/work/bundle" -v "$PWD:/work/results" --entrypoint /bin/bash "$pinned" -c '
-            source /opt/geant4/bin/geant4.sh
-            export ROOTSYS=/opt/root
-            export PATH=/opt/root/bin:$PATH
-            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
-            source /jlab/remoll/bin/remoll.sh
-            set -euo pipefail
-            test "$(geant4-config --version)" = 11.4.2
-            python3 -B /work/bundle/install_geometry.py /jlab/remoll
-            cmake -S /work/bundle -B /tmp/sampler-build -DCMAKE_BUILD_TYPE=Release
-            cmake --build /tmp/sampler-build -j2
-            python3 -B /work/bundle/root_production.py preflight /work/results/preflight
-            cp /work/results/preflight/preflight.json /work/bundle/preflight.json
-          '
-          echo "image=$pinned" >> "$GITHUB_OUTPUT"
-          python3 -c 'import json;print("jobs="+json.dumps(list(range(40))))' >> "$GITHUB_OUTPUT"
-          tar -czf sampler-runtime.tar.gz bundle
-      - name: Retain runtime and validation
-        uses: actions/upload-artifact@v4
-        with:
-          name: beam-sampler-runtime
-          path: |
-            sampler-runtime.tar.gz
-            preflight/
-          retention-days: 1
-          compression-level: 0
-      - name: Preserve failed preflight evidence
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: beam-sampler-preflight-failure
-          path: preflight/
-          retention-days: 1
-  round1:
-    needs: [plan]
-    name: Round 1 · worker ${{ matrix.job }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 350
-    strategy:
-      fail-fast: false
-      max-parallel: 40
-      matrix:
-        job: ${{ fromJson(needs.plan.outputs.jobs) }}
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: beam-sampler-runtime
-          path: runtime
-      - name: Unpack sampler
-        run: tar -xzf runtime/sampler-runtime.tar.gz
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Simulate fixed beam sample
         env:
-          IMAGE: ${{ needs.plan.outputs.image }}
-          INDEX: ${{ matrix.job }}
+          BUNDLE: ${{ inputs.bundle }}
         run: |
-          set -euo pipefail
-          docker pull "$IMAGE"
-          docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" -e FARM_INDEX="$INDEX" --entrypoint /bin/bash "$IMAGE" -c '
-            source /opt/geant4/bin/geant4.sh
-            export ROOTSYS=/opt/root
-            export PATH=/opt/root/bin:$PATH
-            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
-            source /jlab/remoll/bin/remoll.sh
-            python3 -B /work/bundle/install_geometry.py /jlab/remoll
-            exec python3 -B /work/bundle/root_production.py worker /work/results/output --worker "$FARM_INDEX" --round 1
-          '
-      - name: Upload normal ROOT files and weighted audit records
-        if: always()
+          python3 - <<'PYCODE'
+          import hashlib,json,os,pathlib,tarfile
+          p=pathlib.Path('runtime/sampler-runtime.tar.gz')
+          assert hashlib.sha256(p.read_bytes()).hexdigest()=='2e2ba76e1c0c688585eae68128aa742b8d1abde23aebe13ecae72bd5dc1733a8'
+          assert os.environ['BUNDLE']=='beam_lead_40m_20260930/sampler.tar.gz#5aef1cb343d9a077038c2c2ba921065e52f5e2a90ef1c23e8a7f2347bb2da4e1'
+          with tarfile.open(p) as t:t.extractall('.',filter='data')
+          b=pathlib.Path('bundle');f=json.loads((b/'preflight.json').read_text())
+          assert f['status']=='passed' and f['inputs_sha256']=='9eba5e88a1b35cc9b9f39f7765c57c36bd16f9d4d9afe15df450d2f8d2c39cc6'
+          assert hashlib.sha256((b/'inputs.json').read_bytes()).hexdigest()==f['inputs_sha256']
+          assert hashlib.sha256((b/'bin/dump_sampling').read_bytes()).hexdigest()==f['binary_sha256']
+          m=json.loads((b/'inputs.json').read_text());s=m['rounds'][1]
+          assert s=={'round':2,'workers':40,'events_per_worker':500000,'seed_base':2080100000}
+          image=json.loads((b/'image-inspect.json').read_text())[0]['RepoDigests'][0]
+          assert image=='ghcr.io/gahljust/remoll/remoll-campaign@sha256:9c131f608dc5d904eb86f1eb41c3189f2836f1e232645cf45682b538ebf6fa64'
+          with open(os.environ['GITHUB_OUTPUT'],'a') as o:
+              o.write('jobs='+json.dumps(list(range(40)))+'\nimage='+image+'\n')
+          PYCODE
+      - name: Retain identical runtime for final workers
         uses: actions/upload-artifact@v4
-        with:
-          name: beam-r1-worker-${{ matrix.job }}
-          path: output/
-          if-no-files-found: error
-          retention-days: 1
-          compression-level: 0
-      - name: Upload round-check receipt
-        uses: actions/upload-artifact@v4
-        with:
-          name: beam-receipt-r1-${{ matrix.job }}
-          path: output/receipt.json
-          if-no-files-found: error
-          retention-days: 1
-  check1:
-    needs: round1
-    name: Check round 1
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/download-artifact@v4
         with:
           name: beam-sampler-runtime
-          path: runtime
-      - run: tar -xzf runtime/sampler-runtime.tar.gz
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: beam-receipt-r1-*
-          path: receipts
-      - name: Verify all 40 workers and response moments
-        run: python3 -B bundle/farm_round_check.py bundle receipts 1 checkpoint-r1.json
-      - uses: actions/upload-artifact@v4
-        with:
-          name: beam-checkpoint-r1
-          path: checkpoint-r1.json
+          path: runtime/sampler-runtime.tar.gz
           retention-days: 1
+          compression-level: 0
   round2:
-    needs: [plan, check1]
+    needs: [plan]
     name: Round 2 · worker ${{ matrix.job }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
@@ -215,9 +111,9 @@ jobs:
           path: output/receipt.json
           if-no-files-found: error
           retention-days: 1
-  check2:
+  check6:
     needs: round2
-    name: Check round 2
+    name: Check round 6
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
