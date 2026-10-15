@@ -49,6 +49,7 @@ RUN test -n "$REMOLL_REVISION" \
     && source /opt/geant4/bin/geant4.sh \
     && test "$(geant4-config --version)" = 11.4.2 \
     && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+       "-DCMAKE_CXX_FLAGS=-include unistd.h" \
        -DWITH_GEANT4_UIVIS=OFF -DCMAKE_DISABLE_FIND_PACKAGE_Pythia6=TRUE \
     && cmake --build build -j4 && cmake --install build \
     && grep -q "$REMOLL_REVISION" build/gitinfo.cc \
