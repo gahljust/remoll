@@ -1,32 +1,7 @@
-# Build THIS branch of remoll into a container image and publish it to the
-# GitHub Container Registry, so that campaign farm jobs pull a prebuilt image
-# instead of compiling remoll separately in every matrix job.
-#
-# This is additive: it does not touch the existing docker-image.yml workflow,
-# which still builds and pushes jeffersonlab/remoll to Docker Hub.
-#
-# The campaign needs a build of the LOCAL branch (custom generators, kinematic
-# bias messengers, remollInteractionRecorder), so jeffersonlab/remoll:latest is
-# not a substitute.
-#
-# Run it from the Actions tab ("Build campaign image" -> Run workflow), or let
-# it fire automatically when source that affects the binary changes.
-
-name: Build campaign image
+name: Build untouched upstream vanilla remoll
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - 'src/**'
-      - 'include/**'
-      - 'geometry/**'
-      - 'macros/**'
-      - 'analysis/showermax/**'
-      - 'CMakeLists.txt'
-      - 'Dockerfile.campaign'
-      - '.dockerignore'
-      - '.github/workflows/campaign-image.yml'
 
 permissions:
   contents: read
@@ -36,16 +11,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (with geometry generator submodules)
+      - name: Checkout orchestration
+        uses: actions/checkout@v4
+        with:
+          path: orchestration
+          persist-credentials: false
+
+      - name: Checkout untouched official source
         uses: actions/checkout@v4
         with:
           # geometry/generators/* are submodules. Without them the GDML
           # generator inputs are missing from the build context and the image
           # would be built from an incomplete geometry tree.
+          repository: JeffersonLab/remoll
+          ref: 02d4070f3f73b83921d79befd3d5233b750cc2a7
+          path: upstream
           submodules: recursive
           persist-credentials: false
 
       - name: Fetch hash-validated magnetic-field maps
+        working-directory: upstream
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -88,8 +73,8 @@ jobs:
       - name: Build and retain pinned toolchain
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: Dockerfile.campaign
+          context: upstream
+          file: orchestration/Dockerfile.vanilla
           target: dependencies
           push: true
           tags: ${{ steps.tag.outputs.image }}:toolchain-g41142-root64002
@@ -99,25 +84,25 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: Dockerfile.campaign
+          context: upstream
+          file: orchestration/Dockerfile.vanilla
           push: true
           build-args: |
-            REMOLL_REVISION=${{ github.sha }}
+            REMOLL_REVISION=02d4070f3f73b83921d79befd3d5233b750cc2a7
           cache-from: |
             type=registry,ref=${{ steps.tag.outputs.image }}:toolchain-g41142-root64002
-            type=registry,ref=${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
+            type=registry,ref=${{ steps.tag.outputs.image }}:vanilla-02d4070f3f73
           cache-to: type=inline
           tags: |
-            ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}
-            ${{ steps.tag.outputs.image }}:${{ github.sha }}
+            ${{ steps.tag.outputs.image }}:vanilla-02d4070f3f73
+            ${{ steps.tag.outputs.image }}:02d4070f3f73b83921d79befd3d5233b750cc2a7
           # Do not create a GitHub Actions layer cache.  The published GHCR
           # image is the only remote build product retained by this project.
 
       - name: Report image reference
         run: |
           echo "Pushed:"
-          echo "  ${{ steps.tag.outputs.image }}:${{ steps.tag.outputs.branch }}"
-          echo "  ${{ steps.tag.outputs.image }}:${{ github.sha }}"
+          echo "  ${{ steps.tag.outputs.image }}:vanilla-02d4070f3f73"
+          echo "  ${{ steps.tag.outputs.image }}:02d4070f3f73b83921d79befd3d5233b750cc2a7"
           echo
           echo "Use the branch tag as the 'image' input of the campaign farm workflow."
