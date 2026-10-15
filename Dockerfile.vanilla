@@ -41,11 +41,15 @@ RUN git clone https://github.com/JeffersonLab/remoll /tmp/upstream \
     && git -C /tmp/upstream submodule update --init --recursive \
     && cp -a /tmp/upstream/. /jlab/remoll/ && rm -rf /tmp/upstream
 COPY map_directory/ map_directory/
+COPY remove_scintillators.py /opt/remove_scintillators.py
 RUN test -n "$REMOLL_REVISION" \
     && test "$(git rev-parse HEAD)" = "$REMOLL_REVISION" \
     && test -z "$(git status --porcelain --untracked-files=no)" \
     && test "$(git remote get-url origin)" = https://github.com/JeffersonLab/remoll \
     && ! git config --local --get-regexp '.*extraheader' \
+    && python3 /opt/remove_scintillators.py \
+    && test "$(git diff --name-only)" = geometry/tracking/GEMTSDetectors.gdml \
+    && git diff -- geometry/tracking/GEMTSDetectors.gdml > geometry-variant.patch \
     && source /opt/geant4/bin/geant4.sh \
     && test "$(geant4-config --version)" = 11.4.2 \
     && cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
@@ -61,9 +65,11 @@ FROM dependencies AS runtime
 ARG REMOLL_REVISION=02d4070f3f73b83921d79befd3d5233b750cc2a7
 LABEL org.opencontainers.image.revision=$REMOLL_REVISION \
       org.opencontainers.image.source=https://github.com/JeffersonLab/remoll \
+      org.remoll.geometry.variant=develop_no_trigger_scintillators \
       org.remoll.geant4.version=11.4.2 org.remoll.root.version=6.40.02
 ENV REMOLL=/jlab/remoll
 WORKDIR $REMOLL
 COPY --from=build /jlab/remoll /jlab/remoll
+COPY --from=build /opt/remove_scintillators.py /opt/remove_scintillators.py
 ENTRYPOINT ["/bin/bash", "-c", "source /opt/geant4/bin/geant4.sh && source /opt/root/bin/thisroot.sh && source $REMOLL/bin/remoll.sh && exec \"$@\"", "--"]
 CMD ["remoll"]

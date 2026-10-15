@@ -198,6 +198,8 @@ jobs:
           image="ghcr.io/${owner_repo}/remoll-campaign:${{ github.event.inputs.image_tag }}"
           docker pull "$image"
           docker image inspect "$image" --format '{{json .}}' > job/image-inspect.json
+          docker run --rm -v "${{ github.workspace }}/job:/work/job" "$image" \
+            python3 /opt/remove_scintillators.py --verify /work/job
           # Only the job directory is mounted; the image supplies remoll, its
           # build, geometry, macros and analysis data. Nothing is written back
           # into the repository tree.
@@ -228,6 +230,9 @@ jobs:
             job/run.mac
             job/*.neyman.tsv
             job/*.gate.tsv
+            job/geometry-variant.json
+            job/geometry-variant.patch
+            job/build-provenance.txt
             job/image-inspect.json
             job/remoll.log
             job/replay-bank.sha256
