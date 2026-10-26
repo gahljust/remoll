@@ -2,6 +2,13 @@
 
 [![Build Status](https://github.com/JeffersonLab/remoll/actions/workflows/docker-image.yml/badge.svg?branch=develop)](https://github.com/JeffersonLab/remoll/actions/workflows/docker-image.yml)
 
+## Branches in this fork
+
+This fork has been cleaned up for sharing with the remoll group. Earlier experimental branches are archived locally.
+
+- [`gahljust/surface-hits-neyman`](https://github.com/gahljust/remoll/tree/gahljust/surface-hits-neyman) contains the focused surface-hit and Neyman sampling changes, including the pilot allocation tool.
+- [`gahljust/working`](https://github.com/gahljust/remoll/tree/gahljust/working) adds particle-creation information and campaign build/run workflows for our own runs.
+
 ## Community
 
 Simulations are coordinated on the [12gevmoller_sim@jlab.org](https://mailman.jlab.org/mailman/listinfo/12gevmoller_sim) mailing list and the [JLab 12 GeV Slack workspace](https://jlab12gev.slack.com) (in particular, the `#moller_simulation` channel). Anyone with a jlab.org email address can join without invitation. Feel free to contact developers there with questions.

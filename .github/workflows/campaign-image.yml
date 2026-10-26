@@ -16,7 +16,7 @@ name: Build campaign image
 on:
   workflow_dispatch:
   push:
-    branches: [develop]
+    branches: ['gahljust/working']
     paths:
       - 'src/**'
       - 'include/**'
