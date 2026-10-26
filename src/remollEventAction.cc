@@ -1,4 +1,6 @@
 #include "remollEventAction.hh"
+#include "remollNeymanPlan.hh"
+#include "G4Exception.hh"
 #include "remollGenericDetectorHit.hh"
 #include "remollGenericDetectorSum.hh"
 #include "remollPrimaryGeneratorAction.hh"
@@ -26,6 +28,15 @@ void remollEventAction::BeginOfEventAction(const G4Event* /* event */) { }
 
 void remollEventAction::EndOfEventAction(const G4Event* aEvent)
 {
+  // An accepted event that aborts has used a quota slot without finishing tracking.
+  if (remollNeymanPlan::Instance().Enabled() && aEvent->IsAborted()) {
+    G4Exception("EndOfEventAction", "remoll-neyman", FatalException, "Aborted sampled event; output is invalid");
+    return;
+  }
+  // Rejected events must also be kept out of the ROOT file. Save accepted events even
+  // when they miss the detector or have zero rate; they still count toward the quota.
+  if (!fPrimaryGeneratorAction->ShouldWriteEvent()) return;
+
   // We collect all interaction with remollIO in this thread for as
   // little locking as possible. This means that all the thread local
   // information must be retrieved from here.

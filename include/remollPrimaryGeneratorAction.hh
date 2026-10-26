@@ -28,6 +28,7 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     const remollEvent* GetEvent() const { return fEvent; }
 
     void SetGenerator(G4String&);
+    G4bool ShouldWriteEvent() const { return fWriteEvent; }
 
   private:
     std::map<G4String,std::shared_ptr<remollVEventGen>> fEvGenMap;
@@ -45,6 +46,8 @@ class remollPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
     remollEvent *fEvent;
 
+    G4bool fWriteEvent = true; // False only for candidates rejected by the quota sampler.
+    G4int fProposalRun = -1; // Last run whose generator settings this worker checked.
     G4int fRateCopy;
     G4GenericMessenger fEvGenMessenger{this,"/remoll/evgen/","Remoll event generator properties"};
 

@@ -77,6 +77,7 @@ class remollBeamTarget {
         void SetActiveTargetVolume(G4String name);
 
         void PrintTargetInfo();
+        G4String SamplingProposal() const;
 
     public:
         remollBeamTarget();

@@ -1,6 +1,9 @@
 #include "remollVEventGen.hh"
 
 #include <cassert>
+#include <iomanip>
+#include <sstream>
+#include "G4Version.hh"
 
 #include "G4ParticleGun.hh"
 #include "G4RotationMatrix.hh"
@@ -51,6 +54,18 @@ remollVEventGen::remollVEventGen(const G4String name)
 
 remollVEventGen::~remollVEventGen()
 {
+}
+
+// Record the generator settings so we can check the plan matches; this does not check code changes.
+G4String remollVEventGen::SamplingProposal() const
+{
+    std::ostringstream out;
+    out << std::setprecision(17) << "remoll-native-proposal-v1 G4 " << G4VERSION_NUMBER
+        << " generator " << fName << " limits " << fE_min << ' ' << fE_max
+        << ' ' << fTh_min << ' ' << fTh_max << ' ' << fPh_min << ' ' << fPh_max
+        << ' ' << fThCoM_min << ' ' << fThCoM_max
+        << " vertex " << fSamplingType << ' ' << fApplyMultScatt;
+    return out.str() + fBeamTarg->SamplingProposal();
 }
 
 void remollVEventGen::PrintEventGen()

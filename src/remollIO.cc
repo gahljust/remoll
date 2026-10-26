@@ -1,4 +1,6 @@
 #include "remollIO.hh"
+#include "remollNeymanPlan.hh"
+#include <TObjString.h>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -145,6 +147,14 @@ void remollIO::WriteTree()
     fFile->cd();
 
     fTree->Write("T", TObject::kOverwrite);
+    // Ordinary pilot runs need this settings string to build a compatible allocation plan.
+    const auto proposal = remollNeymanPlan::Instance().Proposal();
+    if (!proposal.empty()) TObjString(proposal.c_str()).Write("generator_proposal", TObject::kOverwrite);
+    if (remollNeymanPlan::Instance().Enabled()) {
+        // EndOfRunAction checked completion; save the exact probabilities and quotas used.
+        TObjString plan(remollNeymanPlan::Instance().Text().c_str());
+        plan.Write("neyman_plan", TObject::kOverwrite);
+    }
     remollRun::GetRunData()->Write("run_data", TObject::kOverwrite);
 
     fTree->ResetBranchAddresses();

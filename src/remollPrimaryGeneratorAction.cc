@@ -1,4 +1,9 @@
 #include "remollPrimaryGeneratorAction.hh"
+#include "remollNeymanPlan.hh"
+#include "G4Exception.hh"
+#include <limits>
+#include <mutex>
+#include "G4RunManager.hh"
 
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
@@ -35,6 +40,8 @@
 #include "remollGenHyperon.hh"
 
 #include <memory>
+
+namespace { std::mutex neymanGenerationMutex; }
 
 remollPrimaryGeneratorAction::remollPrimaryGeneratorAction()
   : fEventGen(0),fPriGen(0),fParticleGun(0),fEvent(0),fRateCopy(0),fEffCrossSection(0)
@@ -135,6 +142,29 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       exit(1);
     }
 
+    fWriteEvent = true;
+    const bool neyman = remollNeymanPlan::Instance().Enabled();
+    G4double samplingCorrection = 1;
+    const bool supported = fEventGen && (fEventGenName == "moller" ||
+                                        fEventGenName == "elastic" || fEventGenName == "inelastic");
+    if (neyman && !supported) {
+        G4Exception("GeneratePrimaries", "remoll-neyman", FatalException,
+                    "Neyman currently supports native moller, elastic, and inelastic generators only");
+        return;
+    }
+
+    // Check settings once per worker/run. Ordinary runs also record them for external pilot tools.
+    const auto run = G4RunManager::GetRunManager()->GetCurrentRun()->GetRunID();
+    if (supported && fProposalRun != run) {
+        try {
+            remollNeymanPlan::Instance().RegisterProposal(fEventGen->SamplingProposal());
+        } catch (const std::exception& e) {
+            G4Exception("GeneratePrimaries", "remoll-neyman", FatalException, e.what());
+            return;
+        }
+        fProposalRun = run;
+    }
+
     // Delete old primary event
     if (fEvent != nullptr) {
       delete fEvent;
@@ -170,8 +200,44 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
         if (contains(fBeamPol, "-")) cross *= -1;
       }
 
+      // Generate and select one event at a time so faster events cannot grab the last quota slots.
+      // Release the lock before tracking, which still runs in parallel.
+      std::unique_lock<std::mutex> samplingLock(neymanGenerationMutex, std::defer_lock);
+      if (neyman) samplingLock.lock();
       // Create new primary event
       fEvent = fEventGen->GenerateEvent();
+      if (neyman) {
+        // Use the highest-momentum forward electron to find the group, or the highest-momentum
+        // electron in any direction if none is forward. This does not change the event's particles.
+        int forward = -1;
+        int any = -1;
+        for (size_t i = 0; i < fEvent->fPartType.size(); ++i) {
+            if (fEvent->fPartType[i]->GetPDGEncoding() != 11) continue;
+            const auto& m = fEvent->fPartRealMom[i];
+            if (any < 0 || m.mag() > fEvent->fPartRealMom[any].mag()) any = i;
+            if (m.z() > 0 && (forward < 0 || m.mag() > fEvent->fPartRealMom[forward].mag()))
+                forward = i;
+        }
+        const int selected = forward >= 0 ? forward : any;
+        // If there is no electron, leave these unset (NaN) so the plan uses its outside group.
+        double p = std::numeric_limits<double>::quiet_NaN();
+        double theta = p;
+        if (selected >= 0) {
+            const auto& m = fEvent->fPartRealMom[selected];
+            p = m.mag()/MeV;
+            theta = std::atan2(m.perp(), m.z())*1000;
+        }
+        try {
+            fWriteEvent = remollNeymanPlan::Instance().Accept(p, theta, samplingCorrection);
+        } catch (const std::exception& e) {
+            G4Exception("GeneratePrimaries", "remoll-neyman", FatalException, e.what());
+            return;
+        }
+        // Rejected events stop here, before tracking; EndOfEventAction() in remollEventAction.cc
+        // also skips saving them. Returning releases the lock. Accepted events keep all their particles.
+        if (!fWriteEvent) return;
+      }
+      if (samplingLock.owns_lock()) samplingLock.unlock(); // Transport remains parallel.
       for (unsigned int pidx = 0; pidx < fEvent->fPartType.size(); pidx++) {
 
         double p = fEvent->fPartRealMom[pidx].mag();
@@ -206,7 +272,9 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     G4double nthrown = remollRun::GetRunData()->GetNthrown();
 
 
-    // Calculate rate
+    // SamplePhysics() in remollGenMoller.cc, remollGenpElastic.cc and remollGenpInelastic.cc
+    // sets the effective cross section, including the generator's sampling factors. Multiply by luminosity
+    // from GetEffLumin() in remollBeamTarget.cc and divide by the total events thrown here.
     SamplingType_t sampling_type = fEventGen->GetSamplingType();
     if (fEvent->fRate == 0) { // If the rate is set to 0 then calculate it using the cross section
         fEvent->fRate  = fEvent->fEffXs * fBeamTarg.GetEffLumin(sampling_type) / nthrown;
@@ -214,6 +282,15 @@ void remollPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
     } else if(!fRateCopy){ // For LUND - calculate rate and cross section
         fEvent->fEffXs = fEvent->fRate * nthrown / fBeamTarg.GetEffLumin(sampling_type);
         fEvent->fRate  = fEvent->fRate / nthrown;
+    }
+
+    // Apply the rate correction from Accept() in remollNeymanPlan.cc.
+    // The group's expected fraction divided by its quota replaces the usual division
+    // by total events. The saved rate already includes this correction; ev.xs stays unchanged.
+    if (neyman) {
+        fEvent->fRate *= samplingCorrection;
+        if (!std::isfinite(fEvent->fRate) || fEvent->fRate < 0)
+            G4Exception("GeneratePrimaries", "remoll-neyman", FatalException, "Invalid sampled rate");
     }
 
 }

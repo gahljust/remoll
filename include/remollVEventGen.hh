@@ -35,6 +35,7 @@ class remollVEventGen {
 	virtual ~remollVEventGen();
 
 	virtual void PrintEventGen();
+        G4String SamplingProposal() const;
 
 	remollEvent *GenerateEvent();
 

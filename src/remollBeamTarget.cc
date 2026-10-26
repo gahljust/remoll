@@ -20,6 +20,9 @@
 #include "remollBeamTarget.hh"
 
 #include <math.h>
+#include <iomanip>
+#include <sstream>
+#include <stdexcept>
 
 #include "G4Threading.hh"
 #include "G4AutoLock.hh"
@@ -74,6 +77,40 @@ remollBeamTarget::remollBeamTarget()
 
 remollBeamTarget::~remollBeamTarget()
 {
+}
+
+// Beam/raster and target material/depth affect the probabilities used by the allocation.
+// Record their inputs, not sampled event values, so the pilot and production can be compared.
+G4String remollBeamTarget::SamplingProposal() const
+{
+    G4AutoLock lock(&remollBeamTargetMutex);
+    std::ostringstream out;
+    out << std::setprecision(17) << " beam " << fBeamEnergy << ' ' << fEnergyCut
+        << ' ' << fOldRaster << ' ' << fRasterX << ' ' << fRasterY << ' ' << fX0 << ' ' << fY0
+        << ' ' << fTh0 << ' ' << fPh0 << ' ' << fdTh << ' ' << fdPh << ' ' << fCorrTh << ' ' << fCorrPh
+        << " target " << std::quoted(fActiveTargetMotherName) << ' ' << std::quoted(fActiveTargetVolumeName);
+    for (size_t m = 0; m < fTargetMothers.size(); ++m) {
+        if (fTargetMothers[m].second != fActiveTargetMotherName) continue;
+        out << ' ' << fTargetMothers[m].first->GetTranslation().z();
+        for (const auto& item : fTargetVolumes[m]) {
+            const auto volume = item.first->GetLogicalVolume();
+            const auto material = volume->GetMaterial();
+            const auto tube = dynamic_cast<const G4Tubs*>(volume->GetSolid());
+            const auto box = dynamic_cast<const G4Box*>(volume->GetSolid());
+            if (!tube && !box) throw std::runtime_error("Unsupported target solid in sampling proposal");
+            out << " volume " << std::quoted(item.second) << ' ' << item.first->GetTranslation().z()
+                << ' ' << (tube ? tube->GetZHalfLength() : box->GetZHalfLength())
+                << ' ' << std::quoted(material->GetName())
+                << ' ' << material->GetDensity() << ' ' << material->GetRadlen();
+            for (size_t i = 0; i < material->GetNumberOfElements(); ++i) {
+                const auto element = (*material->GetElementVector())[i];
+                out << " element " << element->GetZ() << ' ' << element->GetA()
+                    << ' ' << material->GetFractionVector()[i];
+            }
+        }
+        return out.str();
+    }
+    throw std::runtime_error("Missing active target in sampling proposal");
 }
 
 G4double remollBeamTarget::GetEffLumin(SamplingType_t sampling_type) const

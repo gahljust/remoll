@@ -5,6 +5,7 @@
 #include "G4GenericMessenger.hh"
 #include "G4UserRunAction.hh"
 #include "G4Timer.hh"
+#include <memory>
 
 class G4Run;
 
@@ -21,6 +22,8 @@ class remollRunAction : public G4UserRunAction
     void EndOfRunAction(const G4Run* aRun);
 
     void UpdateSeed(const G4long seed);
+    void LoadNeymanPlan(G4String path);
+    void EnableNeyman(G4bool enabled);
 
   private:
     G4GenericMessenger fMessenger{
@@ -28,6 +31,7 @@ class remollRunAction : public G4UserRunAction
         "/remoll/",
         "Remoll properties"};
 
+    std::unique_ptr<G4GenericMessenger> fNeymanMessenger;
     G4Timer fTimer;
 
   private:
