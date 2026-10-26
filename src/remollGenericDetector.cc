@@ -29,6 +29,7 @@ remollGenericDetector::remollGenericDetector( G4String name, G4int detnum )
   fDetectOpticalPhotons = false;
   fDetectLowEnergyNeutrals = false;
   fDetectBoundaryHits = false;
+  fDetectSurfaceHits = false;
 
   std::stringstream genhit;
   genhit << "genhit_" << detnum;
@@ -120,7 +121,7 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
 {
     // Process the hits in this detector:
     // - if the detector is disabled entirely, we do not store anything, not even sums
-    // - all hits are always processed into detector sums with energy deposition
+    // - energy deposition is summed unless surface-hit recording is selected
     // - depending on the detector settings we can return false without writing an
     //   individual hit
     // - if we do write an individual hit we return true
@@ -154,29 +155,33 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
     G4int copyID = volume->GetCopyNo();
 
 
-    // Add energy deposit to detector sum
-    G4int pid = particle->GetPDGEncoding();
-    G4ThreeVector pos = prepoint->GetPosition();
-    G4double edep = step->GetTotalEnergyDeposit();
+    // Surface mode skips the normal Edep sums; it does not disable Geant4 energy deposition.
+    // With surface mode off, boundary mode sums each step before filtering hit records.
+    if (! fDetectSurfaceHits) {
+      // Add energy deposit to detector sum
+      G4int pid = particle->GetPDGEncoding();
+      G4ThreeVector pos = prepoint->GetPosition();
+      G4double edep = step->GetTotalEnergyDeposit();
 
-    // Create a detector sum for this detector, if necessary
-    if (fSumMap.count(copyID) == 0u) {
-      remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
-      fSumMap[copyID] = sum;
-      fSumColl->insert(sum);
-    }
-    // Add to sum for this event only
-    remollGenericDetectorSum* sum = fSumMap[copyID];
-    sum->AddEDep(pid, pos, edep);
+      // Create a detector sum for this detector, if necessary
+      if (fSumMap.count(copyID) == 0u) {
+        remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
+        fSumMap[copyID] = sum;
+        fSumColl->insert(sum);
+      }
+      // Add to sum for this event only
+      remollGenericDetectorSum* sum = fSumMap[copyID];
+      sum->AddEDep(pid, pos, edep);
 
-    // Create a running sum for this detector, if necessary
-    if (fRunningSumMap.count(copyID) == 0u) {
-      remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
-      fRunningSumMap[copyID] = sum;
+      // Create a running sum for this detector, if necessary
+      if (fRunningSumMap.count(copyID) == 0u) {
+        remollGenericDetectorSum* sum = new remollGenericDetectorSum(fDetNo, copyID);
+        fRunningSumMap[copyID] = sum;
+      }
+      // Add to running sum of all events
+      remollGenericDetectorSum* runningsum = fRunningSumMap[copyID];
+      runningsum->AddEDep(pid, pos, edep);
     }
-    // Add to running sum of all events
-    remollGenericDetectorSum* runningsum = fRunningSumMap[copyID];
-    runningsum->AddEDep(pid, pos, edep);
 
     // Ignore optical photons as hits as set by DetType == opticalphoton
     if (! fDetectOpticalPhotons
@@ -229,9 +234,9 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
       }
     }
 
-    // Only detect hits that are on the incident boundary edge of the geometry in question
-    // as set by DetType == boundaryhits
-    if (fDetectBoundaryHits
+    // In boundary or surface mode, save only the first step inside the detector.
+    // Returning false here does not stop tracking the particle.
+    if ((fDetectBoundaryHits || fDetectSurfaceHits)
         && ! firststepinvolume){
       static bool has_been_warned = false;
       if (! has_been_warned) {
@@ -311,7 +316,9 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
 
     hit->fGen   = (long int) track->GetCreatorProcess();
 
-    hit->fEdep  = step->GetTotalEnergyDeposit();
+    // GetGenericDetectorHitIO() in remollGenericDetectorHit.hh copies this to hit.edep.
+    // Zero in surface mode means Edep was not recorded, not that no energy was deposited.
+    hit->fEdep  = fDetectSurfaceHits ? 0.0 : step->GetTotalEnergyDeposit();
 
     return true;
 }

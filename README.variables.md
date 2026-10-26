@@ -138,3 +138,8 @@ Examples:
 ```
 T->Scan("sum.det:sum.by_pid.x:sum.by_pid.pid:sum.by_pid.edep","sum.det < 20")
 ```
+
+With `/remoll/SD/detect surfacehits DETNO`, entry hits have `hit.edep = 0`
+and that detector contributes no Edep `sum` entries. Geant4 tracking is unchanged.
+Boundary-hit mode retains normal Edep bookkeeping. Detector flags are additive;
+use a fresh process to switch back from surface mode.
