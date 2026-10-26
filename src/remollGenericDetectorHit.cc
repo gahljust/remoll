@@ -33,6 +33,12 @@ remollGenericDetectorHit::remollGenericDetectorHit(G4int det, G4int copy)
   fmTrID = -1;
 
   fGen   = 1;
+  fCreatorPhysicalVolumeID = -1;
+  fCreatorProcessID = -1;
+  fCreatorMaterialID = -1;
+  fCreatorPhysicalVolumeName = "";
+  fCreatorProcessName = "";
+  fCreatorMaterialName = "";
 
   fEdep  = 0.0;
 }
@@ -69,6 +75,12 @@ remollGenericDetectorHit::remollGenericDetectorHit(const remollGenericDetectorHi
   fPID    = right.fPID;
   fmTrID  = right.fmTrID;
   fGen    = right.fGen;
+  fCreatorPhysicalVolumeID = right.fCreatorPhysicalVolumeID;
+  fCreatorProcessID = right.fCreatorProcessID;
+  fCreatorMaterialID = right.fCreatorMaterialID;
+  fCreatorPhysicalVolumeName = right.fCreatorPhysicalVolumeName;
+  fCreatorProcessName = right.fCreatorProcessName;
+  fCreatorMaterialName = right.fCreatorMaterialName;
 
   fEdep   = right.fEdep;
 }

@@ -316,6 +316,24 @@ G4bool remollGenericDetector::ProcessHits(G4Step* step, G4TouchableHistory*)
 
     hit->fGen   = (long int) track->GetCreatorProcess();
 
+    G4VUserTrackInformation* usertrackinfo = track->GetUserInformation();
+    remollUserTrackInformation* remollusertrackinfo =
+        dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
+    if (remollusertrackinfo != nullptr) {
+      hit->fCreatorPhysicalVolumeID =
+          remollusertrackinfo->GetCreatorPhysicalVolumeID();
+      hit->fCreatorProcessID =
+          remollusertrackinfo->GetCreatorProcessID();
+      hit->fCreatorMaterialID =
+          remollusertrackinfo->GetCreatorMaterialID();
+      hit->fCreatorPhysicalVolumeName =
+          remollusertrackinfo->GetCreatorPhysicalVolumeName();
+      hit->fCreatorProcessName =
+          remollusertrackinfo->GetCreatorProcessName();
+      hit->fCreatorMaterialName =
+          remollusertrackinfo->GetCreatorMaterialName();
+    }
+
     // GetGenericDetectorHitIO() in remollGenericDetectorHit.hh copies this to hit.edep.
     // Zero in surface mode means Edep was not recorded, not that no energy was deposited.
     hit->fEdep  = fDetectSurfaceHits ? 0.0 : step->GetTotalEnergyDeposit();
