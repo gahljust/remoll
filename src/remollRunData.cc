@@ -5,9 +5,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef __APPLE__
-#include <unistd.h>
-#endif
+#include <unistd.h> // gethostname and getcwd are also used on Linux.
 
 // External objects
 extern const char* const gGitInfo;
