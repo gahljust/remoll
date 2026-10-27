@@ -1,3 +1,5 @@
+# Keep Git history and checkout credentials out of ordinary images.
+.git
 # install destinations
 bin/*
 lib/*

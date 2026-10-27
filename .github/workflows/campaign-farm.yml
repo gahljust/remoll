@@ -66,6 +66,7 @@ jobs:
     outputs:
       jobs: ${{ steps.build.outputs.jobs }}
       mode: ${{ steps.build.outputs.mode }}
+      image: ${{ steps.image.outputs.ref }}
     steps:
       - id: build
         env:
@@ -74,7 +75,7 @@ jobs:
           WORKERS: ${{ github.event.inputs.workers }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
-          import base64, io, json, os, tarfile
+          import base64, io, json, os, re, tarfile
           bundle = (os.environ.get("BUNDLE") or "").strip()
           macro = (os.environ.get("MACRO") or "").strip()
           if bool(bundle) == bool(macro):
@@ -86,8 +87,14 @@ jobs:
                                 mode="r:gz") as tar:
                   # Sidecars (notably fixed-quota Neyman plans) travel in the
                   # same archive but do not create matrix jobs.
-                  names = sorted(m.name for m in tar.getmembers()
-                                 if m.isfile() and m.name.endswith(".mac"))
+                  members = tar.getmembers()
+                  # Inputs are flat files, not paths or links into the runner.
+                  if any(not m.isfile() or m.name.endswith(".root") or not re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*", m.name)
+                         for m in members):
+                      raise SystemExit("bundle members must be plain input files with simple names; .root output is not allowed")
+                  if len({m.name for m in members}) != len(members):
+                      raise SystemExit("duplicate bundle member")
+                  names = sorted(m.name for m in members if m.name.endswith(".mac"))
               if not 1 <= len(names) <= 20:
                   raise SystemExit(f"bundle holds {len(names)} macros, expected 1..20")
               jobs = [{"index": i, "macro": n,
@@ -103,6 +110,34 @@ jobs:
           print("jobs=" + json.dumps(jobs))
           PY
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker
+
+      - name: Pin the campaign image
+        id: image
+        env:
+          REPOSITORY: ${{ github.repository }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -o pipefail
+          [[ "$IMAGE_TAG" =~ ^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$ ]] || { echo "invalid image tag"; exit 1; }
+          owner_repo="$(printf '%s' "$REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner_repo}/remoll-campaign"
+          # Resolve the tag once: later workers and job retries use this same build.
+          digest=$(docker buildx imagetools inspect "${image}:${IMAGE_TAG}" --format '{{.Manifest}}' |
+            awk '$1 == "Digest:" && !seen {print $2; seen=1}')
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]] || { echo "could not resolve image digest"; exit 1; }
+          echo "ref=${image}@${digest}" >> "$GITHUB_OUTPUT"
+
   run:
     needs: plan
     runs-on: ubuntu-latest
@@ -112,6 +147,14 @@ jobs:
       matrix:
         job: ${{ fromJson(needs.plan.outputs.jobs) }}
     steps:
+      - name: Checkout the output validator
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: .github/scripts/validate_output.C
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -131,41 +174,69 @@ jobs:
           SEED_BASE: ${{ github.event.inputs.seed_base }}
           LABEL: ${{ github.event.inputs.label }}
         run: |
-          mkdir -p job
-          seed=$(( SEED_BASE + INDEX ))
-
-          if [ "$MODE" = "bundle" ]; then
-            # One configuration per job, so the artifact is named for the
-            # configuration rather than the worker and the collector can route it.
-            name="$MEMBER_LABEL"
-            printf '%s' "$BUNDLE" | base64 -d | tar -xz -C job
-            cp "job/$MEMBER" job/run.mac
-          else
-            name="$(printf '%s_w%02d' "$LABEL" "$INDEX")"
-            printf '%s' "$MACRO" | base64 -d | gunzip > job/run.mac
-          fi
-
-          # The only per-job edits. /remoll/seed drives the generator RNG, so
-          # distinct seeds are what make these jobs independent samples.
-          sed -i "s|@@SEED@@|${seed}|g; s|@@OUTPUT@@|/work/job/${name}.root|g" job/run.mac
-
-          if grep -q '@@SEED@@\|@@OUTPUT@@' job/run.mac; then
-            echo "placeholders were not substituted; wrong macro format"; exit 1
-          fi
-          if ! grep -q '^/run/beamOn' job/run.mac; then
-            echo "macro has no /run/beamOn line"; exit 1
-          fi
-          # GEM planes are part of the recording configuration for every run now;
-          # a round without them cannot be used for GEM correlation later.
-          for det in 32 33 34 35; do
-            grep -q "^/remoll/SD/enable ${det}$" job/run.mac || {
-              echo "GEM plane ${det} not enabled in this macro"; exit 1; }
-          done
-
-          echo "seed=${seed}" >> "$GITHUB_OUTPUT"
-          echo "name=${name}" >> "$GITHUB_OUTPUT"
-          echo "Job ${INDEX}: seed ${seed}, output ${name}.root"
-          grep -E '^/remoll/(seed|filename|beamene|evgen/set)|^/run/beamOn' job/run.mac
+          python3 - <<'PY'
+          import base64, gzip, io, os, pathlib, re, tarfile
+          job = pathlib.Path("job")
+          job.mkdir()
+          index = int(os.environ["INDEX"])
+          seed = int(os.environ["SEED_BASE"]) + index
+          if not 0 < seed < 2**31:
+              raise SystemExit("worker seed must be a positive 32-bit integer")
+          safe_name = r"[A-Za-z0-9_][A-Za-z0-9_.-]*"
+          if os.environ["MODE"] == "bundle":
+              with tarfile.open(fileobj=io.BytesIO(base64.b64decode(os.environ["BUNDLE"].strip(), validate=True)),
+                                mode="r:gz") as tar:
+                  members = tar.getmembers()
+                  if any(not m.isfile() or m.name.endswith(".root") or not re.fullmatch(safe_name, m.name) for m in members):
+                      raise SystemExit("bundle members must be plain input files with simple names; .root output is not allowed")
+                  if len({m.name for m in members}) != len(members):
+                      raise SystemExit("duplicate bundle member")
+                  for member in members:
+                      (job / member.name).write_bytes(tar.extractfile(member).read())
+              member = os.environ["MEMBER"]
+              if not re.fullmatch(safe_name, member) or not member.endswith(".mac"):
+                  raise SystemExit("invalid macro member")
+              text = (job / member).read_text()
+              name = member[:-4]
+          else:
+              name = f"{os.environ['LABEL']}_w{index:02d}"
+              text = gzip.decompress(base64.b64decode(os.environ["MACRO"].strip(), validate=True)).decode()
+          if not re.fullmatch(safe_name, name):
+              raise SystemExit("output label must contain only letters, digits, underscores, dots or hyphens")
+          commands = [line.split("#", 1)[0].strip() for line in text.splitlines()]
+          # A missing placeholder used to leave the same seed in every worker.
+          # Require the actual commands, not just a placeholder in a comment.
+          for command, placeholder in [("/remoll/seed", "@@SEED@@"),
+                                       ("/remoll/filename", "@@OUTPUT@@")]:
+              matches = [line.split() for line in commands if line.split()[:1] == [command]]
+              if matches != [[command, placeholder]]:
+                  raise SystemExit(f"macro needs exactly one {command} {placeholder}")
+          runs = [line.split() for line in commands if line.split()[:1] == ["/run/beamOn"]]
+          if len(runs) != 1 or len(runs[0]) != 2 or not re.fullmatch(r"[1-9][0-9]*", runs[0][1]):
+              raise SystemExit("macro needs one /run/beamOn with a positive event count")
+          run_index = next(i for i, line in enumerate(commands) if line.split()[:1] == ["/run/beamOn"])
+          for command in ("/remoll/seed", "/remoll/filename"):
+              if next(i for i, line in enumerate(commands) if line.split()[:1] == [command]) > run_index:
+                  raise SystemExit(f"{command} must precede /run/beamOn")
+          # Legacy gate images also omit rejected candidates from the tree.
+          filters = {}
+          for line in commands[:run_index]:
+              fields = line.split()
+              if len(fields) == 2 and fields[0] in ("/remoll/evgen/transportNeymanEnable",
+                                                  "/remoll/evgen/transportGateEnable"):
+                  filters[fields[0]] = fields[1].upper() in ("Y", "YES", "1", "T", "TRUE")
+          filtered = any(filters.values())
+          for det in (32, 33, 34, 35):
+              if ["/remoll/SD/enable", str(det)] not in [line.split() for line in commands]:
+                  raise SystemExit(f"GEM plane {det} not enabled in this macro")
+          text = text.replace("@@SEED@@", str(seed)).replace("@@OUTPUT@@", f"/work/job/{name}.root")
+          if "@@SEED@@" in text or "@@OUTPUT@@" in text:
+              raise SystemExit("unresolved macro placeholders")
+          (job / "run.mac").write_text(text)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"seed={seed}\nname={name}\nevents={runs[0][1]}\nfiltered={int(filtered)}\n")
+          print(f"Job {index}: seed {seed}, output {name}.root")
+          PY
 
       - name: Fetch identical replay input when requested
         if: inputs.replay_bank != ''
@@ -193,30 +264,49 @@ jobs:
           PY
 
       - name: Run remoll
+        env:
+          IMAGE: ${{ needs.plan.outputs.image }}
+          THREADS: ${{ inputs.threads }}
+          JOB_NAME: ${{ steps.macro.outputs.name }}
         run: |
-          owner_repo="$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')"
-          image="ghcr.io/${owner_repo}/remoll-campaign:${{ github.event.inputs.image_tag }}"
-          docker pull "$image"
-          docker image inspect "$image" --format '{{json .}}' > job/image-inspect.json
-          # Only the job directory is mounted; the image supplies remoll, its
-          # build, geometry, macros and analysis data. Nothing is written back
-          # into the repository tree.
+          [[ "$THREADS" =~ ^[1-9][0-9]*$ ]] || { echo "threads must be a positive integer"; exit 1; }
+          docker pull "$IMAGE"
+          docker image inspect "$IMAGE" --format '{{json .}}' > job/image-inspect.json
+          # A bundled or leftover file must never count as this run's output.
+          rm -f -- "job/${JOB_NAME}.root"
           set -o pipefail
-          docker run --rm -v "${{ github.workspace }}/job:/work/job" "$image" \
-            remoll -t '${{ github.event.inputs.threads }}' -m /work/job/run.mac 2>&1 | tee job/remoll.log
+          docker run --rm -v "${GITHUB_WORKSPACE}/job:/work/job" "$IMAGE" \
+            remoll -t "$THREADS" -m /work/job/run.mac 2>&1 | tee job/remoll.log
+          # remoll can return zero even when Geant4 rejects a macro command.
+          if grep -Ei 'COMMAND NOT FOUND|COMMAND REFUSED|Batch is interrupted' job/remoll.log; then
+            echo "Geant4 did not finish the requested macro"; exit 1
+          fi
 
-      - name: Check the ROOT file exists and is non-empty
+      - name: Validate the saved ROOT output
+        env:
+          IMAGE: ${{ needs.plan.outputs.image }}
+          JOB_NAME: ${{ steps.macro.outputs.name }}
+          EXPECTED_SEED: ${{ steps.macro.outputs.seed }}
+          EXPECTED_EVENTS: ${{ steps.macro.outputs.events }}
+          EXPECTED_FILTERED: ${{ steps.macro.outputs.filtered }}
         run: |
-          root="job/${{ steps.macro.outputs.name }}.root"
+          root="job/${JOB_NAME}.root"
           if [ ! -s "$root" ]; then
             echo "remoll produced no usable ROOT output"; exit 1
           fi
+          cp .github/scripts/validate_output.C job/validate_output.C
+          # Use this image's ROOT dictionary, including for older image tags.
+          docker run --rm -v "${GITHUB_WORKSPACE}/job:/work/job" \
+            -e ROOT_INCLUDE_PATH=/jlab/remoll/include \
+            -e "EXPECTED_ROOT=/work/job/${JOB_NAME}.root" \
+            -e EXPECTED_SEED -e EXPECTED_EVENTS -e EXPECTED_FILTERED \
+            "$IMAGE" reroot -l -b -q /work/job/validate_output.C+
           size=$(du -h "$root" | cut -f1)
           {
-            echo "### ${{ steps.macro.outputs.name }}"
+            echo "### ${JOB_NAME}"
             echo ""
-            echo "- seed: \`${{ steps.macro.outputs.seed }}\`"
-            echo "- output: \`${{ steps.macro.outputs.name }}.root\` (${size})"
+            echo "- seed: \`${EXPECTED_SEED}\`"
+            echo "- output: \`${JOB_NAME}.root\` (${size})"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload the ROOT file

@@ -1,0 +1,27 @@
+# The campaign build reads Git provenance with credentials disabled.
+# Its final image excludes .git; other Dockerfiles use the root ignore file.
+# install destinations
+bin/*
+lib/*
+share/*
+
+# develop directories
+build/*
+build-*/
+_local_work/
+_local_additions_archive/
+.codex/
+.agents/
+**/__pycache__/
+**/.venv/
+
+# large content
+rootfiles/*
+
+# large directory
+# but cheaper to copy than download
+#map_directory/*
+
+# large content
+*.root
+map_directory/*.gz
