@@ -95,6 +95,9 @@ The branch `hit` is filled for every hit.
 - hit.pid	Geant4 particle type per http://pdg.lbl.gov/2018/reviews/rpp2018-rev-monte-carlo-numbering.pdf
 - hit.trid	Geant4 track identifier (1 = first particle created)
 - hit.mtrid	Geant4 mother track identifier (0 = particle from gun)
+- hit.creator_physvol_id/name	Physical volume where this track first started; unchanged after suspension
+- hit.creator_material_id/name	Material in that starting volume
+- hit.creator_process_id/name	Creator process subtype/name; -1 and empty for primaries
 - hit.t		Hit time [ns]
 - hit.[xyz]	Hit position, global coordinates [mm]
 - hit.[xyz]l	Hit position, local coordinates [mm]
@@ -107,6 +110,10 @@ The branch `hit` is filled for every hit.
 - hit.e		Particle energy [MeV]
 - hit.m		Particle rest mass [MeV]
 - hit.edep	Energy deposited in this detector by this hit [MeV]
+
+Creation volume/material IDs are local to the loaded geometry, not stable labels
+across runs. Names are stored in 255-byte fields (up to 254 characters).
+These describe the track itself, not its ancestors.
 
 Examples:
 ```

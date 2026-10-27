@@ -39,7 +39,9 @@ void remollTrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 
   remollUserTrackInformation* remollusertrackinfo =
       dynamic_cast<remollUserTrackInformation*>(usertrackinfo);
-  if (remollusertrackinfo != nullptr) {
+  // Optical processes can suspend a track and resume it in another volume.
+  // Keep its original birthplace instead of replacing it on each resume.
+  if (remollusertrackinfo != nullptr && aTrack->GetCurrentStepNumber() == 0) {
     const G4VPhysicalVolume* volume = aTrack->GetVolume();
     if (volume != nullptr) {
       remollusertrackinfo->SetCreatorPhysicalVolumeID(volume->GetInstanceID());
