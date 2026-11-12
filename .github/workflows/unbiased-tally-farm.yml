@@ -1,0 +1,134 @@
+name: Unbiased tally farm
+run-name: Unbiased beam tallies · 100,000 histories · 2 jobs
+on:
+  workflow_dispatch:
+    inputs:
+      bundle:
+        description: 'Immutable same-repository release bundle: tag/name.tar.gz#sha256'
+        required: true
+permissions:
+  contents: read
+  packages: read
+concurrency:
+  group: unbiased-tally-farm
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    outputs:
+      image: ${{ steps.plan.outputs.image }}
+    steps:
+      - name: Fetch and verify frozen sampler
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUNDLE: ${{ inputs.bundle }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, os, pathlib, re, subprocess, tarfile
+          m=re.fullmatch(r'([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+\.tar\.gz)#([a-f0-9]{64})',os.environ['BUNDLE'])
+          if not m:raise SystemExit('Invalid frozen bundle reference')
+          tag,name,digest=m.groups()
+          if tag!='unbiased_pilot_100k_20261111' or 'unbiased_pilot_100k_20261111/'+name+'#'+digest!='unbiased_pilot_100k_20261111/sampler.tar.gz#171b4f7ef24af1d3fb9eb61b00bdd954a1fe39cbe85805b5b30b6de02da4a109':raise SystemExit('Bundle is not this campaign')
+          subprocess.run(['gh','release','download',tag,'--repo',os.environ['REPO'],'--pattern',name,'--dir','input'],check=True)
+          p=pathlib.Path('input')/name
+          if hashlib.sha256(p.read_bytes()).hexdigest()!=digest:raise SystemExit('Bundle SHA256 mismatch')
+          with tarfile.open(p,'r:gz') as t:t.extractall('bundle',filter='data')
+          PY
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build sampler and tally, verify end-to-end pipeline
+        id: plan
+        run: |
+          set -euo pipefail
+          image='ghcr.io/gahljust/remoll/remoll-campaign@sha256:747cf7d86248a07ed96e6564435d07d7aee4e7f941bcf0202f4781ab20b59602'
+          case "$image" in *__IMAGE_DIGEST__*) echo 'Image digest not pinned; run: prepare_unbiased_farm.py pin'; exit 1;; esac
+          docker pull "$image"
+          docker image inspect "$image" > bundle/image-inspect.json
+          pinned=$(docker image inspect "$image" --format '{{index .RepoDigests 0}}')
+          test "$pinned" = "$image"
+          revision=$(docker image inspect "$image" --format '{{index .Config.Labels "org.opencontainers.image.revision"}}')
+          test "$revision" = 98253fdc7c234dbc065769a1a0f64beaccef260b
+          docker run --rm -v "$PWD/bundle:/work/bundle" -v "$PWD:/work/results" --entrypoint /bin/bash "$pinned" -c '
+            source /opt/geant4/bin/geant4.sh
+            export ROOTSYS=/opt/root
+            export PATH=/opt/root/bin:$PATH
+            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
+            source /jlab/remoll/bin/remoll.sh
+            set -euo pipefail
+            test "$(geant4-config --version)" = 11.4.2
+            cmake -S /work/bundle -B /tmp/sampler-build -DCMAKE_BUILD_TYPE=Release
+            cmake --build /tmp/sampler-build -j2
+            if [ -f /work/bundle/build_tally.sh ]; then (cd /work/bundle && bash ./build_tally.sh); fi
+            python3 -B /work/bundle/unbiased_job.py preflight /work/results/preflight
+            cp /work/results/preflight/preflight.json /work/bundle/preflight.json
+          '
+          echo "image=$pinned" >> "$GITHUB_OUTPUT"
+          tar -czf sampler-runtime.tar.gz bundle
+      - name: Retain runtime and validation
+        uses: actions/upload-artifact@v4
+        with:
+          name: beam-unbiased-runtime
+          path: |
+            sampler-runtime.tar.gz
+            preflight/
+          retention-days: 1
+          compression-level: 0
+      - name: Preserve failed preflight evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beam-unbiased-preflight-failure
+          path: preflight/
+          retention-days: 1
+  seg1:
+    needs: [plan]
+    name: Segment 1 · job ${{ matrix.job }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 40
+      matrix:
+        job: [0, 1]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: beam-unbiased-runtime
+          path: runtime
+      - name: Unpack sampler
+        run: tar -xzf runtime/sampler-runtime.tar.gz
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Simulate unbiased histories, tally each chunk
+        env:
+          IMAGE: ${{ needs.plan.outputs.image }}
+          INDEX: ${{ matrix.job }}
+        run: |
+          set -euo pipefail
+          docker pull "$IMAGE"
+          docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" -e FARM_INDEX="$INDEX" -e IMAGE_DIGEST="${IMAGE#*@}" --entrypoint /bin/bash "$IMAGE" -c '
+            source /opt/geant4/bin/geant4.sh
+            export ROOTSYS=/opt/root
+            export PATH=/opt/root/bin:$PATH
+            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
+            source /jlab/remoll/bin/remoll.sh
+            exec python3 -B /work/bundle/unbiased_job.py worker /work/results/output --job "$FARM_INDEX"
+          '
+      - name: Upload tallies, gate tables, receipts, logs (and ROOT for kept jobs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beam-unbiased-job-${{ matrix.job }}
+          path: output/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
