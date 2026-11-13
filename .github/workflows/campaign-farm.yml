@@ -1,5 +1,5 @@
 name: Unbiased tally farm
-run-name: Unbiased beam tallies · 100,000,000 histories · 667 jobs
+run-name: Unbiased beam tallies · 64,000,000 histories · 427 jobs
 on:
   workflow_dispatch:
     inputs:
@@ -30,7 +30,7 @@ jobs:
           m=re.fullmatch(r'([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+\.tar\.gz)#([a-f0-9]{64})',os.environ['BUNDLE'])
           if not m:raise SystemExit('Invalid frozen bundle reference')
           tag,name,digest=m.groups()
-          if tag!='unbiased_100m_20261111' or 'unbiased_100m_20261111/'+name+'#'+digest!='unbiased_100m_20261111/sampler.tar.gz#f441ec0fb6a799feb13968a02cd811655a19956c573914089a6f04b764fc5cce':raise SystemExit('Bundle is not this campaign')
+          if tag!='unbiased_100m_cont_20261112' or 'unbiased_100m_cont_20261112/'+name+'#'+digest!='unbiased_100m_cont_20261112/sampler.tar.gz#0d9001374aff0164532de40bca8e569e27d3572e9ffdc63f44ae87a6e69fe874':raise SystemExit('Bundle is not this campaign')
           subprocess.run(['gh','release','download',tag,'--repo',os.environ['REPO'],'--pattern',name,'--dir','input'],check=True)
           p=pathlib.Path('input')/name
           if hashlib.sha256(p.read_bytes()).hexdigest()!=digest:raise SystemExit('Bundle SHA256 mismatch')
@@ -77,7 +77,7 @@ jobs:
           path: |
             sampler-runtime.tar.gz
             preflight/
-          retention-days: 1
+          retention-days: 7
           compression-level: 0
       - name: Preserve failed preflight evidence
         if: failure()
@@ -130,7 +130,7 @@ jobs:
           name: beam-unbiased-job-${{ matrix.job }}
           path: output/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
           compression-level: 0
   seg2:
     needs: [plan, seg1]
@@ -177,7 +177,7 @@ jobs:
           name: beam-unbiased-job-${{ matrix.job }}
           path: output/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
           compression-level: 0
   seg3:
     needs: [plan, seg2]
@@ -189,7 +189,7 @@ jobs:
       fail-fast: false
       max-parallel: 40
       matrix:
-        job: [400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426, 427, 428, 429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453, 454, 455, 456, 457, 458, 459, 460, 461, 462, 463, 464, 465, 466, 467, 468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 479, 480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499, 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 531, 532, 533, 534, 535, 536, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 560, 561, 562, 563, 564, 565, 566, 567, 568, 569, 570, 571, 572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583, 584, 585, 586, 587, 588, 589, 590, 591, 592, 593, 594, 595, 596, 597, 598, 599]
+        job: [400, 401, 402, 403, 404, 405, 406, 407, 408, 409, 410, 411, 412, 413, 414, 415, 416, 417, 418, 419, 420, 421, 422, 423, 424, 425, 426]
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -224,52 +224,5 @@ jobs:
           name: beam-unbiased-job-${{ matrix.job }}
           path: output/
           if-no-files-found: error
-          retention-days: 1
-          compression-level: 0
-  seg4:
-    needs: [plan, seg3]
-    if: ${{ !cancelled() && needs.plan.result == 'success' }}
-    name: Segment 4 · job ${{ matrix.job }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 350
-    strategy:
-      fail-fast: false
-      max-parallel: 40
-      matrix:
-        job: [600, 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654, 655, 656, 657, 658, 659, 660, 661, 662, 663, 664, 665, 666]
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: beam-unbiased-runtime
-          path: runtime
-      - name: Unpack sampler
-        run: tar -xzf runtime/sampler-runtime.tar.gz
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Simulate unbiased histories, tally each chunk
-        env:
-          IMAGE: ${{ needs.plan.outputs.image }}
-          INDEX: ${{ matrix.job }}
-        run: |
-          set -euo pipefail
-          docker pull "$IMAGE"
-          docker run --rm -v "$PWD/bundle:/work/bundle:ro" -v "$PWD:/work/results" -e FARM_INDEX="$INDEX" -e IMAGE_DIGEST="${IMAGE#*@}" --entrypoint /bin/bash "$IMAGE" -c '
-            source /opt/geant4/bin/geant4.sh
-            export ROOTSYS=/opt/root
-            export PATH=/opt/root/bin:$PATH
-            export LD_LIBRARY_PATH=/opt/root/lib:${LD_LIBRARY_PATH:-}
-            source /jlab/remoll/bin/remoll.sh
-            exec python3 -B /work/bundle/unbiased_job.py worker /work/results/output --job "$FARM_INDEX"
-          '
-      - name: Upload tallies, gate tables, receipts, logs (and ROOT for kept jobs)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: beam-unbiased-job-${{ matrix.job }}
-          path: output/
-          if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
           compression-level: 0
